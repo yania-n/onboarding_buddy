@@ -1,0 +1,62 @@
+**NEXORA  |  Payroll ****&**** Expenses  **How to Get Paid and Submit Expenses
+
+**NEXORA GLOBAL CORPORATION**
+
+Company-Wide
+
+**  Payroll ****&**** Expenses  **
+
+**How to Get Paid and Submit Expenses at Nexora**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Understanding Your Payslip**
+
+| **Pay date** | Last business day of each month — paid by direct bank deposit |
+| --- | --- |
+| **Payslip access** | Workday > Pay > Payslips — available on pay date each month |
+| **Gross pay** | Your base salary divided by 12 (monthly) or 26 (bi-weekly where applicable) |
+| **Deductions** | Tax withholding, benefits premiums, pension/401k contributions, FSA contributions |
+| **Net pay** | The amount deposited to your bank account after all deductions |
+| **P60 / W-2** | Annual tax summary issued by 31 January (USA) or by 31 May (UK) via Workday |
+
+## **Banking Details**
+
+Submit your bank account details in Workday within your first 3 days to ensure your first payslip is paid on time. Navigate to: Workday > Pay > Payment Elections > Add. Nexora does not issue paper cheques.
+
+# **Submitting Expenses**
+
+## **The Expense Process**
+
+- Incur a business expense (pre-approved by manager where required)
+
+- Keep your receipt — photograph it on the day
+
+- Log into Concur at travel.nexoraglobal.com
+
+- Create an Expense Report: Expense > Create Report
+
+- Add expense lines, upload receipt photos, select expense category and cost centre
+
+- Submit for manager approval — manager must approve within 5 business days
+
+- Finance processes approved reports within 5 business days
+
+- Reimbursement arrives with your next payroll or as a separate bank transfer
+
+## **Expense Categories ****&**** Required Information**
+
+| **Category** | **Receipt Required?** | **Additional Info Required** |
+| --- | --- | --- |
+| **Meals — business** | Yes (> USD 25) | Names of attendees; business purpose |
+| **Travel — flights** | Yes | Booking confirmation; class of travel |
+| **Travel — hotels** | Yes | Nightly rate must be within policy limits |
+| **Travel — ground** | Yes (> USD 25) | Start/end location; business purpose |
+| **Professional development** | Yes | Name of course/event; learning objective |
+| **Client entertainment** | Yes | Client names; company name; business purpose |
+| **Home office equipment** | Yes | Must be first purchase — one-time USD 500 limit |
+
+|  | **OUT-OF-POLICY EXPENSES** If you need to submit an expense that exceeds policy limits, get written pre-approval from your manager AND your Finance Business Partner before incurring the expense. Post-hoc approval is not guaranteed. |
+| --- | --- |
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

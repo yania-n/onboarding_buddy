@@ -1,0 +1,73 @@
+**NEXORA  |  Goal-Setting Framework  **OKRs at Nexora
+
+**NEXORA GLOBAL CORPORATION**
+
+Company-Wide
+
+**  Goal-Setting Framework  **
+
+**OKRs at Nexora — How We Set and Track Goals**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **The OKR Framework**
+
+Nexora uses Objectives and Key Results (OKRs) as its primary goal-setting framework. OKRs provide direction (the Objective) and a clear measure of success (the Key Results).
+
+| **Objective** | What you want to achieve — ambitious, qualitative, inspiring |
+| --- | --- |
+| **Key Results** | How you'll know you've achieved it — specific, measurable, time-bound (3–5 per objective) |
+| **Initiatives** | What you'll do to achieve the KRs — tasks and projects (not part of the formal OKR) |
+| **Cadence** | Set annually in January; reviewed mid-year; scored at year-end |
+| **Scoring** | 0.0–1.0. Target score is 0.7 — consistently hitting 1.0 means goals were too easy |
+
+# **Writing Good OKRs**
+
+## **A Good Objective**
+
+- Is inspiring and directional — it should make people want to work on it
+
+- Is achievable in the timeframe but requires a stretch
+
+- Does not contain metrics (those go in Key Results)
+
+- Example: 'Make Nexora's Analytics Platform the most trusted internal data tool in the company'
+
+## **Good Key Results**
+
+- Are measurable — there must be a clear way to know if you achieved it
+
+- Are outcomes, not outputs — 'increase NPS from 32 to 50' not 'run 3 workshops'
+
+- Are time-bound — state the target date or tie to the annual cycle
+
+- Example: 'Increase platform NPS from 32 to 50 by Q3 2026'
+
+- Example: 'Reduce average dashboard load time from 8s to under 3s by June 2026'
+
+- Example: 'Achieve 90% of business units using self-serve reports without IT support by Q4 2026'
+
+## **Common Mistakes**
+
+| **Mistake** | **Why it****'****s a problem** | **Fix** |
+| --- | --- | --- |
+| **Using outputs as KRs** | 'Deliver 5 features' doesn't tell you if anyone benefited | Change to the impact: 'Reduce manual reporting time by 50%' |
+| **Setting KRs that are 100% in your control** | No stretch; no learning | Include at least one KR that requires cross-team collaboration |
+| **Too many objectives** | Focus is diluted; everything becomes priority | Maximum 3 Objectives per person / team |
+| **Setting and forgetting** | KRs become irrelevant without mid-year review | Schedule a mid-year OKR check-in with your manager |
+
+# **OKR Alignment at Nexora**
+
+OKRs cascade from company level to department to team to individual. Each level's OKRs should support the level above.
+
+| **Level** | **Who sets them** | **Published where** |
+| --- | --- | --- |
+| **Company OKRs** | Executive Committee | NexoraConnect > Strategy > OKRs |
+| **Department OKRs** | Department Head + LT | Confluence > [Dept] > OKRs |
+| **Team OKRs** | Team Lead + members | Confluence > [Team] > OKRs |
+| **Individual OKRs** | Employee + manager, agreed together | Workday > My Goals |
+
+|  | **ALIGNMENT CHECK** Before finalising your OKRs, read your team's OKRs and your department's OKRs. At least one of your individual Key Results should be directly traceable to a team or department KR. If none of your goals connect upward, talk to your manager. |
+| --- | --- |
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

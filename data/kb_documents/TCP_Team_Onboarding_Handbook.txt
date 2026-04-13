@@ -1,0 +1,521 @@
+**NEXORA — Analytics Platform  **|   Technical Coordination & Planning Team Handbook
+
+**NEXORA GLOBAL CORPORATION**
+
+IT Department  ·  Analytics Platform Product Team
+
+**  Technical Coordination ****&**** Planning (TCP) Team  **
+
+**Onboarding Handbook**
+
+*Your guide to the team, the way of working, and everything in between.*
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Table of Contents**
+
+	1. Welcome to the TCP Team	3
+
+	2. Team Structure & Org Chart	4
+
+	3. The TCP Team Role — What You Do	5
+
+	4. How We Work — Scrum & Sprints	7
+
+	5. Requirements Flow & Collaboration Model	9
+
+	6. Meetings & Ceremonies	11
+
+	7. Backlog Management & Prioritisation	12
+
+	8. Definition of Ready & Definition of Done	13
+
+	9. Communication Norms	14
+
+	10. Tools Access & Setup Guide	15
+
+	11. Your First 30 Days on the TCP Team	18
+
+	12. Key Contacts	19
+
+# **1. Welcome to the TCP Team**
+
+Welcome! We're genuinely glad you're here.
+
+You've joined the Technical Coordination & Planning (TCP) team within the Analytics Platform Product Team — a specialised group that sits at the intersection of business vision and technical delivery. It's a uniquely rewarding space: you'll work closely with the people who define what gets built and the people who actually build it.
+
+This handbook is written to give you everything you need to hit the ground running — from understanding the team's structure and purpose, to the day-to-day rhythm of our sprints, to logging into your first tools. We've tried to be direct and practical. If something is missing or unclear, tell us — this document lives and improves through your feedback.
+
+|  | **A NOTE ON YOUR ROLE** The TCP team sits at the strategic centre of delivery. TPOs translate business intent into actionable requirements; the Architect(s) and Developer(s) ensure every plan is technically sound before it ever reaches a sprint. You don't just relay information — you reshape it. You take business intent and turn it into clear, technically actionable requirements that the development team can own and deliver. |
+| --- | --- |
+
+| **Team name** | Analytics Platform — Technical Coordination & Planning (TCP) Team |
+| --- | --- |
+| **Part of** | Analytics Platform Product Team, IT Department, Nexora Global |
+| **Your manager** | [Assigned TCP Team Lead — see Section 12] |
+| **Your squad** | [Assigned squad upon joining — see Workday] |
+| **Handbook version** | v1.0, January 2026 |
+
+# **2. Team Structure ****&**** Org Chart**
+
+## **The Analytics Platform Product Team**
+
+The Analytics Platform Product Team is responsible for designing, building, and evolving an internal data analytics platform used by teams across all Nexora departments. We are part of the IT Department and report into the IT Director for Digital Products.
+
+## **Three Pillars of the Team**
+
+The team operates as three distinct but deeply interconnected groups:
+
+| **Team** | **Made up of** | **Represents** |
+| --- | --- | --- |
+| **Stakeholder Team** | Functional Product Owners (FPOs), Business Consultants, Business Analysts | Business interests, user needs, platform value |
+| **Technical Coordination ****&**** Planning Team (YOU)** | Technical Product Owners (TPOs), Architect(s), Developer(s) | Strategic planning, coordination & governance |
+| **Technical Team** | Developers, Dev Leads, Tech Leads, Architects | Engineering capacity, technical feasibility, delivery |
+
+## **Where You Sit**
+
+As a member of the TCP team, you are part of the pivotal link in the chain. TPOs own the backlog and facilitate ceremonies; Architect(s) validate technical feasibility and contribute to planning; Developer(s) support estimation, spike work, and technical planning. Together the team ensures nothing enters delivery without being strategically sound and technically ready.
+
+|  | **YOUR PEERS** The TCP team brings together TPOs, Architect(s), and Developer(s) in a shared planning function. Each TPO is aligned to one or more squads; the Architect(s) and Developer(s) support across squads as needed. The full team meets weekly to align, share learnings, and maintain consistency. |
+| --- | --- |
+
+# **3. The TCP Team Role — What You Do**
+
+The Technical Coordination & Planning team has a distinct, strategic character. It is not a traditional delivery team and it is not a business team. It sits in between — accountable for ensuring that technical work is well-planned, well-governed, and well-communicated. Here is what each role brings:
+
+## **Core Responsibilities**
+
+### **Backlog ownership**
+
+You own and maintain your squad's product backlog end-to-end. This means creating, refining, prioritising, and grooming user stories and tasks, and ensuring the backlog is always healthy enough to sustain sprint planning at least two sprints ahead.
+
+### **Requirements translation**
+
+You receive business requirements (epics, user needs, capability requests) from the Functional PO and transform them into user stories the development team can work from. This includes writing acceptance criteria, defining edge cases, and documenting constraints.
+
+### **Technical bridge**
+
+You attend architecture discussions, technical design sessions, and developer walkthroughs. You don't need to write code, but you must understand technical trade-offs well enough to make informed prioritisation decisions and communicate them back to business stakeholders.
+
+### **Sprint facilitation**
+
+You lead or co-lead sprint planning, backlog refinement, sprint review, and retrospective ceremonies for your squad. You are responsible for ensuring stories are 'ready' before they enter a sprint, and 'done' by the end of it.
+
+### **Stakeholder communication**
+
+You keep the Stakeholder Team informed of sprint progress, blockers, and delivery changes. You escalate when needed, and you shield the development team from scope creep and unplanned interruptions.
+
+## **What You Are NOT Responsible For**
+
+- Writing code or conducting technical design (that's the Technical Team)
+
+- Defining top-level business strategy or KPIs (that's the FPO and Business Consultants)
+
+- UAT sign-off on behalf of the business (that's the FPO or business stakeholders)
+
+- Line managing developers or tech leads
+
+## **Key Skills You****'****ll Use Every Day**
+
+| **Structured thinking** | Breaking complex requirements into clear, independently deliverable stories |
+| --- | --- |
+| **Technical fluency** | Enough understanding of the platform architecture to challenge and collaborate with developers |
+| **Communication** | Written clarity in tickets; verbal confidence in ceremonies and stakeholder calls |
+| **Prioritisation** | Balancing business value, technical debt, risk, and team capacity |
+| **Conflict navigation** | Bridging disagreements between what the business wants and what the team can deliver |
+| **Data literacy** | Understanding the analytics domain: data pipelines, dashboards, data models, reporting |
+
+# **4. How We Work — Scrum ****&**** Sprints**
+
+The Analytics Platform team operates using Scrum methodology with 2-week sprints. All squads run on the same sprint cadence — sprints begin on Monday and end on the Friday of the following week.
+
+## **Sprint Calendar**
+
+| **Sprint start** | Monday, Week 1 — Sprint Planning session (see Section 6) |
+| --- | --- |
+| **Sprint end** | Friday, Week 2 — Sprint Review + Retrospective |
+| **Sprint length** | 10 business days (2 calendar weeks) |
+| **Sprint naming** | S[Year]-[Number], e.g. S2026-01, S2026-02... |
+| **Velocity target** | Reviewed each sprint; set by TCP team lead and Dev Lead together |
+
+## **The Sprint in Detail**
+
+### **Sprint Planning (Day 1, Monday morning, ~2 hours)**
+
+The squad meets to commit to the sprint backlog. As TPO, you present the prioritised stories, confirm they meet the Definition of Ready, and facilitate the team's capacity and commitment discussion. Output: a sprint goal and a committed sprint backlog.
+
+### **Daily Stand-up (Days 1–10, every morning, 15 minutes)**
+
+Each team member answers three questions: What did I do yesterday? What will I do today? Any blockers? As TPO, you attend, listen actively for blockers you can unblock, and flag stories at risk. You do not need to speak unless you have an update relevant to the team.
+
+### **Backlog Refinement (Mid-sprint, typically Wednesday Week 1, ~90 minutes)**
+
+This is your most important recurring ceremony. You lead the refinement of upcoming stories with the development team — walking through acceptance criteria, estimating with story points (modified Fibonacci: 1, 2, 3, 5, 8, 13), and flagging dependencies or technical risks. Target: next sprint's backlog is fully groomed and 'ready' by end of this session.
+
+### **Sprint Review (Day 10, Friday, ~45 minutes)**
+
+The squad demonstrates completed work to stakeholders and the Functional PO. As TPO, you co-facilitate with the Dev Lead. Focus is on demonstrating working software against the sprint goal. Incomplete stories are not shown — they are returned to the backlog.
+
+### **Sprint Retrospective (Day 10, Friday, ~60 minutes, immediately after review)**
+
+A private squad conversation about how we worked, not what we built. Typical format: Start / Stop / Continue. As TPO, you facilitate the retro. Action items are owned, dated, and reviewed at the next retro.
+
+|  | **SPRINT HYGIENE** Jira is the single source of truth for sprint status. All stories must be updated daily. Blockers must be flagged in Jira AND in Slack (squad channel) the same day they are identified. Do not wait for the stand-up. |
+| --- | --- |
+
+# **5. Requirements Flow ****&**** Collaboration Model**
+
+## **How Requirements Travel**
+
+Requirements flow from business need to delivered feature through a structured, multi-stage process. The TCP team sits at the critical translation point in this chain.
+
+| **Stage** | **Owner** | **What happens** |
+| --- | --- | --- |
+| **1. Business Need Identified** | Business / Stakeholder Team | Internal teams identify a capability gap or analytics need. Functional PO validates strategic priority. |
+| **2. Epic / Feature Definition** | Functional PO + Business Analysts | High-level epics and feature briefs are written. Acceptance criteria are defined at business level. |
+| **3. TCP Intake ****&**** Assessment** | TCP Team | TPO receives the epic from the FPO. Architect validates technical feasibility. Developer supports effort estimation. Team jointly begins decomposing into user stories. |
+| **4. Story Writing ****&**** Refinement** | TCP Team + Development Team | TPO writes user stories. Architect(s) review technical constraints. Developer(s) in TCP validate effort. Dev team refines, estimates, and confirms readiness. |
+| **5. Sprint Delivery** | Development Team | Developers build, test, and deploy. You are available for questions and decisions throughout. |
+| **6. Review ****&**** Sign-off** | Functional PO + Stakeholders | Business stakeholders review output. TCP team co-ordinates the review and captures feedback for future iterations. |
+
+## **Working with the Functional PO**
+
+The Functional PO (FPO) is your primary business counterpart. They own the product vision and prioritisation at the feature/epic level. You own the backlog and story level below that.
+
+- Meet with your FPO weekly (minimum) to review the product roadmap and upcoming epics
+
+- Challenge requirements that lack clarity or are technically unachievable — this is expected and valued
+
+- Surface technical constraints early rather than absorbing them silently
+
+- Align on sprint scope before Sprint Planning so there are no surprises in the ceremony
+
+## **Working with the Development Team**
+
+You are the development team's first point of contact for anything product or requirements related. Your job is to give them clarity so they can focus on building.
+
+- Never skip refinement — stories that aren't groomed will block the sprint
+
+- Developers will raise technical questions and edge cases; you answer or find the answer quickly
+
+- Respect the team's capacity estimates — don't overload the sprint based on stakeholder pressure
+
+- Shield the team from unplanned work during the sprint; negotiate scope changes through you
+
+|  | **ESCALATION PATH** If you receive a request from business stakeholders to add unplanned work mid-sprint, the response is always: 'I'll assess impact and come back to you.' Never commit on the spot. Then consult with the FPO and Dev Lead and return with a clear position. |
+| --- | --- |
+
+# **6. Meetings ****&**** Ceremonies**
+
+This is your standing meeting schedule. All ceremonies are in the team calendar. TPOs lead most ceremonies; Architect(s) and Developer(s) attend key planning and architecture sessions.
+
+| **Meeting** | **Frequency ****&**** Duration** | **Your role** |
+| --- | --- | --- |
+| **Sprint Planning** | Every 2 weeks, Monday, 2h | Facilitate; present backlog; confirm sprint goal |
+| **Daily Stand-up** | Daily, 15 min | Attend; track blockers; update board |
+| **Backlog Refinement** | Every 2 weeks, Wednesday Wk1, 90 min | Lead; groom stories with team; prioritise |
+| **Sprint Review** | Every 2 weeks, Friday, 45 min | Co-facilitate; coordinate demo with Dev Lead |
+| **Sprint Retrospective** | Every 2 weeks, Friday, 60 min | Facilitate; capture and track actions |
+| **TCP Team Sync** | Weekly, Wednesday, 30 min | Attend; share cross-squad learnings and blockers |
+| **Roadmap Review (with FPO)** | Weekly, Tuesday, 45 min | Attend; review upcoming epics; align on priorities |
+| **Tech Architecture Sync** | Bi-weekly, Thursday, 60 min | Attend; understand design decisions; surface requirements implications |
+| **Stakeholder All-Hands** | Monthly, 60 min | Attend; present squad sprint summary |
+
+|  | **CALENDAR TIP** All recurring ceremonies are added to your calendar by the TCP Team Lead during onboarding. If anything is missing, reach out to your Scrum Master or TCP Team Lead within your first week. |
+| --- | --- |
+
+# **7. Backlog Management ****&**** Prioritisation**
+
+## **Backlog Structure**
+
+Each squad maintains a single Jira project with the following hierarchy:
+
+- Epic — a large body of work representing a feature or capability area (owned by FPO)
+
+- Story — a user-facing unit of value, broken from an epic (owned by TPO; technically reviewed by Architect)
+
+- Subtask — technical breakdown within a story (owned by Developer)
+
+- Bug — a defect in existing functionality (triaged by TPO; technical severity assessed by Architect or Developer)
+
+- Spike — a time-boxed research task with a fixed output (e.g. 2-day investigation)
+
+## **Prioritisation Framework**
+
+We use a weighted scoring approach for backlog prioritisation. Each story is assessed on:
+
+| **Business Value** | Score 1–5 (provided by FPO): impact on end users or business KPIs |
+| --- | --- |
+| **Technical Risk** | Score 1–5 (provided by Dev Lead): complexity, dependencies, unknowns |
+| **Effort** | Story points via team estimation (Fibonacci) |
+| **Time Sensitivity** | Deadline or dependency-driven urgency (flag with TCP team lead and FPO) |
+
+The final prioritisation decision sits with the TPO, informed by the FPO's input on value, the Architect's input on technical risk, and the Dev Lead's input on effort. When there is disagreement, escalate to the FPO and TCP Team Lead.
+
+## **Backlog Health Rules**
+
+- The backlog must always have a minimum of 2 fully groomed sprints ready ahead
+
+- Stories older than 90 days without a sprint assignment must be reviewed and either re-prioritised or archived
+
+- No story enters a sprint without meeting the Definition of Ready (see Section 8)
+
+- Story points must be estimated collaboratively — never estimated by the TPO alone; the Architect and Developer on the TCP team should contribute to technical estimates
+
+# **8. Definition of Ready ****&**** Definition of Done**
+
+## **Definition of Ready (DoR)**
+
+A story is 'Ready' when it meets ALL of the following criteria:
+
+- User story is written in the format: As a [user type], I want [action] so that [benefit]
+
+- Acceptance criteria are written and agreed with the FPO
+
+- All dependencies are identified and either resolved or explicitly accepted
+
+- The story has been estimated in story points by the development team
+
+- Any required wireframes, data models, or design specs are linked in the Jira ticket
+
+- The story fits within a single sprint (if not, it must be split)
+
+- Technical approach has been discussed with at least one developer or tech lead
+
+|  | **DO NOT SKIP THE DoR** Stories that bypass the Definition of Ready are the leading cause of sprint failures. If a story is not ready, it does not enter the sprint — no exceptions. If business pressure pushes for it anyway, escalate to the TCP Team Lead. |
+| --- | --- |
+
+## **Definition of Done (DoD)**
+
+A story is 'Done' when it meets ALL of the following criteria:
+
+- All acceptance criteria have been met and verified
+
+- Code has been reviewed and merged to the main branch
+
+- Unit and integration tests are written and passing
+
+- The feature has been deployed to the staging environment
+
+- The FPO or a designated business stakeholder has reviewed the output
+
+- Documentation (if required) is updated in Confluence
+
+- The Jira ticket is moved to 'Done' and release notes are updated
+
+Both the DoR and the DoD are reviewed and updated at the beginning of each quarter with input from the whole squad.
+
+# **9. Communication Norms**
+
+## **Channels ****&**** Purposes**
+
+| **#squad-[name]-general** | Day-to-day squad communication, quick questions, updates |
+| --- | --- |
+| **#squad-[name]-blockers** | Flag blockers here immediately — not just in stand-up |
+| **#tcp-team** | Full TCP team channel (TPOs, Architects, Developers) — planning, shared learnings, escalations |
+| **#analytics-platform** | Whole-team announcements, stakeholder comms, releases |
+| **#it-data-eng** | Technical team channel — join but don't overpost here |
+| **Email** | Formal comms, external stakeholders, legal/contractual matters |
+| **Confluence** | Permanent documentation — decision logs, runbooks, specs |
+| **Jira** | Single source of truth for all work items and sprint status |
+
+## **Response Time Expectations**
+
+| **Slack (squad channels)** | Reply within 4 business hours during working day |
+| --- | --- |
+| **Slack (direct messages)** | Reply within 2 business hours |
+| **Jira comments** | Reply within 1 business day |
+| **Email** | Reply within 1 business day; flag if response will take longer |
+| **Urgent / blocker** | Ping in Slack AND send a direct message — do not rely on one channel |
+
+## **Written Communication Standards**
+
+Much of the TCP team's communication is written — in Jira, Confluence, and Slack. Some principles we hold to:
+
+- Be specific, not vague. 'The feature should handle large datasets' is not a requirement. 'The feature must load a dataset of up to 10M rows in under 3 seconds' is.
+
+- Separate facts from opinions when communicating with the development team. Own your decisions; label your assumptions.
+
+- When in doubt, over-document. A well-written decision log in Confluence is worth hours of later confusion.
+
+- Avoid jargon with business stakeholders; avoid business-only language with developers. Code-switch deliberately.
+
+# **10. Tools Access ****&**** Setup Guide**
+
+Below is a complete list of tools you will use in your day-to-day role, how to request access, and how to get started. All access requests are submitted via ServiceNow (IT portal). Your manager will pre-approve most on Day 1, but some tools require an additional data governance sign-off.
+
+|  | **IMPORTANT — ACCESS TIMELINE** Most tools are provisioned within 24 hours of your manager's approval in ServiceNow. Tools requiring data governance approval (marked DG) may take up to 3 business days. Start those requests on Day 1. |
+| --- | --- |
+
+## **Project ****&**** Sprint Management**
+
+### **Jira (Atlassian)  —  Primary work management tool**
+
+| **What you use it for** | Creating and managing user stories, epics, sprints, and the product backlog; tracking sprint progress; logging bugs and spikes |
+| --- | --- |
+| **Access request** | ServiceNow > 'Software Access' > 'Jira' > Project: Analytics Platform > Role: Product Owner |
+| **Approval required** | Your manager (auto-approved on Day 1) |
+| **Getting started** | Your TCP Team Lead will walk you through the project structure in your first week. Key boards: Sprint Board, Backlog, Release Roadmap |
+| **Training** | NexoraLearn: 'Jira for Product Owners' (2h, mandatory in Week 1) |
+
+### **Confluence (Atlassian)  —  Team knowledge base ****&**** documentation**
+
+| **What you use it for** | Writing and maintaining specifications, decision logs, sprint notes, architecture documentation, and the team runbook |
+| --- | --- |
+| **Access request** | ServiceNow > 'Software Access' > 'Confluence' > Space: Analytics Platform |
+| **Approval required** | Your manager (auto-approved on Day 1) |
+| **Getting started** | The Analytics Platform space is your home. Key pages: Team Home, Backlog Conventions, Sprint Templates, Architecture Overview |
+| **Convention** | Every Jira story must link to a Confluence spec page for stories above 5 story points |
+
+## **Communication ****&**** Collaboration**
+
+### **Slack  —  Real-time team communication**
+
+| **What you use it for** | Daily squad communication, blocker alerts, stakeholder pings, TCP team syncs |
+| --- | --- |
+| **Access request** | Provisioned automatically with your Nexora account. Join channels manually or ask your TCP Team Lead. |
+| **Key channels to join** | #squad-[your-squad], #tpo-team, #analytics-platform, #it-announcements, #nexora-data |
+| **Etiquette** | Use threads for detailed discussions. Tag with @mention only when someone's action is needed. Use Slack statuses to signal availability. |
+
+### **Microsoft Teams  —  Video calls, external meetings ****&**** screen sharing**
+
+| **What you use it for** | Sprint ceremonies (if remote), stakeholder calls, one-to-ones |
+| --- | --- |
+| **Access request** | Provisioned with your Microsoft 365 account on Day 1 |
+| **Notes** | All recurring ceremonies have Teams links in the calendar. Do not use personal video tools for internal meetings. |
+
+### **Outlook / Microsoft 365  —  Email, calendar, and document collaboration**
+
+| **What you use it for** | Formal correspondence, calendar management, OneDrive file sharing, collaborative editing |
+| --- | --- |
+| **Access request** | Provisioned on Day 1 |
+| **Calendar note** | Your sprint ceremonies will be added to your calendar by your TCP Team Lead or Scrum Master. Check your calendar on Day 1. |
+
+## **Analytics Platform — Direct Access**
+
+### **Nexora Analytics Platform (Production ****&**** Staging)  —  The product you own**
+
+| **What you use it for** | Understanding the product you are building; validating stories in staging; reproducing bugs; participating in UAT |
+| --- | --- |
+| **Access request** | ServiceNow > 'Data Platform Access' > 'Analytics Platform' > Role: TCP / Product  (DG approval required) |
+| **Approval required** | Manager + Data Governance team (allow up to 3 business days) |
+| **Environments** | Production: analytics.nexoraglobal.com  │  Staging: analytics-staging.nexoraglobal.com |
+| **Critical note** | NEVER test with production data. Use the synthetic dataset in staging (see Confluence: 'Staging Test Data Guide') |
+
+### **Nexora Data Catalogue  —  Platform metadata and data dictionary**
+
+| **What you use it for** | Understanding data sources, schemas, data lineage, and definitions used by the analytics platform. Essential for writing accurate acceptance criteria. |
+| --- | --- |
+| **Access request** | ServiceNow > 'Data Platform Access' > 'Data Catalogue'  (DG approval required) |
+| **Approval required** | Manager + Data Governance team |
+| **URL** | datacatalogue.nexoraglobal.com |
+
+## **Documentation ****&**** Diagrams**
+
+### **Miro  —  Visual collaboration ****&**** diagramming**
+
+| **What you use it for** | Process mapping, requirements workshops, user journey mapping, sprint planning online, team retros |
+| --- | --- |
+| **Access request** | ServiceNow > 'Software Access' > 'Miro' > Workspace: Analytics Platform |
+| **Approval required** | Your manager |
+| **Getting started** | Join the 'Analytics Platform' workspace. Key boards: Product Roadmap, Requirements Workshop, Retro Board |
+
+### **Figma  —  UX design and wireframes (viewer access only)**
+
+| **What you use it for** | Reviewing UI wireframes and design mockups produced by the UX designer. You review and annotate; you do not create designs. |
+| --- | --- |
+| **Access request** | ServiceNow > 'Software Access' > 'Figma' > Project: Analytics Platform > Role: Viewer |
+| **Approval required** | Your manager |
+
+## **Data ****&**** Reporting (Light Use)**
+
+### **Power BI  —  Internal reporting dashboards**
+
+| **What you use it for** | Viewing platform usage metrics, sprint velocity reports, stakeholder KPI dashboards — as a consumer, not a builder |
+| --- | --- |
+| **Access request** | ServiceNow > 'Software Access' > 'Power BI' > Report Workspace: Analytics Platform Ops |
+| **Approval required** | Your manager |
+
+### **Snowflake (Read-only)  —  Cloud data warehouse**
+
+| **What you use it for** | Occasionally querying staging data to validate acceptance criteria or investigate bugs (SQL read access only) |
+| --- | --- |
+| **Access request** | ServiceNow > 'Data Platform Access' > 'Snowflake Read' > Schema: ANALYTICS_STAGING  (DG approval required) |
+| **Approval required** | Manager + Data Governance |
+| **Note** | This is optional and typically unlocked in Week 3–4 once you are oriented. Ask your TCP Team Lead before requesting. |
+
+## **HR ****&**** Admin Tools**
+
+| **Workday** | Leave requests, expense claims, performance reviews, learning.  workday.nexoraglobal.com |
+| --- | --- |
+| **ServiceNow** | All IT service requests and access provisioning.  it.nexoraglobal.com |
+| **NexoraLearn** | Mandatory and optional training.  learn.nexoraglobal.com |
+| **NexoraConnect** | Company intranet, policies, org chart, announcements.  connect.nexoraglobal.com |
+
+|  | **ACCESS ISSUES?** If any access request is delayed beyond the timelines above, contact the IT Helpdesk: helpdesk@nexoraglobal.com or ext. 5000. For data governance approvals, contact your TCP Team Lead who can expedite the request. |
+| --- | --- |
+
+# **11. Your First 30 Days on the TCP Team**
+
+## **Week 1 — Orient**
+
+- Meet your TCP Team Lead, Scrum Master, and squad members in 1:1s (your manager will book these)
+
+- Submit all Day 1 and DG-required access requests in ServiceNow
+
+- Complete mandatory onboarding e-learning (Jira for POs, Data Privacy, Information Security) in NexoraLearn
+
+- Shadow at least one of each sprint ceremony — even mid-sprint
+
+- Read the Analytics Platform Product Vision doc (pinned in Confluence: Team Home)
+
+- Join your Slack channels and introduce yourself in #analytics-platform
+
+## **Week 2 — Immerse**
+
+- Attend backlog refinement as an observer — start getting familiar with the stories
+
+- Review the last 3 sprint retrospective action logs in Confluence
+
+- Explore the analytics platform in the staging environment once access is granted
+
+- Pair with your onboarding buddy (a fellow TCP team member) for a deep-dive on the current epic landscape
+
+- Start learning the data catalogue — understand the main data domains your team covers
+
+## **Weeks 3–4 — Contribute**
+
+- Co-facilitate your first backlog refinement session (your TCP buddy is present)
+
+- Write your first 3 user stories independently and submit them for peer review before adding to the backlog
+
+- Join the weekly Roadmap Review with the Functional PO
+
+- Attend your first Tech Architecture Sync
+
+- Complete your 30-day check-in with your manager in Workday
+
+|  | **ASK FOR HELP EARLY** The most successful new TCP team members ask lots of questions in the first 30 days. There are no stupid questions here. Your buddy is there specifically to answer them — use them fully. |
+| --- | --- |
+
+# **12. Key Contacts**
+
+| **TCP Team Lead** | [Name TBC — see Workday org chart]   │   tcp.lead@nexoraglobal.com |
+| --- | --- |
+| **Your Scrum Master** | [Assigned to squad — see team calendar] |
+| **Your Functional PO** | [Assigned at onboarding — see Workday] |
+| **Analytics Platform IT Director** | Isabella Torres   │   i.torres@nexoraglobal.com |
+| **HR Business Partner (IT)** | Marcus Adeyemi   │   m.adeyemi@nexoraglobal.com |
+| **IT Helpdesk** | helpdesk@nexoraglobal.com   │   ext. 5000 |
+| **Data Governance Team** | data.governance@nexoraglobal.com |
+| **People Operations** | people.ops@nexoraglobal.com |
+
+**Welcome to the team. We****'****re glad you****'****re here.**
+
+*If this handbook is wrong, out of date, or missing something — please tell us.*
+
+*This document belongs to the whole team.*
+
+© 2026 Nexora Global Corporation — IT Department — Analytics Platform Team. Internal use only.
+
+	Confidential — Internal Use Only

@@ -1,0 +1,56 @@
+**NEXORA  |  Onboarding System Changelog  **What's Changed and When
+
+**NEXORA GLOBAL CORPORATION**
+
+Company-Wide
+
+**  Onboarding System Changelog  **
+
+**What****'****s Changed and When**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **About This Document**
+
+This changelog tracks all significant updates to Nexora's onboarding knowledge base, policies, and processes. It is used by the AI onboarding system to answer 'has anything changed recently?' questions and to surface relevant updates to new joiners.
+
+|  | **AI SYSTEM NOTE** The onboarding system ingests this changelog on a weekly basis. Any update marked 'HIGH PRIORITY' is surfaced proactively to new joiners in their first 30 days regardless of topic. |
+| --- | --- |
+
+# **2026 Changes**
+
+## **Q1 2026 (January – March)**
+
+| **Date** | **Document** | **Change** | **Priority** | **Owner** |
+| --- | --- | --- | --- | --- |
+| **2026-01-15** | Policy Library | Updated expense hotel limits: Tier 1 city cap raised from USD 220 to USD 250/night | HIGH | Finance |
+| **2026-01-15** | Benefits Enrolment | FSA limit updated to USD 3,050 (IRS 2026 limit) | HIGH | HR Benefits |
+| **2026-01-20** | Compliance Matrix | Added LGPD training requirement for all Brazil-based employees | HIGH | Legal |
+| **2026-02-01** | TCP Team Handbook | Updated team name from 'Semi-Technical Team' to 'Technical Coordination & Planning' | MEDIUM | IT/TCP Team |
+| **2026-02-10** | Cloud Handbook | Added Cloud Operations sub-team handbook (new team) | MEDIUM | IT Cloud Ops |
+| **2026-02-15** | Office Guides | São Paulo office relocated to Av. Faria Lima 3900 (was Av. Paulista) | HIGH | Facilities |
+| **2026-03-01** | Performance Cycle | Removed anonymous peer feedback — all feedback now visible to recipient and manager | HIGH | People Analytics |
+| **2026-03-10** | ERG Directory | Added 'Data & Analytics Community' ERG (#erg-data) led by Raj Patel | LOW | HR / ERG team |
+
+# **2025 Changes (Reference)**
+
+## **Q4 2025**
+
+| **Date** | **Document** | **Change** | **Priority** | **Owner** |
+| --- | --- | --- | --- | --- |
+| **2025-11-01** | Employee Handbook | Updated parental leave: secondary carer leave increased from 4 to 6 weeks | HIGH | HR |
+| **2025-11-15** | Policy Library | Added AI Tools Policy section (generative AI acceptable use) | HIGH | Legal / IT Security |
+| **2025-12-01** | Goal-Setting Framework | Switched from SMART goals to OKR framework effective January 2026 | HIGH | People Analytics |
+| **2025-12-10** | Compliance Matrix | Cybersecurity phishing simulations changed from quarterly to monthly | MEDIUM | IT Security |
+
+## **How to Submit a Change**
+
+- Edit the relevant source document in Confluence or Workday
+
+- Add an entry to this changelog with the date, document name, change description, priority, and your name
+
+- Notify the People Ops team at people.ops@nexoraglobal.com with subject 'Knowledge Base Update'
+
+- The AI onboarding system will ingest the update in its next weekly refresh (every Monday 6am CT)
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

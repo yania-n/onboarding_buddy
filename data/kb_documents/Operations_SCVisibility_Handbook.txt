@@ -1,0 +1,251 @@
+**NEXORA — Operations ****&**** Supply Chain Department  **|   Supply Chain Visibility Team Handbook
+
+**NEXORA GLOBAL CORPORATION**
+
+Operations & Supply Chain Department
+
+**  Supply Chain Visibility Team  **
+
+**Onboarding Handbook**
+
+*Your guide to the Supply Chain Visibility Team — how we work, what we do, and how to get started.*
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Table of Contents**
+
+	1. Welcome to the Supply Chain Visibility Team	3
+
+	2. Team Structure & Operations Department	4
+
+	3. The Visibility Analyst Role — What You Do	5
+
+	4. How We Work — Sprint Cadence	6
+
+	5. Supply Chain Data Flow	7
+
+	6. Meetings & Ceremonies	8
+
+	7. Data Quality & Governance	9
+
+	8. Definition of Ready & Done	10
+
+	9. Communication Norms	11
+
+	10. Tools Access & Setup Guide	12
+
+	11. Your First 30 Days	13
+
+	12. Key Contacts	14
+
+# **1. Welcome to the Supply Chain Visibility Team**
+
+Welcome! You've joined the Supply Chain Visibility Team — a specialist data and analytics team within Nexora's Operations & Supply Chain Department. We track, monitor, and improve the flow of goods, materials, and information across Nexora's global supply network.
+
+|  | **OUR MISSION** To give Nexora's operations and procurement leaders real-time, accurate visibility into supply chain performance — so we can prevent disruptions before they happen and respond faster when they do. |
+| --- | --- |
+
+| **Team name** | Supply Chain Visibility Team |
+| --- | --- |
+| **Our products** | Supply tracking dashboards, disruption alert systems, supplier scorecards, inventory analytics |
+| **Primary consumers** | VP of Operations, Procurement, Logistics, Finance Business Partners |
+| **Your manager** | [Assigned Visibility Team Lead — see Workday] |
+| **Handbook version** | v1.0, January 2026 |
+
+# **2. Team Structure ****&**** Operations Department**
+
+## **Operations ****&**** Supply Chain Department**
+
+The department manages Nexora's end-to-end supply chain — from sourcing and procurement through to warehousing and last-mile delivery. It operates across three major functions: Procurement & Sourcing, Logistics & Fulfilment, and the Supply Chain Visibility Team.
+
+| **Function** | **Made up of** | **Focuses on** |
+| --- | --- | --- |
+| **Procurement ****&**** Sourcing** | Category Managers, Supplier Relations | Vendor selection, contracts, spend management, supplier performance |
+| **Logistics ****&**** Fulfilment** | Logistics Coordinators, Warehouse Ops | Warehousing, distribution, last-mile delivery, returns |
+| **Supply Chain Visibility (YOU)** | Visibility Analysts, Data Engineers, Process Optimisers | Real-time tracking, dashboards, disruption detection, process improvement |
+
+# **3. The Visibility Analyst Role — What You Do**
+
+## **Core Responsibilities**
+
+### **Dashboard ****&**** tracking product ownership**
+
+You maintain and evolve the suite of supply chain dashboards used by operations leadership — including the Global Supply Tracker, Supplier On-Time Performance Scorecard, Inventory Level Monitor, and Disruption Alert Dashboard.
+
+### **Data engineering ****&**** pipeline management**
+
+You work with data engineers to ensure supply chain data flows reliably from source systems (ERP, 3PL portals, supplier APIs) into our analytics layer. You flag data quality issues and own their resolution with upstream teams.
+
+### **Process optimisation analysis**
+
+You identify bottlenecks, inefficiencies, and risk concentrations in the supply chain through data analysis. You produce recommendations that Procurement and Logistics teams can act on.
+
+## **Key Skills**
+
+| **Supply chain literacy** | Understanding of procurement, logistics, inventory, and demand planning concepts |
+| --- | --- |
+| **Data engineering** | SQL, Python (pandas, dbt), ETL/ELT pipeline understanding |
+| **Visualisation** | Power BI, Tableau — building operational dashboards with real-time data |
+| **Problem solving** | Root-cause analysis of supply disruptions; quantifying impact |
+| **Stakeholder communication** | Translating supply data into ops-language for non-technical leaders |
+
+# **4. How We Work — Sprint Cadence**
+
+We work in 2-week sprints. Our backlog is a mix of ongoing dashboard maintenance, new visibility product development, ad hoc disruption analysis requests, and proactive improvement initiatives.
+
+| **Sprint Planning** | Monday Week 1, 1.5h — prioritise backlog; flag any live disruption issues |
+| --- | --- |
+| **Daily Stand-up** | Every morning, 15 min — data pipeline health, blockers, active alerts |
+| **Pipeline Refinement** | Wednesday Week 1, 90 min — groom new requests; assess data availability |
+| **Sprint Review** | Friday Week 2, 45 min — demo updated dashboards to Ops leadership |
+| **Retrospective** | Friday Week 2, 45 min — improve team processes |
+
+|  | **LIVE DISRUPTION PROTOCOL** If a supply disruption is detected mid-sprint that requires urgent analysis, the team lead will create an unplanned Spike. This takes priority over sprint work. All team members should be prepared to pivot to disruption response when flagged. |
+| --- | --- |
+
+# **5. Supply Chain Data Flow**
+
+| **Stage** | **Owner** | **What happens** |
+| --- | --- | --- |
+| **1. Source data ingested** | Data Engineers | ERP, supplier portals, 3PL APIs feed data into Snowflake via daily/real-time pipelines |
+| **2. Data quality check** | Visibility Analysts | Automated quality checks run; anomalies flagged in #sc-data-alerts Slack channel |
+| **3. Dashboard refresh** | Automated + Analysts | Power BI dashboards refresh; analysts validate key metrics before publishing |
+| **4. Insight or alert generated** | Visibility Team | Disruption alerts pushed to Ops leads; insight reports generated for leadership |
+| **5. Ops action taken** | Procurement / Logistics / Ops VP | Stakeholders act on visibility data — expedite orders, switch suppliers, adjust inventory |
+
+# **6. Meetings ****&**** Ceremonies**
+
+| **Meeting** | **Frequency / Duration** | **Your role** |
+| --- | --- | --- |
+| **Sprint Planning** | Biweekly, Monday, 90 min | Attend; estimate and commit to sprint work |
+| **Daily Stand-up** | Daily, 15 min | Attend; flag pipeline issues or live alerts |
+| **Pipeline Refinement** | Biweekly, Wednesday, 90 min | Lead or contribute to scoping new visibility requests |
+| **Sprint Review** | Biweekly, Friday, 45 min | Demo completed dashboards and analysis to Ops leadership |
+| **Sprint Retrospective** | Biweekly, Friday, 45 min | Participate and raise improvement ideas |
+| **Ops Leadership Data Review** | Monthly, 60 min | Present supply chain performance dashboard highlights |
+| **Supplier Performance Review** | Monthly, 45 min | Support Procurement with data for supplier scoring |
+| **S****&****OP (Sales ****&**** Operations Planning)** | Monthly, 90 min | Attend; provide supply-side data inputs to planning process |
+
+# **7. Data Quality ****&**** Governance**
+
+## **Data Quality Standards**
+
+- All dashboard data must be validated against source systems weekly (automated checks + manual spot-check)
+
+- Any data discrepancy > 2% vs source must be investigated and resolved within 24 hours
+
+- Data pipeline incidents must be logged in Jira and communicated to dashboard consumers in #sc-data-alerts
+
+- Supplier-level data is commercially sensitive — access is restricted to Ops, Procurement, and Finance
+
+|  | **SOURCE SYSTEM HIERARCHY** When data conflicts arise between systems, the hierarchy is: SAP (master) > Supplier portal > 3PL system > Manual input. Never override SAP data without Finance approval. |
+| --- | --- |
+
+# **8. Definition of Ready ****&**** Done**
+
+## **Definition of Ready — a visibility task is Ready when:**
+
+- The data sources required are confirmed available and accessible
+
+- The output and audience are defined (dashboard, alert, report)
+
+- Refresh frequency and SLA are agreed with stakeholders
+
+- Data quality requirements are documented
+
+## **Definition of Done — work is Done when:**
+
+- Dashboard or output is live and validated against source data
+
+- Automated data quality checks are in place and passing
+
+- Consumer-facing documentation (data dictionary, refresh schedule) is published in Confluence
+
+- Stakeholders have been trained on or oriented to the new output
+
+# **9. Communication Norms**
+
+| **#sc-visibility-team** | Internal team channel — daily coordination and questions |
+| --- | --- |
+| **#sc-data-alerts** | Data pipeline incidents and anomalies — monitored by whole team |
+| **#ops-leadership** | Shared with Ops VPs — use for publishing insight reports |
+| **Email** | Formal stakeholder comms, supplier-related data sharing |
+| **Confluence** | All documentation, data dictionaries, pipeline runbooks |
+| **Jira** | Sprint board, backlog, pipeline incident tickets |
+
+# **10. Tools Access ****&**** Setup Guide**
+
+## **Core Tools**
+
+### **Snowflake — Supply chain data warehouse**
+
+| **Access** | ServiceNow > Data Platform > Snowflake > Schema: SUPPLY_CHAIN_ANALYTICS (DG approval required) |
+| --- | --- |
+| **Approval** | Manager + Data Governance (3 business days) |
+| **Note** | Read-only for analysts; write access requires Data Engineering lead approval |
+
+### **dbt Cloud — Data transformation**
+
+| **Access** | ServiceNow > Software Access > dbt Cloud > Project: Supply Chain |
+| --- | --- |
+| **Approval** | Manager approval (1 business day) |
+| **Training** | NexoraLearn: 'dbt Fundamentals' (2h) |
+
+### **Power BI — Supply chain dashboards**
+
+| **Access** | ServiceNow > Software Access > Power BI > Workspace: Supply Chain Visibility |
+| --- | --- |
+| **Key dashboards** | Global Supply Tracker, Supplier Scorecard, Inventory Monitor, Disruption Alerts |
+
+### **SAP (Read-only) — ERP source data**
+
+| **Access** | ServiceNow > Finance/Ops Systems > SAP Read Access (Manager + Finance approval) |
+| --- | --- |
+| **Approval** | 5 business days |
+
+### **Jira ****&**** Confluence**
+
+| **Jira** | ServiceNow > Software Access > Jira > Project: SC Visibility |
+| --- | --- |
+| **Confluence** | ServiceNow > Software Access > Confluence > Space: Operations |
+
+# **11. Your First 30 Days**
+
+## **Week 1 — Orient**
+
+- Complete Data Privacy and Supplier Data Confidentiality training in NexoraLearn
+
+- Submit Snowflake and SAP access requests on Day 1 (both require approval)
+
+- Meet your team lead, data engineers, and onboarding buddy in 1:1s
+
+- Review existing dashboards in Power BI to understand current visibility coverage
+
+## **Week 2 — Immerse**
+
+- Attend sprint ceremonies as an observer
+
+- Explore the data pipeline architecture documented in Confluence: Operations > Data Architecture
+
+- Attend an Ops Leadership Data Review to see how dashboards are used in practice
+
+## **Weeks 3–4 — Contribute**
+
+- Own one dashboard maintenance task or small enhancement (with buddy support)
+
+- Attend your first S&OP meeting
+
+- Complete your 30-day check-in with your manager in Workday
+
+# **12. Key Contacts**
+
+| **Visibility Team Lead** | [Name TBC]   │   sc.visibility@nexoraglobal.com |
+| --- | --- |
+| **VP of Operations** | Rachel Fernandez   │   r.fernandez@nexoraglobal.com |
+| **Data Engineering Lead** | [Name TBC]   │   data.eng@nexoraglobal.com |
+| **IT Helpdesk** | helpdesk@nexoraglobal.com   │   ext. 5000 |
+| **People Operations** | people.ops@nexoraglobal.com |
+
+**Every pipeline you maintain and every dashboard you publish helps Nexora****'****s operations teams see around corners. Welcome to the team.**
+
+	Confidential — Internal Use Only

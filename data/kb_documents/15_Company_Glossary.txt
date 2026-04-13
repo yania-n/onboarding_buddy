@@ -1,0 +1,195 @@
+**NEXORA  |  Company Glossary  **Acronyms & Internal Terminology
+
+**NEXORA GLOBAL CORPORATION**
+
+Company-Wide
+
+**  Company Glossary ****&**** Acronym List  **
+
+**Nexora****'****s Official Terminology Reference**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **How to Use This Glossary**
+
+This glossary covers the most common acronyms, internal terms, and technical concepts used at Nexora. It is used by the AI onboarding system to answer 'what does X mean?' questions. If a term is missing, submit it via the glossary update form in Confluence: Company-Wide > Glossary > Submit a Term.
+
+# **A–Z Glossary**
+
+**AE**
+
+Account Executive — quota-carrying sales role responsible for closing enterprise deals
+
+**ARR**
+
+Annual Recurring Revenue — total recurring subscription revenue annualised
+
+**BU**
+
+Business Unit — a distinct division of Nexora (e.g. NexoraTech, NexoraConsult)
+
+**CAB**
+
+Change Advisory Board — IT governance body that approves infrastructure changes
+
+**CLT**
+
+Consolidated Labour Laws (Brazil) — Brazilian federal labour legislation
+
+**CSPM**
+
+Cloud Security Posture Management — continuous monitoring of cloud security configuration
+
+**CSM**
+
+Customer Success Manager — post-sale relationship owner for Nexora customers
+
+**dbt**
+
+Data Build Tool — SQL transformation framework used by the Analytics Platform team
+
+**DoD**
+
+Definition of Done — agreed criteria a story must meet to be considered complete
+
+**DoR**
+
+Definition of Ready — agreed criteria a story must meet before entering a sprint
+
+**DRI**
+
+Directly Responsible Individual — the one person accountable for a decision or deliverable
+
+**EAP**
+
+Employee Assistance Programme — confidential counselling and support service (Lyra Health)
+
+**eNPS**
+
+Employee Net Promoter Score — measures how likely employees are to recommend Nexora
+
+**ERG**
+
+Employee Resource Group — voluntary employee-led community (Nexora has 18)
+
+**FP****&****A**
+
+Financial Planning & Analysis — team that owns budgeting, forecasting, and business partnering
+
+**FPO**
+
+Functional Product Owner — business-side PO who represents user needs and sets feature priorities
+
+**FinOps**
+
+Financial Operations for Cloud — practice of managing cloud costs and spend efficiency
+
+**HRBP**
+
+HR Business Partner — strategic HR professional embedded in or aligned to a business unit
+
+**IaC**
+
+Infrastructure as Code — managing infrastructure via code (Nexora uses Terraform)
+
+**IDP**
+
+Internal Developer Platform — Nexora's self-service tooling for engineering teams
+
+**KPI**
+
+Key Performance Indicator — a measurable metric used to evaluate performance
+
+**KR**
+
+Key Result — the measurable component of an OKR that defines success
+
+**L****&****D**
+
+Learning & Development — the HR function responsible for training and growth
+
+**LGPD**
+
+Lei Geral de Proteção de Dados — Brazil's data protection law (equivalent to GDPR)
+
+**MFA**
+
+Multi-Factor Authentication — mandatory second layer of login verification at Nexora
+
+**NPS**
+
+Net Promoter Score — customer loyalty metric; also used internally (eNPS)
+
+**OKR**
+
+Objectives and Key Results — Nexora's goal-setting framework
+
+**P1/P2/P3/P4**
+
+Incident severity levels: P1 = critical outage; P4 = low-impact cosmetic issue
+
+**PDPA**
+
+Personal Data Protection Act — Singapore's data protection law
+
+**PIR**
+
+Post-Incident Review — blameless retrospective after a P1 or P2 incident
+
+**PO**
+
+Product Owner — person responsible for the product backlog
+
+**PR**
+
+Pull Request — code review mechanism in GitHub before merging changes
+
+**PTU**
+
+Participación de los Trabajadores en las Utilidades — Mexican profit sharing (10% of pre-tax profit)
+
+**RACI**
+
+Responsible, Accountable, Consulted, Informed — decision ownership framework
+
+**SLI**
+
+Service Level Indicator — the actual measurement of a service attribute (e.g. latency)
+
+**SLO**
+
+Service Level Objective — the target value for an SLI (e.g. 99.9% availability)
+
+**SRE**
+
+Site Reliability Engineer — engineering discipline focused on reliability and scalability
+
+**SSO**
+
+Single Sign-On — one login credential for all Nexora systems (Microsoft Azure AD)
+
+**TCP**
+
+Technical Coordination & Planning — the semi-technical team on the Analytics Platform
+
+**TPO**
+
+Technical Product Owner — member of the TCP team who owns the product backlog
+
+**UAT**
+
+User Acceptance Testing — final validation of a feature by business stakeholders
+
+**URG**
+
+Underrepresented Group — employees from groups historically underrepresented in tech/business
+
+**VPC**
+
+Virtual Private Cloud — isolated network environment in AWS
+
+**YoY**
+
+Year on Year — comparison of a metric to the same period in the previous year
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

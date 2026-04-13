@@ -1,0 +1,63 @@
+**NEXORA  |  IT RACI Framework  **Decision Ownership Across IT Teams
+
+**NEXORA GLOBAL CORPORATION**
+
+IT Department
+
+**  IT Department RACI Framework  **
+
+**Decision Ownership Across IT Teams**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **How to Read This RACI**
+
+R = Responsible (does the work), A = Accountable (one person; approves and owns the outcome), C = Consulted (provides input before decision), I = Informed (notified after decision).
+
+|  | **ONE ACCOUNTABLE PERSON** Every activity has exactly one Accountable person. If two people are listed as Accountable, that is an error — escalate to the IT Director to clarify. |
+| --- | --- |
+
+# **Cloud Infrastructure ****&**** Platform — RACI**
+
+| **Activity** | **IT Director** | **Cloud Ops Lead** | **Platform Eng Lead** | **DevEx Lead** | **Cloud Security** | **SRE** | **FinOps** |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **Provision new AWS account** | I | A | R | C | C | I | C |
+| **Approve infrastructure change (CAB)** | A | C | R | I | C | C | I |
+| **Respond to P1 incident** | I | A | R/C | I | C | R | I |
+| **Conduct post-incident review** | I | C | C | I | C | A/R | I |
+| **Cloud cost optimisation recommendations** | I | A | C | I | I | I | R |
+| **Cloud security baseline enforcement** | I | A | C | I | R | C | I |
+| **Define SLOs for platform services** | I | A | C | C | C | R | I |
+| **Terraform module review ****&**** approval** | I | C | A/R | C | C | I | I |
+| **CI/CD pipeline changes** | I | C | C | A/R | C | I | I |
+| **Internal developer platform updates** | I | C | C | A/R | C | I | I |
+| **Vendor contract renewal (cloud)** | A | C | C | I | I | I | C |
+
+# **Analytics Platform — RACI**
+
+| **Activity** | **IT Director** | **TCP Lead** | **TPO** | **Architect** | **Developer (TCP)** | **Dev Team Lead** | **FPO** |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **Define sprint goal** | I | A | R | C | C | C | C |
+| **Backlog prioritisation** | I | C | A/R | C | I | C | C |
+| **Story acceptance criteria sign-off** | I | I | A | C | I | I | R |
+| **Architecture design decisions** | I | C | C | A | R | C | I |
+| **Sprint capacity planning** | I | C | A | C | C | R | I |
+| **Stakeholder demo (Sprint Review)** | I | C | A/R | I | I | C | R |
+| **Release to production** | I | I | A | C | C | R | I |
+| **Data governance compliance** | A | C | C | R | I | I | C |
+| **Platform SLO definition** | I | C | C | A | R | C | I |
+
+# **Cross-IT RACI — Shared Processes**
+
+| **Activity** | **IT Director** | **Cloud Ops** | **Analytics Platform** | **Cybersecurity** | **ITSM** |
+| --- | --- | --- | --- | --- | --- |
+| **IT budget planning (annual)** | A/R | C | C | C | C |
+| **New joiner IT provisioning** | I | I | I | I | A/R |
+| **Security incident response** | A | R | C | R | C |
+| **SOC 2 audit preparation** | A | C | C | R | C |
+| **Major outage communications** | A/R | C | C | C | C |
+| **Tool procurement (new software)** | A | C | C | C | R |
+| **Data classification framework** | A | C | C | R | I |
+| **IT All-Hands facilitation** | A/R | I | I | I | I |
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

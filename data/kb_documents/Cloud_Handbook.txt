@@ -1,0 +1,508 @@
+**NEXORA — IT Department  **|   Cloud Infrastructure & Platform Team Handbook
+
+**NEXORA GLOBAL CORPORATION**
+
+IT Department
+
+**  Cloud Infrastructure ****&**** Platform Team  **
+
+**Cloud Operations Sub-Team — Onboarding Handbook**
+
+*Your guide to the team, the cloud, and how we keep everything running.*
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Table of Contents**
+
+	1. Welcome to the Cloud Infrastructure & Platform Team	3
+
+	2. Team Structure — Three Sub-Teams	4
+
+	3. The Cloud Operations Role — What You Do	5
+
+	4. How We Work — Sprints & On-Call	7
+
+	5. Infrastructure Request & Change Flow	9
+
+	6. Meetings & Ceremonies	11
+
+	7. Cloud Standards, Security & Cost Governance	12
+
+	8. Incident Management	13
+
+	9. Definition of Ready & Done	14
+
+	10. Communication Norms	15
+
+	11. Tools Access & Setup Guide	16
+
+	12. Your First 30 Days	19
+
+	13. Key Contacts	20
+
+# **1. Welcome to the Cloud Infrastructure ****&**** Platform Team**
+
+Welcome! You've joined one of the most operationally critical teams at Nexora — the Cloud Infrastructure & Platform Team. We own, operate, and evolve the cloud foundation that every Nexora product, service, and internal system runs on.
+
+Whether you're joining the Cloud Operations sub-team, Platform Engineering, or Developer Experience, you're now part of the team that keeps the lights on — and builds the infrastructure for Nexora's next decade of growth.
+
+|  | **OUR MISSION** To deliver a secure, reliable, cost-efficient, and developer-friendly cloud platform that enables every Nexora team to build and operate with confidence — at global scale. |
+| --- | --- |
+
+| **Team name** | Cloud Infrastructure & Platform Team, IT Department |
+| --- | --- |
+| **Cloud providers** | AWS (primary), Azure (secondary), GCP (data workloads) |
+| **Environments** | Production, Staging, Development, Sandbox — across 4 AWS regions |
+| **Team size** | 28 engineers across 3 sub-teams |
+| **Your sub-team** | Cloud Operations Team (see Section 2) |
+| **Your manager** | [Assigned Cloud Ops Lead — see Workday] |
+| **Handbook version** | v1.0, January 2026 |
+
+# **2. Team Structure — Three Sub-Teams**
+
+## **Cloud Infrastructure ****&**** Platform Team**
+
+The team operates across three specialised sub-teams that work closely together but own distinct domains:
+
+| **Sub-team** | **Made up of** | **Owns** |
+| --- | --- | --- |
+| **Platform Engineering** | Cloud Engineers, DevOps Engineers, IaC Specialists | Core infrastructure provisioning, Terraform/IaC codebase, network architecture, cloud account structure |
+| **Cloud Operations (YOU)** | Site Reliability Engineers (SREs), FinOps Analysts, Cloud Security Engineers | Reliability, observability, cost management, cloud security posture, incident response |
+| **Developer Experience** | Platform Engineers, CI/CD Specialists, Developer Advocates | Internal developer platform (IDP), CI/CD pipelines, self-service tooling, engineering productivity |
+
+## **How the Sub-Teams Interact**
+
+Platform Engineering builds the foundation. Cloud Operations keeps it reliable, secure, and cost-efficient. Developer Experience wraps it in tooling that makes developers productive. All three sub-teams contribute to the same infrastructure backlog and share sprint ceremonies.
+
+|  | **YOUR SQUAD** As a Cloud Ops team member, your immediate squad is SREs, FinOps Analysts, and Cloud Security Engineers. You share a Jira board, a Slack channel, and sprint ceremonies. You also collaborate daily with Platform Engineering on infrastructure changes and with Developer Experience on reliability requirements for the internal developer platform. |
+| --- | --- |
+
+# **3. The Cloud Operations Role — What You Do**
+
+The Cloud Operations team is the reliability and operational excellence function of the Cloud Infrastructure & Platform Team. Three specialist roles work together as one squad:
+
+## **Site Reliability Engineering (SRE)**
+
+### **What SREs own**
+
+You own the reliability and observability of Nexora's production cloud environment. This means defining and tracking SLOs (Service Level Objectives), building and maintaining monitoring and alerting infrastructure, leading incident response, and driving post-incident reviews that prevent recurrence.
+
+- Define SLOs and SLIs for all critical platform services
+
+- Own the observability stack (Datadog, PagerDuty) — dashboards, alerts, runbooks
+
+- Lead on-call rotations and incident response for P1/P2 incidents
+
+- Conduct blameless post-incident reviews (PIRs) within 48 hours of P1 incidents
+
+- Drive reliability improvements via error budget tracking and toil reduction
+
+## **FinOps Analysis**
+
+### **What FinOps Analysts own**
+
+You own cloud cost visibility and optimisation across all Nexora cloud accounts. Your job is to ensure Nexora gets maximum value from its cloud spend — tracking, allocating, forecasting, and reducing costs without compromising reliability.
+
+- Maintain cloud cost dashboards by account, service, team, and environment
+
+- Run monthly cost reviews with each engineering team and the CTO office
+
+- Identify and action cost optimisation opportunities (rightsizing, Reserved Instances, Savings Plans)
+
+- Forecast cloud spend for the annual budget and quarterly reforecasts
+
+- Define and enforce tagging standards that enable accurate cost allocation
+
+## **Cloud Security Engineering**
+
+### **What Cloud Security Engineers own**
+
+You own the security posture of Nexora's cloud environments — ensuring our infrastructure meets compliance requirements, passes external audits, and is configured to prevent breaches.
+
+- Own the cloud security posture management (CSPM) tooling and remediation backlog
+
+- Define and enforce cloud security baselines (IAM policies, network security groups, encryption standards)
+
+- Lead on security-related changes to cloud infrastructure — review and approve before deployment
+
+- Support external compliance audits (SOC 2, ISO 27001, GDPR) for cloud infrastructure scope
+
+- Respond to cloud security incidents in partnership with the Cybersecurity team
+
+## **What the Cloud Ops Team Does NOT Own**
+
+- Application-layer security (owned by Cybersecurity & InfoSec team)
+
+- Provisioning new cloud resources from scratch (Platform Engineering)
+
+- Writing application code or product features
+
+- CI/CD pipeline tooling (Developer Experience team)
+
+## **Key Skills Across the Squad**
+
+| **Cloud platforms** | AWS, Azure, GCP — at least one at associate/professional certification level |
+| --- | --- |
+| **Infrastructure as Code** | Terraform, Pulumi, or CloudFormation — reading and reviewing is mandatory; authoring expected within 3 months |
+| **Observability** | Datadog, CloudWatch, Prometheus/Grafana — configuring dashboards and alerts |
+| **Scripting** | Python or Bash for automation, cost analysis scripts, runbook automation |
+| **Security fundamentals** | IAM, network security, encryption at rest/in transit, CSPM tools (Wiz, Prisma Cloud) |
+| **Cost management** | AWS Cost Explorer, cloud billing APIs, FinOps Framework principles |
+
+# **4. How We Work — Sprints ****&**** On-Call**
+
+## **2-Week Sprint Cadence**
+
+All three Cloud Infrastructure & Platform sub-teams run on a shared 2-week sprint. The Cloud Ops backlog covers reliability improvements, security remediations, cost optimisation projects, observability enhancements, and internal tooling.
+
+| **Sprint Planning** | Monday Week 1, 1.5h — whole team; commit to sprint backlog |
+| --- | --- |
+| **Daily Stand-up** | Every morning, 15 min — progress, blockers, any live incidents or alerts |
+| **Infra Refinement** | Wednesday Week 1, 90 min — groom and estimate upcoming backlog items |
+| **Sprint Review** | Friday Week 2, 45 min — demo completed work to IT Director and stakeholders |
+| **Retrospective** | Friday Week 2, 45 min — team process and ways-of-working improvements |
+
+## **On-Call Rotation**
+
+SREs and Cloud Security Engineers participate in a 24/7 on-call rotation for production incidents. FinOps Analysts are not on the on-call rota. Key on-call principles:
+
+- On-call rotation is weekly — one primary and one secondary engineer at all times
+
+- Alerts are routed via PagerDuty — ensure your PagerDuty app is installed and notifications enabled on Day 1
+
+- P1 (service down, data loss risk): respond within 5 minutes, engage secondary within 15 minutes
+
+- P2 (degraded performance, partial outage): respond within 30 minutes
+
+- On-call engineers do not take sprint work on-call weeks — capacity is 20% sprint work, 80% reactive
+
+- Time-in-lieu is given for on-call weekends — log in Workday under 'On-Call Compensation'
+
+|  | **ON-CALL ONBOARDING** New joiners are added to the on-call rotation only after completing 30 days on the team, shadowing 2 full on-call weeks, and being signed off by the Cloud Ops Lead. You will not be paged before you are ready. |
+| --- | --- |
+
+## **Change Management**
+
+All infrastructure changes to the production environment follow Nexora's Change Advisory Board (CAB) process:
+
+| **Standard change** | Pre-approved, low-risk changes (e.g. tagging updates, alert threshold tweaks) — no CAB needed, deploy via PR merge |
+| --- | --- |
+| **Normal change** | Moderate-risk changes — require CAB approval (submit Tuesday for Thursday CAB meeting) |
+| **Emergency change** | P1 incident remediation — CAB Chair approval by phone/Slack; retrospective CAB review within 48h |
+
+# **5. Infrastructure Request ****&**** Change Flow**
+
+## **How Infrastructure Work Reaches Us**
+
+| **Stage** | **Owner** | **What happens** |
+| --- | --- | --- |
+| **1. Request raised** | Engineering team / Business stakeholder | New infra requirement, security finding, cost concern, or reliability issue raised via Jira Service Desk |
+| **2. Triage ****&**** scoping** | Cloud Ops Lead + relevant engineer | Request triaged in Cloud Ops Jira; categorised (reliability/security/cost/new infra); routed to right sub-team |
+| **3. Design ****&**** review** | Platform Eng + Cloud Ops | Architecture design for significant changes; security review; cost impact assessed |
+| **4. Change request submitted** | Requesting engineer | CAB change request submitted if required; IaC PR opened for peer review |
+| **5. Deployment** | Platform Eng / Cloud Ops | Change deployed to non-prod, validated, then promoted to production via approved pipeline |
+| **6. Monitoring ****&**** closure** | Cloud Ops SREs | Post-deployment monitoring for 24–48h; alerts validated; Jira ticket closed with deployment notes |
+
+## **Self-Service vs Managed Infrastructure**
+
+Not every request needs to come to Cloud Ops. Engineering teams can self-serve many common infrastructure needs via the Internal Developer Platform (owned by Developer Experience). The distinction:
+
+| **Self-service (no ticket needed)** | Spinning up sandbox environments, deploying to existing accounts, standard EC2/RDS sizes — via the IDP |
+| --- | --- |
+| **Cloud Ops ticket required** | New AWS accounts, VPC changes, IAM policy changes, production database changes, security baseline exceptions, cost anomaly investigations |
+
+# **6. Meetings ****&**** Ceremonies**
+
+| **Meeting** | **Frequency / Duration** | **Your role** |
+| --- | --- | --- |
+| **Sprint Planning** | Biweekly, Monday, 90 min | Attend; estimate and commit to sprint work |
+| **Daily Stand-up** | Daily, 15 min | Attend; share progress, active incidents, alerts |
+| **Infra Refinement** | Biweekly, Wednesday, 90 min | Lead or contribute; groom and estimate backlog |
+| **Sprint Review** | Biweekly, Friday, 45 min | Present completed reliability/security/cost work |
+| **Sprint Retrospective** | Biweekly, Friday, 45 min | Participate; raise ops process improvements |
+| **Cloud Cost Review** | Monthly, 60 min | FinOps: present cloud spend analysis to CTO and Eng leads |
+| **Security Posture Review** | Monthly, 45 min | Cloud Security: present CSPM findings and remediation progress |
+| **CAB (Change Advisory Board)** | Weekly, Thursday, 60 min | Attend for any normal changes requiring approval |
+| **Post-Incident Review (PIR)** | Within 48h of P1 | SREs: facilitate blameless review; distribute findings |
+| **Architecture Review** | Bi-weekly, 60 min | Attend; review significant new infra designs with Platform Eng and Enterprise Architecture |
+
+# **7. Cloud Standards, Security ****&**** Cost Governance**
+
+## **Cloud Standards**
+
+- All infrastructure must be defined as code (Terraform) — no manual changes in production consoles
+
+- IaC modules are stored in GitHub: nexora-org/infra-modules — PRs require 2 approvals
+
+- Every AWS resource must have the following tags: team, environment, cost-centre, data-classification
+
+- Encryption at rest and in transit is mandatory for all production resources — no exceptions
+
+- No public S3 buckets — ever. Automated CSPM rules will alert and auto-remediate within 1 hour
+
+## **Cloud Security Baseline**
+
+| **IAM** | Least-privilege by default; no long-lived access keys; all human access via SSO; MFA mandatory |
+| --- | --- |
+| **Network** | VPC per environment; no 0.0.0.0/0 ingress rules; all traffic through WAF for public endpoints |
+| **Data** | Encryption at rest (AES-256); in transit (TLS 1.2+); KMS key rotation enabled |
+| **Logging** | CloudTrail enabled in all accounts; logs centralised in security account; 12-month retention |
+| **Secrets** | No secrets in code or environment variables — use AWS Secrets Manager or HashiCorp Vault |
+
+## **Cost Governance**
+
+- Cloud budget is reviewed monthly — teams over budget by > 10% require a cost review with FinOps
+
+- All production resources must have cost allocation tags before deployment — CI/CD will block untagged resources
+
+- Reserved Instance and Savings Plan recommendations reviewed quarterly by FinOps and approved by CTO
+
+- Development and staging environments must be scheduled off overnight and weekends (automated via Instance Scheduler)
+
+|  | **COST ANOMALY ALERTS** If you see an unexpected cost spike in the #cloud-cost-alerts channel, investigate immediately. The FinOps team responds to anomalies > $500/day within 4 hours. Flag anything that doesn't look right — it's always better to investigate a false alarm than miss a real one. |
+| --- | --- |
+
+# **8. Incident Management**
+
+## **Severity Levels**
+
+| **P1 — Critical** | Full service outage or data loss risk. On-call SRE responds in 5 min. Incident bridge opened. Executive stakeholders notified within 30 min. |
+| --- | --- |
+| **P2 — Major** | Significant degradation affecting multiple users. On-call SRE responds in 30 min. Incident channel opened in Slack. |
+| **P3 — Minor** | Partial degradation, workaround available. Respond next business day. Ticket created in Jira. |
+| **P4 — Low** | Cosmetic or informational issue. Backlog item created; prioritised in next sprint. |
+
+## **Incident Response Process**
+
+- PagerDuty alert fires → On-call SRE acknowledges within SLA
+
+- Open incident channel in Slack: #inc-[YYYYMMDD]-[short-description]
+
+- Assign Incident Commander (IC) — on-call SRE for P2; senior SRE or Cloud Ops Lead for P1
+
+- Diagnose and mitigate — runbooks in Confluence: Cloud Ops > Runbooks
+
+- Communicate updates every 15 minutes (P1) or 30 minutes (P2) in #cloud-incidents
+
+- Resolve and close PagerDuty alert
+
+- Post-Incident Review within 48h — blameless, action items tracked in Jira
+
+|  | **BLAMELESS CULTURE** We do not assign blame for incidents. Systems fail; people respond. Our PIR process asks 'what failed?' and 'how do we prevent it?' not 'who caused it?'. If you are ever made to feel responsible for a system failure, speak to the Cloud Ops Lead. |
+| --- | --- |
+
+# **9. Definition of Ready ****&**** Done**
+
+## **Definition of Ready — an infrastructure task is Ready when:**
+
+- The requirement is clearly stated: what problem does this solve, or what improvement does it deliver?
+
+- The infrastructure scope is defined (which accounts, regions, services)
+
+- Security and compliance implications have been assessed
+
+- Cost impact has been estimated by FinOps
+
+- Rollback plan is documented for any production change
+
+- CAB ticket submitted if a normal or emergency change
+
+## **Definition of Done — infrastructure work is Done when:**
+
+- Change is deployed to production and validated against defined acceptance criteria
+
+- Post-deployment monitoring confirmed stable for 24–48 hours
+
+- IaC is merged to main and documentation updated in Confluence
+
+- Cost tags are applied and verified in the billing dashboard
+
+- Security scan passed (Wiz/Prisma Cloud findings resolved)
+
+- Jira ticket updated to 'Done' with deployment notes and runbook links
+
+# **10. Communication Norms**
+
+| **#cloud-ops-team** | Day-to-day team channel — sprint work, questions, non-urgent coordination |
+| --- | --- |
+| **#cloud-incidents** | Active incident coordination — all P1/P2 incident channels branch from here |
+| **#cloud-cost-alerts** | Automated cost anomaly alerts + FinOps updates — monitor daily |
+| **#cloud-security-alerts** | CSPM and security posture alerts — Cloud Security Engineers monitor |
+| **#cloud-platform** | Broader Cloud Infra & Platform team channel — cross-sub-team discussion |
+| **#it-engineering** | IT Department-wide engineering channel |
+| **PagerDuty** | On-call alerts and incident escalation — NOT Slack for P1 alerts |
+| **Jira** | All work items, incident tickets, change requests, and backlog |
+| **Confluence** | Runbooks, architecture docs, PIRs, standards, sprint notes |
+
+## **Response Time Expectations**
+
+| **#cloud-ops-team (Slack)** | Reply within 4 business hours |
+| --- | --- |
+| **PagerDuty P1 alert** | Acknowledge within 5 minutes |
+| **PagerDuty P2 alert** | Acknowledge within 30 minutes |
+| **Jira ticket (assigned)** | First response within 1 business day |
+| **CAB change request** | Submit by Tuesday for Thursday approval |
+
+# **11. Tools Access ****&**** Setup Guide**
+
+All access requests are submitted via ServiceNow (it.nexoraglobal.com). Your manager will pre-approve core tools on Day 1. Production cloud console access requires additional security approval and takes up to 3 business days.
+
+|  | **PRIORITY ACCESS** Request AWS Console (read-only), Datadog, and PagerDuty on Day 1. These are your most important tools and are needed to observe the environment from your first week. AWS write access requires security approval — submit on Day 1 to avoid delays. |
+| --- | --- |
+
+## **Cloud Platforms**
+
+### **AWS Console — Primary cloud platform**
+
+| **Access** | ServiceNow > Cloud Access > AWS Console > Role: CloudOps-ReadOnly (Day 1) / CloudOps-Engineer (security approval required, 3 days) |
+| --- | --- |
+| **Approval** | Manager + Cloud Security lead for write access |
+| **Regions** | us-east-1 (primary), eu-west-1, ap-southeast-1, sa-east-1 |
+| **Training** | NexoraLearn: 'Nexora AWS Architecture Overview' (2h, mandatory Week 1) |
+
+### **Azure Portal — Secondary cloud platform**
+
+| **Access** | ServiceNow > Cloud Access > Azure Portal > Role: CloudOps-Reader |
+| --- | --- |
+| **Approval** | Manager approval (1 business day) |
+| **Use** | Monitoring Azure workloads; supporting Microsoft 365 infrastructure |
+
+## **Observability ****&**** Monitoring**
+
+### **Datadog — Observability platform**
+
+| **Access** | ServiceNow > Software Access > Datadog > Role: Cloud Ops Engineer |
+| --- | --- |
+| **Approval** | Manager approval (1 business day) |
+| **Key dashboards** | Cloud Platform Health, SLO Tracker, Cost Anomaly Monitor, Security Posture |
+| **Training** | NexoraLearn: 'Datadog for SREs' (2h, recommended Week 1) |
+
+### **PagerDuty — On-call and incident management**
+
+| **Access** | ServiceNow > Software Access > PagerDuty — provisioned with work email |
+| --- | --- |
+| **Day 1 action** | Install PagerDuty mobile app immediately; enable push notifications; verify you appear in the schedule |
+| **On-call start** | You will shadow on-call for 2 weeks before being added to the primary rotation (Week 5+) |
+
+### **CloudWatch — AWS native monitoring**
+
+| **Access** | Available via AWS Console — no separate request needed |
+| --- | --- |
+| **Use** | Log Insights queries, metric alarms, cross-account dashboards |
+
+## **Infrastructure as Code ****&**** Source Control**
+
+### **GitHub — IaC repository and code reviews**
+
+| **Access** | ServiceNow > Software Access > GitHub > Organisation: nexora-org > Team: cloud-infra |
+| --- | --- |
+| **Approval** | Manager approval (1 business day) |
+| **Key repos** | nexora-org/infra-modules (Terraform), nexora-org/cloud-ops-runbooks, nexora-org/platform-config |
+| **Branching** | All changes via feature branch + PR; no direct pushes to main |
+
+### **Terraform Cloud — IaC state management and remote runs**
+
+| **Access** | ServiceNow > Cloud Access > Terraform Cloud > Organisation: nexora |
+| --- | --- |
+| **Approval** | Manager + Platform Engineering lead |
+| **Training** | NexoraLearn: 'Terraform at Nexora' (3h, mandatory within 2 weeks) |
+
+## **Security ****&**** FinOps Tools**
+
+### **Wiz — Cloud Security Posture Management (CSPM)**
+
+| **Access** | ServiceNow > Security Tools > Wiz > Role: CloudOps-SecurityReviewer |
+| --- | --- |
+| **Approval** | Manager + Cloud Security lead (2 business days) |
+| **Use** | Scanning cloud environments for misconfigurations, vulnerabilities, and compliance violations |
+
+### **HashiCorp Vault — Secrets management**
+
+| **Access** | ServiceNow > Cloud Access > Vault > Role: cloud-ops-secrets-reader |
+| --- | --- |
+| **Approval** | Manager + Cloud Security lead |
+| **Note** | All production secrets are managed in Vault — never in code, env vars, or Parameter Store in plain text |
+
+### **AWS Cost Explorer + Nexora FinOps Dashboard**
+
+| **Access** | AWS Cost Explorer: available via AWS Console (read-only). FinOps Dashboard: ServiceNow > Software Access > Power BI > Workspace: Cloud FinOps |
+| --- | --- |
+| **Use** | Daily cost monitoring, anomaly detection, savings plan analysis |
+
+## **Collaboration ****&**** Project Management**
+
+| **Jira** | ServiceNow > Software Access > Jira > Project: Cloud Infrastructure & Platform │ Role: Engineer |
+| --- | --- |
+| **Confluence** | ServiceNow > Software Access > Confluence > Space: Cloud Infra & Platform — includes Runbooks, Architecture, PIRs |
+| **Slack** | Provisioned Day 1 — join #cloud-ops-team, #cloud-incidents, #cloud-platform, #it-engineering |
+| **ServiceNow (ITSM)** | For raising and tracking change requests and CAB submissions — your.servicenow.nexoraglobal.com |
+
+## **HR ****&**** Admin**
+
+| **Workday** | Leave, expenses, performance reviews — workday.nexoraglobal.com |
+| --- | --- |
+| **NexoraLearn** | Training and certifications — learn.nexoraglobal.com |
+| **NexoraConnect** | Intranet, policies, org chart — connect.nexoraglobal.com |
+
+# **12. Your First 30 Days**
+
+## **Week 1 — Orient**
+
+- Submit Day 1 access requests: AWS read-only, Datadog, PagerDuty, GitHub, Jira, Confluence
+
+- Install PagerDuty mobile app and verify your notification settings — do this on Day 1
+
+- Complete mandatory NexoraLearn modules: Nexora AWS Architecture Overview, Cloud Security Baseline, Data Privacy
+
+- Meet your Cloud Ops Lead, squad members, and onboarding buddy in 1:1s
+
+- Read the Cloud Platform Architecture Overview in Confluence: Cloud Infra > Architecture
+
+- Join all required Slack channels and introduce yourself in #cloud-platform
+
+## **Week 2 — Immerse**
+
+- Shadow your buddy through the full on-call workflow — observe how alerts are triaged and incidents handled
+
+- Explore the Datadog dashboards — understand what 'healthy' looks like for the platform
+
+- Attend sprint ceremonies and your first Infra Refinement session
+
+- Review the last 3 Post-Incident Reviews in Confluence to understand how we learn from incidents
+
+- Submit AWS write access and Terraform Cloud access requests if not already done
+
+## **Weeks 3–4 — Contribute**
+
+- Complete 'Terraform at Nexora' training in NexoraLearn
+
+- Take ownership of one sprint task (backlog improvement, alert tuning, cost tagging, or runbook update) with buddy support
+
+- Shadow your first on-call week (observe only — your buddy is primary)
+
+- Attend your first Cloud Cost Review or Security Posture Review (whichever falls in this period)
+
+- Complete your 30-day check-in with your manager in Workday
+
+|  | **CERTIFICATION PATH** Nexora encourages and funds cloud certifications. The standard path for Cloud Ops engineers: AWS Certified Solutions Architect – Associate (Year 1) → AWS Certified DevOps Engineer or Security Specialty (Year 2). Certifications are reimbursed via the Learning Stipend in Workday. |
+| --- | --- |
+
+# **13. Key Contacts**
+
+| **Cloud Ops Lead** | [Name TBC]   │   cloud.ops@nexoraglobal.com |
+| --- | --- |
+| **Cloud Infra ****&**** Platform Director** | [Name TBC]   │   cloud.director@nexoraglobal.com |
+| **IT Director (Digital Products)** | Isabella Torres   │   i.torres@nexoraglobal.com |
+| **Platform Engineering Lead** | [Name TBC]   │   platform.eng@nexoraglobal.com |
+| **Developer Experience Lead** | [Name TBC]   │   devex@nexoraglobal.com |
+| **Cybersecurity team (security incidents)** | security@nexoraglobal.com |
+| **IT Helpdesk** | helpdesk@nexoraglobal.com   │   ext. 5000 |
+| **People Operations** | people.ops@nexoraglobal.com |
+
+**Welcome to the team. The cloud doesn****'****t sleep — and neither does our ambition.**
+
+*If this handbook is wrong, out of date, or missing something — tell us. It belongs to the team.*
+
+© 2026 Nexora Global Corporation — IT Department — Cloud Infrastructure & Platform Team. Internal use only.
+
+	Confidential — Internal Use Only

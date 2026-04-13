@@ -1,0 +1,22 @@
+# ============================================================
+# OnboardingBuddy — Python Dependencies
+# ============================================================
+# Core AI & embeddings
+anthropic>=0.40.0          # Claude Haiku (KB queries) + Sonnet (buddy messages)
+voyageai>=0.2.3            # Voyage AI voyage-3-lite embeddings (free tier)
+faiss-cpu>=1.7.4           # FAISS IndexFlatIP vector store
+
+# Gradio UI
+gradio>=4.44.0
+
+# Document processing
+python-docx>=1.1.0         # Not used for reading (files are plain text) — kept for future docx generation
+
+# Data handling & scheduling
+pydantic>=2.0.0            # Data validation for all models
+python-dotenv>=1.0.0       # API key management via .env
+apscheduler>=3.10.0        # Scheduled KB ingestion and progress nudges
+
+# Utilities
+tenacity>=8.2.0            # Retry logic for LLM calls
+rich>=13.0.0               # Pretty CLI output during development

@@ -1,0 +1,68 @@
+**NEXORA  |  Decision Log Template  **How to Document Decisions at Nexora
+
+**NEXORA GLOBAL CORPORATION**
+
+Company-Wide
+
+**  Decision Log Template  **
+
+**How to Document Decisions at Nexora**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Why We Log Decisions**
+
+Undocumented decisions create confusion, repeat debates, and are impossible to audit. Nexora's decision logs ensure that every significant decision — what was decided, why, who decided it, and who was consulted — is captured and accessible to anyone who needs context later.
+
+|  | **WHEN TO USE THIS** Log a decision when: it affects more than your immediate squad; it has significant cost, risk, or strategic implications; it overrides a previous decision; or it will be asked about repeatedly. Small day-to-day decisions don't need to be logged. |
+| --- | --- |
+
+# **Decision Log Schema**
+
+| **Decision ID** | Unique identifier — auto-assigned in Confluence template (DL-YYYY-NNN) |
+| --- | --- |
+| **Title** | One-line summary of the decision |
+| **Date** | Date the decision was made |
+| **Status** | Proposed / Approved / Implemented / Superseded |
+| **Decision owner (DRI)** | The one person accountable for this decision |
+| **Consulted** | Who was consulted before the decision — name and role |
+| **Informed** | Who was notified after the decision — teams or individuals |
+| **Context** | What problem or situation prompted this decision? |
+| **Options considered** | 2–4 alternatives that were evaluated (including the one chosen) |
+| **Decision** | What was decided — be specific |
+| **Rationale** | Why this option was chosen over the alternatives |
+| **Trade-offs** | What is being accepted or given up with this decision |
+| **Review date** | When this decision should be reviewed (optional but recommended) |
+| **Links** | Related Jira tickets, Confluence pages, or ADRs |
+
+# **Completed Example — Analytics Platform**
+
+| **Decision ID** | DL-2026-014 |
+| --- | --- |
+| **Title** | Adopt dbt Cloud for all Analytics Platform data transformations |
+| **Date** | 2026-02-12 |
+| **Status** | Implemented |
+| **Decision Owner (DRI)** | Raj Patel, Solution Architect, TCP Team |
+| **Consulted** | Aisha Nwosu (TPO), Carlos Mendes (Senior Dev), IT Security team, FinOps |
+| **Informed** | All Analytics Platform squads, IT Director |
+| **Context** | Legacy SQL transformation scripts were inconsistently documented, hard to test, and caused repeated data quality incidents. The team evaluated options for a standardised transformation layer. |
+| **Options Considered** | 1. Continue with custom Python/SQL scripts. 2. Adopt dbt Core (open source, self-hosted). 3. Adopt dbt Cloud (managed). 4. Use Apache Spark with Delta tables. |
+| **Decision** | Adopt dbt Cloud (managed) — Option 3. |
+| **Rationale** | dbt Cloud provides built-in orchestration, lineage, documentation, and CI/CD integration. Lower operational overhead than self-hosted (Option 2). Better SQL ergonomics for the team than Spark (Option 4). Custom scripts (Option 1) do not address root causes. |
+| **Trade-offs** | Additional licence cost (USD 18,000/year — approved by Finance). Team upskilling required (Terraform at Nexora training extended to cover dbt). Vendor dependency introduced. |
+| **Review Date** | 2027-02-12 — assess whether managed vs self-hosted remains the right choice |
+| **Links** | Jira: NXAP-2214, Confluence: Analytics Platform > Architecture > dbt Decision |
+
+# **Where to Store Decision Logs**
+
+- Company-wide decisions: Confluence > Company-Wide > Decision Log
+
+- IT Department decisions: Confluence > IT Department > Decision Log
+
+- Team-level decisions: Confluence > [Team Space] > Decision Log
+
+- Architecture decisions (technical): use Architecture Decision Records (ADRs) in the relevant GitHub repo under /docs/adr/
+
+The Confluence Decision Log template is available at: Confluence > Templates > Decision Log. Click 'Create from Template' and it will auto-assign a Decision ID.
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

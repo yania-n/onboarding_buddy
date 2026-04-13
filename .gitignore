@@ -1,0 +1,43 @@
+# ============================================================
+# OnboardingBuddy — .gitignore
+# ============================================================
+
+# Secrets — never commit these
+.env
+*.env
+secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+env/
+.venv/
+
+# Data (exclude live state — commit KB docs only)
+data/profiles.json
+data/states.json
+data/knowledge_gaps.json
+data/faiss_index.pkl
+data/faiss_index.pkl.faiss
+
+# Jupyter / Colab
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log

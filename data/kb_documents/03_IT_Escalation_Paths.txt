@@ -1,0 +1,59 @@
+**NEXORA  |  IT Escalation Paths  **When and How to Escalate
+
+**NEXORA GLOBAL CORPORATION**
+
+IT Department
+
+**  IT Department Escalation Paths  **
+
+**When and How to Escalate at Every Level**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Why Escalation Matters**
+
+Escalation is not failure — it is professional judgment. Escalating at the right time prevents small problems from becoming large ones. Under-escalation is a more common and more damaging pattern than over-escalation.
+
+|  | **THE RULE** If you have been blocked on the same issue for more than one business day, or if you can see that a decision needs to be made above your authority level, escalate the same day. Do not wait for a scheduled meeting. |
+| --- | --- |
+
+# **Incident Escalation — Cloud Operations**
+
+| **Severity** | **Immediate Action** | **Escalate to** | **Timebox before next escalation** |
+| --- | --- | --- | --- |
+| **P1 — Critical outage** | Acknowledge PagerDuty. Open #inc-[date]-[desc] Slack channel. Start timer. | Cloud Ops Lead (call/text). IT Director notified within 30 min. |
+| **P2 — Major degradation** | Acknowledge PagerDuty. Post in #cloud-incidents. | Cloud Ops Lead via Slack. |
+| **P3 — Minor issue** | Create Jira ticket. Assign to on-call queue. | Team Lead at next stand-up. |
+| **P4 — Cosmetic/low impact** | Create Jira ticket in backlog. | TPO or Team Lead — backlog grooming. |
+
+# **Sprint ****&**** Delivery Escalation — Analytics Platform**
+
+| **Situation** | **First step** | **Escalate to** | **When** |
+| --- | --- | --- | --- |
+| **Story blocked for ****>**** 1 day** | Flag in stand-up and #squad-blockers Slack | TPO immediately |
+| **Story will miss sprint commitment** | Flag in stand-up. TPO notifies FPO. | TCP Lead if scope change needed |
+| **Business stakeholder requesting unplanned mid-sprint work** | TPO assesses impact, responds: 'I'll assess and come back' | FPO and TCP Lead |
+| **Technical disagreement between squads** | TPO documents disagreement, requests Architecture Review | TCP Architect + Dev Leads |
+| **Sprint goal at risk** | TPO raises at daily stand-up | TCP Lead + FPO |
+| **Stakeholder dissatisfied with delivery** | TPO engages FPO immediately | IT Director if escalated beyond FPO |
+
+# **Access ****&**** Security Escalation**
+
+| **Situation** | **Action** | **Escalate to** | **SLA** |
+| --- | --- | --- | --- |
+| **Access request taking ****>**** 3 business days** | Contact IT Helpdesk with ticket number | IT Helpdesk Manager |
+| **Suspected data breach or security incident** | Email dpo@nexoraglobal.com immediately + call ext. 5001 | IT Security Lead + DPO simultaneously |
+| **Unapproved access discovered on an account** | Disable access immediately (if in your power). Raise Jira security ticket. | Cloud Security Lead + IT Security |
+| **Phishing email received** | Do not click links. Forward to phishing@nexoraglobal.com. Delete. | IT Security (they will investigate) |
+| **System down affecting all users (non-cloud)** | Post in #it-incidents. Contact IT Helpdesk ext. 5000. | IT Helpdesk Manager → IT Director |
+
+# **HR ****&**** People Escalation (for IT Managers)**
+
+| **Situation** | **First step** | **Escalate to** | **Notes** |
+| --- | --- | --- | --- |
+| **Team member welfare concern** | Private conversation with employee; log concern in Workday | HR Business Partner (HRBP) |
+| **Performance concern** | Document observations. Meet with employee. | HRBP for guidance on formal process |
+| **Harassment or misconduct allegation** | Do not investigate. Do not disclose to anyone except HR. | HR Business Partner immediately |
+| **Resignation / offboarding** | Notify HR Ops (people.ops@nexoraglobal.com) + IT same day | IT ITSM for access revocation |
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

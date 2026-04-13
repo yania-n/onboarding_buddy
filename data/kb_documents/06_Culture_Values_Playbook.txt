@@ -1,0 +1,130 @@
+**NEXORA  |  Culture ****&**** Values Playbook  **How We Live Our Values
+
+**NEXORA GLOBAL CORPORATION**
+
+Company-Wide
+
+**  Culture ****&**** Values Playbook  **
+
+**How We Live Our Values at Nexora**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Our Five Values in Practice**
+
+Our values are not posters on the wall — they are observable behaviours. This playbook describes what each value looks like in action, and what it doesn't look like. It is the reference guide for performance conversations, hiring decisions, and our ways of working.
+
+# **01 — Bold Innovation**
+
+## **What it looks like**
+
+- Proposing a new approach even when it makes the current work look less valuable
+
+- Running a small experiment to test an assumption rather than debating it endlessly
+
+- Sharing a 'half-baked' idea in a meeting because it might spark something better
+
+- Saying 'I was wrong — the data shows something different' publicly and without shame
+
+- Challenging a process that's always been done a certain way, with a better alternative
+
+## **What it doesn****'****t look like**
+
+- Change for the sake of change, without understanding what problem it solves
+
+- Taking risks that weren't communicated to the team or manager
+
+- Dismissing existing approaches without understanding why they were put in place
+
+|  | **REAL EXAMPLE** In 2024, the Analytics Platform team proposed replacing a legacy ETL pipeline with a dbt-based approach. The initial estimate was 3 months of disruption. They ran a 2-week spike to validate the approach, demonstrated a 40% reduction in pipeline run time, and got stakeholder buy-in before committing. That's Bold Innovation. |
+| --- | --- |
+
+# **02 — Integrity Always**
+
+## **What it looks like**
+
+- Flagging a mistake as soon as it's discovered, even if you caused it
+
+- Giving honest feedback in performance conversations — not just telling people what they want to hear
+
+- Declining a shortcut that would technically work but isn't the right thing to do
+
+- Being transparent about timelines even when the news is bad
+
+- Documenting decisions and their rationale so others can understand and challenge them
+
+## **What it doesn****'****t look like**
+
+- Softening feedback so much that it loses its meaning
+
+- Attributing problems to external factors when internal factors contributed
+
+- Making commitments you know you can't keep to avoid a difficult conversation
+
+# **03 — Inclusive Excellence**
+
+## **What it looks like**
+
+- Actively inviting quieter voices into discussions before making a decision
+
+- Giving credit explicitly and publicly to people who contributed to your work
+
+- Checking your own assumptions when you notice you're only hearing one perspective
+
+- Designing processes, tools, and communications to work for people in different locations and working patterns
+
+- Calling out exclusionary language or behaviour — even when it's uncomfortable
+
+## **ERG Network**
+
+Nexora's 18 Employee Resource Groups are open to all employees. A full directory is in the ERG Directory document and on NexoraConnect.
+
+## **Inclusion Metrics We Track**
+
+| **Representation by band** | % of women, URGs at each band level — reviewed quarterly by CPO |
+| --- | --- |
+| **Pay equity** | Annual pay equity analysis by gender and ethnicity — shared with Board |
+| **Promotion rates** | Promotion rates by demographic group — tracked against 30/60/90-day targets |
+| **Engagement scores** | eNPS and inclusion questions in quarterly pulse surveys |
+| **Hiring funnel** | Diverse slate compliance tracked for all Band 4+ hires |
+
+# **04 — Client Obsession**
+
+## **What it looks like**
+
+- Starting every product or process decision with 'what does the user/client actually need?'
+
+- Proactively communicating bad news to a client before they ask
+
+- Measuring success by client outcomes, not by activities completed
+
+- Pushing back on internal requests that would make things worse for the end user
+
+- Building feedback loops so clients can influence what you build next
+
+## **At Nexora, ****'****client****'**** means internal clients too**
+
+For teams like IT, HR, and Finance, your primary clients are Nexora's own employees and business units. Client obsession applies equally — an internal user experience that is frustrating or slow is a failure of client obsession.
+
+# **05 — Sustainable Impact**
+
+## **What it looks like**
+
+- Considering the environmental impact of infrastructure and tooling decisions (e.g. cloud region selection, compute efficiency)
+
+- Building for longevity — avoiding technical debt that will create future cost or risk
+
+- Investing in documentation and knowledge sharing so your work doesn't disappear when you move on
+
+- Thinking about community impact when making location or supplier decisions
+
+## **2030 Net-Zero Commitment**
+
+| **Target** | Net-zero across Scope 1, 2, and 3 emissions by 2030 |
+| --- | --- |
+| **Cloud** | 100% renewable energy-backed cloud regions by 2027 (AWS, Azure commitments) |
+| **Travel** | 35% reduction in business travel emissions vs 2023 baseline by 2026 |
+| **Suppliers** | All Tier 1 suppliers to have published Net-Zero targets by 2027 |
+| **Reporting** | Annual sustainability report published each March — previous reports in NexoraConnect |
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

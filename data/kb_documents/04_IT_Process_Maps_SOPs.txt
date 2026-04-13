@@ -1,0 +1,109 @@
+**NEXORA  |  IT Process Maps ****&**** SOPs  **Standard Operating Procedures
+
+**NEXORA GLOBAL CORPORATION**
+
+IT Department
+
+**  IT Process Maps ****&**** Standard Operating Procedures  **
+
+**How Key IT Processes Work**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **SOP 1 — New Joiner IT Provisioning**
+
+## **Trigger**
+
+HR Ops submits a 'New Hire' record in Workday, which triggers an automated provisioning workflow.
+
+## **Process Steps**
+
+| **Step** | **Owner** | **System** | **SLA** |
+| --- | --- | --- | --- |
+| **1. Workday new hire record created** | HR Ops | Workday |
+| **2. Automated provisioning trigger fires** | IT Automation | Workday → ServiceNow |
+| **3. Microsoft 365 account created (email, Teams, SharePoint)** | IT ITSM | Azure AD / M365 |
+| **4. Laptop imaged and shipped (or collected)** | IT ITSM | JAMF / Intune |
+| **5. Standard software installed (Slack, Jira, Confluence, 1Password)** | IT Automation | JAMF / Intune |
+| **6. Department-specific access requests generated (from role profile)** | IT ITSM | ServiceNow |
+| **7. PagerDuty account created (SREs and Cloud Ops engineers only)** | IT ITSM | PagerDuty API |
+| **8. New joiner welcome email sent with IT setup guide** | IT ITSM | Outlook |
+| **9. Access confirmation check at Day 3** | IT ITSM | ServiceNow |
+
+# **SOP 2 — Access Request ****&**** Provisioning**
+
+## **Trigger**
+
+Employee or manager submits an access request in ServiceNow.
+
+## **Process Steps**
+
+| **Step** | **Owner** | **SLA** |
+| --- | --- | --- |
+| **1. Employee submits request in ServiceNow (it.nexoraglobal.com)** | Employee / Manager | Immediate |
+| **2. Manager approval notification sent** | ServiceNow (automated) | Manager must approve within 2 business days |
+| **3. Standard access: auto-provisioned on manager approval** | IT Automation | Within 4 hours of approval |
+| **4. Elevated access (cloud write, security tools): secondary approver triggered** | IT Security / Data Governance | Within 3 business days |
+| **5. Access provisioned and confirmation sent to employee** | IT ITSM | Within 24 hours of final approval |
+| **6. Access logged in IT Access Register (Confluence: IT Ops ****>**** Access Register)** | IT ITSM | Same day as provision |
+| **7. Quarterly access review: all elevated access reviewed** | IT Security | Quarterly — January, April, July, October |
+
+# **SOP 3 — Incident Response**
+
+## **Trigger**
+
+PagerDuty alert fires, or a user reports a system issue via ServiceNow / Slack #cloud-incidents.
+
+| **Step** | **Owner** | **Detail** |
+| --- | --- | --- |
+| **1. Alert fires in PagerDuty** | Automated | On-call SRE receives push notification + phone call |
+| **2. SRE acknowledges within SLA** | On-call SRE | P1: 5 min / P2: 30 min |
+| **3. Open incident Slack channel** | On-call SRE | #inc-YYYYMMDD-description. Pin runbook link. |
+| **4. Assess severity and assign Incident Commander** | On-call SRE | P1: Cloud Ops Lead or Senior SRE. P2: On-call SRE. |
+| **5. Diagnose and mitigate** | IC + squad | Use runbooks in Confluence: Cloud Ops > Runbooks. Update channel every 15 min (P1) or 30 min (P2). |
+| **6. Notify stakeholders** | IT Director / IC | P1: IT Director + business stakeholders within 30 min. P2: IT Director aware. |
+| **7. Resolve and close PagerDuty** | IC | Document resolution time and root cause summary in channel |
+| **8. Post-Incident Review (PIR)** | Cloud Ops Lead + IC | P1: within 48h. P2: within 1 week. Template in Confluence. |
+| **9. Action items tracked in Jira** | SRE or assignee | DRI + due date for every action item from PIR |
+
+# **SOP 4 — Infrastructure Change (CAB Process)**
+
+## **Change Types**
+
+| **Standard change** | Pre-approved, low-risk — no CAB needed. Deploy via PR merge to main. |
+| --- | --- |
+| **Normal change** | Moderate risk — submit by Tuesday for Thursday CAB. Requires design doc and rollback plan. |
+| **Emergency change** | P1 remediation — CAB Chair approves by phone/Slack. Retrospective CAB review within 48h. |
+
+## **Normal Change Process**
+
+| **Step** | **Owner** | **Timing** |
+| --- | --- | --- |
+| **1. Engineer opens CAB request in ServiceNow** | Engineer | By Tuesday 17:00 for Thursday CAB |
+| **2. Cloud Ops Lead reviews technical design and rollback plan** | Cloud Ops Lead | By Wednesday |
+| **3. Cloud Security reviews security impact** | Cloud Security | By Wednesday |
+| **4. CAB meeting — change discussed and approved or deferred** | CAB Chair (IT Director) | Thursday 14:00 weekly |
+| **5. Approved change scheduled for deployment window** | Engineer | Deployment windows: Tue/Thu 10pm–2am CT (low-traffic) |
+| **6. Change deployed; post-deployment monitoring for 24h** | SRE + Engineer | Active monitoring in Datadog |
+| **7. Change closed in ServiceNow with deployment notes** | Engineer | Within 24h of successful deployment |
+
+# **SOP 5 — Offboarding ****&**** Access Revocation**
+
+## **Trigger**
+
+Manager or HR notifies IT Ops of an employee departure (resignation, termination, or end of contract).
+
+| **Step** | **Owner** | **Timing** |
+| --- | --- | --- |
+| **1. Manager or HR notifies people.ops@nexoraglobal.com of last working day** | Manager / HR | Immediately on notice accepted |
+| **2. IT ITSM creates offboarding checklist in ServiceNow** | IT ITSM (automated trigger from Workday) | Within 1 business day of HR notification |
+| **3. All system access flagged for revocation (automated list from Access Register)** | IT Automation | Day -1 (day before last working day) |
+| **4. Access revoked at end of last working day (17:30 local time)** | IT Automation + IT ITSM | Last working day 17:30 |
+| **5. Laptop return confirmed (in-person handover or courier arranged)** | IT ITSM | Within 5 business days of last working day |
+| **6. Data export provided to manager (if requested and approved by HR)** | IT ITSM | Within 10 business days |
+| **7. Offboarding checklist closed in ServiceNow** | IT ITSM | Within 10 business days of departure |
+
+|  | **IMMEDIATE REVOCATION** For involuntary terminations, all access must be revoked simultaneously with the employee being notified — not before, not 30 minutes later. IT Security and IT ITSM are on standby for all planned involuntary terminations. Contact IT Security Lead 24 hours in advance. |
+| --- | --- |
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

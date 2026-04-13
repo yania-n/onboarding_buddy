@@ -1,0 +1,69 @@
+**NEXORA  |  ERG Directory  **Nexora's Employee Resource Groups
+
+**NEXORA GLOBAL CORPORATION**
+
+Company-Wide
+
+**  Employee Resource Group Directory  **
+
+**Nexora****'****s Global ERG Network — 2026**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **About Our ERGs**
+
+Nexora has 18 Employee Resource Groups operating across 40 countries. ERGs are voluntary, employee-led communities that foster belonging, provide professional development, and advise the business on inclusion strategy.
+
+All ERGs are open to all employees — both as members and as allies. You do not need to identify with an ERG's primary focus group to join. ERG membership is tracked in Workday.
+
+|  | **JOIN AN ERG** Find ERGs and join via NexoraConnect > Community > Employee Resource Groups. ERG leads are listed there with direct contact details. Most ERGs have a Slack channel — search by ERG name. |
+| --- | --- |
+
+# **ERG Directory**
+
+| **ERG Name** | **Focus** | **Global Lead** | **Slack Channel** | **Headquarters** |
+| --- | --- | --- | --- | --- |
+| **Women@Nexora** | Gender equity and women's advancement | Amara Osei-Bonsu | #erg-women | Austin |
+| **Pride@Nexora** | LGBTQ+ inclusion and advocacy | Jordan Park | #erg-pride | London |
+| **Black Excellence Network** | Black employee community and advancement | Kwame Asante | #erg-ben | Austin |
+| **LatinX@Nexora** | Latino/Hispanic community and culture | Maria Gutierrez | #erg-latinx | São Paulo |
+| **Asian ****&**** Pacific Islander Network** | APA employee community | Yuki Tanaka | #erg-apin | Singapore |
+| **Disability Inclusion Network** | Disability awareness and accessibility | Sarah Chen | #erg-din | London |
+| **Veterans@Nexora** | Military veteran community and transition support | James Kowalski | #erg-vets | Austin |
+| **Parents ****&**** Carers** | Support for parents and caregivers | Niamh O'Brien | #erg-parents | London |
+| **Early Careers** | New graduates and early-career employees | Aisha Nwosu | #erg-earlycareers | Austin |
+| **Nexora Minds** | Mental health awareness and wellbeing | Dr. Priya Nair | #erg-minds | Singapore |
+| **Green@Nexora** | Environmental sustainability advocates | Tom Eriksson | #erg-green | Stockholm |
+| **Faith@Nexora** | Interfaith dialogue and religious inclusion | Omar Diallo | #erg-faith | Austin |
+| **NexoraAbility** | Neurodiversity awareness and inclusion | Lena Fischer | #erg-ability | London |
+| **Women in Tech** | Women in technical and engineering roles | Rachel Obi | #erg-wit | Austin |
+| **Middle East ****&**** Africa Network** | MENA and African employee community | Fatima Al-Hassan | #erg-mena | London |
+| **Nexora Cares** | Volunteering and community giving | Carlos Mendes | #erg-cares | São Paulo |
+| **Data ****&**** Analytics Community** | Cross-functional data practitioner network | Raj Patel | #erg-data | Austin |
+| **Indigenous Peoples Network** | Indigenous employee community and cultural awareness | [Seeking lead] | #erg-ipn | Austin |
+
+# **Starting or Joining an ERG**
+
+## **How to Join**
+
+- Go to NexoraConnect > Community > Employee Resource Groups
+
+- Find your ERG of interest and click 'Join'
+
+- Join the corresponding Slack channel
+
+- Attend the next welcome call (scheduled monthly for most ERGs)
+
+## **How to Start a New ERG**
+
+- Identify at least 10 founding members across at least 2 regions
+
+- Complete the ERG Proposal Template in Confluence: HR > ERG Toolkit
+
+- Present to the Inclusion & Belonging team (inclusion@nexoraglobal.com)
+
+- Receive People Leadership Committee approval (meets quarterly)
+
+- ERG is launched with a dedicated Slack channel, Confluence space, and USD 5,000 annual budget
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

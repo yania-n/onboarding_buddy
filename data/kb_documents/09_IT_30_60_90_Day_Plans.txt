@@ -1,0 +1,174 @@
+**NEXORA  |  IT 30/60/90-Day Plans  **Role-Specific Onboarding Roadmaps
+
+**NEXORA GLOBAL CORPORATION**
+
+IT Department
+
+**  IT Department 30/60/90-Day Plans  **
+
+**Role-Specific Onboarding Roadmaps**
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **How to Use These Plans**
+
+Each 30/60/90-day plan is a structured guide for what to focus on in your first three months. Review this with your manager in your first week and agree any adjustments. Progress against the plan is reviewed at your Day 30, 60, and 90 check-ins in Workday.
+
+|  | **CUSTOMISE YOUR PLAN** These are default plans. Your manager may add role-specific objectives based on current team priorities. The plan is yours — own it and update it as you go. |
+| --- | --- |
+
+# **30/60/90-Day Plan: Technical Product Owner (TPO)**
+
+## **Days 1–30: Learn ****&**** Orient**
+
+Focus: understanding the context, building relationships, completing onboarding tasks.
+
+- Complete all mandatory NexoraLearn modules (Jira, Agile, Data Privacy)
+
+- Submit all access requests including DG-gated tools on Day 1
+
+- Meet your TCP Lead, FPO, Scrum Master, and squad in 1:1s
+
+- Shadow all sprint ceremonies for one full sprint — observe only
+
+- Read the Analytics Platform Product Vision and last 3 sprint retrospectives in Confluence
+
+- Explore the Analytics Platform staging environment (once access granted)
+
+- Join Slack channels: #tcp-team, #analytics-platform, #squad-[yours]
+
+- Review the current epic landscape with your onboarding buddy TPO
+
+## **Days 31–60: Immerse ****&**** Connect**
+
+Focus: deeper technical and process understanding; beginning to contribute.
+
+- Co-facilitate your first backlog refinement session (buddy present)
+
+- Write your first 5 user stories independently — submit for peer review before adding to backlog
+
+- Attend the weekly Roadmap Review with the FPO
+
+- Attend your first Tech Architecture Sync
+
+- Identify and propose one backlog hygiene or process improvement
+
+- Complete your 60-day check-in with your manager
+
+## **Days 61–90: Contribute ****&**** Impact**
+
+Focus: independent delivery; visible contribution; agreeing future goals.
+
+- Own your squad backlog end-to-end — no stories require buddy review before entry
+
+- Facilitate sprint planning and retro independently
+
+- Deliver your first sprint goal as the primary TPO
+
+- Contribute to the quarterly OKR-setting conversation for your squad
+
+- Complete PSPO I certification (or have a study plan in place)
+
+- Complete 90-day formal check-in — agree OKRs for the next quarter
+
+# **30/60/90-Day Plan: Site Reliability Engineer (SRE)**
+
+## **Days 1–30: Learn ****&**** Orient**
+
+Focus: understanding the context, building relationships, completing onboarding tasks.
+
+- Complete mandatory training: Data Privacy, Security Baseline, Incident Runbook Certification
+
+- Submit AWS Console (read) and Datadog access on Day 1; PagerDuty account confirmed
+
+- Install PagerDuty mobile app and verify you appear in the schedule (observe only — not on rota)
+
+- Shadow two full on-call weeks with your buddy (observe all alerts and incidents)
+
+- Review last 5 Post-Incident Reviews in Confluence — understand root cause patterns
+
+- Explore Datadog — understand all dashboards in the Cloud Platform Health space
+
+- Complete 'Nexora AWS Architecture Overview' in NexoraLearn
+
+- Read all runbooks in Confluence: Cloud Ops > Runbooks
+
+## **Days 31–60: Immerse ****&**** Connect**
+
+Focus: deeper technical and process understanding; beginning to contribute.
+
+- Be added to the on-call rotation as secondary (with senior SRE as primary)
+
+- Own a Jira ticket from backlog — reliability improvement or alert tuning — and deliver it
+
+- Co-facilitate your first post-incident review (buddy leads)
+
+- Attend Cloud Cost Review and Security Posture Review as an observer
+
+- Submit AWS write access request (with Cloud Security approval)
+
+- Complete Datadog Observability Engineer certification or equivalent module
+
+## **Days 61–90: Contribute ****&**** Impact**
+
+Focus: independent delivery; visible contribution; agreeing future goals.
+
+- Serve as primary on-call for a full week independently
+
+- Lead a post-incident review independently
+
+- Propose one SLO improvement based on observed trends — present at sprint review
+
+- Complete AWS Solutions Architect — Associate exam (or have exam booked)
+
+- Contribute to one runbook update or new runbook creation
+
+- Agree Year 1 OKRs with manager — certification targets and reliability improvement goals
+
+# **30/60/90-Day Plan: FinOps Analyst**
+
+## **Days 1–30: Learn ****&**** Orient**
+
+Focus: understanding the context, building relationships, completing onboarding tasks.
+
+- Complete mandatory training: Data Privacy, Security Baseline, FinOps Framework Fundamentals
+
+- Submit AWS Cost Explorer (read) and Power BI (FinOps workspace) access on Day 1
+
+- Review the current cloud cost dashboard — understand the main spend drivers
+
+- Shadow the monthly Cloud Cost Review meeting with the Cloud Ops Lead
+
+- Meet Finance BP who attends cost reviews — understand their reporting needs
+
+- Understand Nexora's tagging taxonomy (Confluence: Cloud Ops > Cost Governance)
+
+- Review the last 3 monthly cost reports in Confluence
+
+## **Days 31–60: Immerse ****&**** Connect**
+
+Focus: deeper technical and process understanding; beginning to contribute.
+
+- Own the monthly cloud cost report preparation — supported by Cloud Ops Lead for first time
+
+- Identify and document at least 3 cost optimisation opportunities in the backlog
+
+- Attend Architecture Review Board as an observer — understand cost implications of design decisions
+
+- Complete FinOps Certified Practitioner exam (or have exam booked)
+
+- Present one cost anomaly investigation at sprint review
+
+## **Days 61–90: Contribute ****&**** Impact**
+
+Focus: independent delivery; visible contribution; agreeing future goals.
+
+- Lead the monthly Cloud Cost Review independently (Cloud Ops Lead attends as backup)
+
+- Deliver first Reserved Instance or Savings Plan recommendation — presented to CTO
+
+- Build or enhance one cost allocation dashboard in Power BI
+
+- Agree Year 1 OKRs — savings targets and cost visibility improvement goals
+
+	Nexora Global Corporation  ·  Confidential — Internal Use Only

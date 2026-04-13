@@ -1,0 +1,257 @@
+**NEXORA — Customer Success Department  **|   Customer Onboarding Team Handbook
+
+**NEXORA GLOBAL CORPORATION**
+
+Customer Success Department
+
+**  Customer Onboarding Team  **
+
+**Onboarding Handbook**
+
+*Your guide to the Customer Onboarding Team — how we work, what we do, and how to get started.*
+
+Version 1.0   ·   2026   ·   Internal Use Only
+
+# **Table of Contents**
+
+	1. Welcome to the Customer Onboarding Team	3
+
+	2. Team Structure & Customer Success Department	4
+
+	3. The Onboarding Role — What You Do	5
+
+	4. How We Work — Sprint Cadence	6
+
+	5. Customer Onboarding Journey Flow	7
+
+	6. Meetings & Ceremonies	8
+
+	7. Customer Data & Privacy	9
+
+	8. Definition of Ready & Done	10
+
+	9. Communication Norms	11
+
+	10. Tools Access & Setup Guide	12
+
+	11. Your First 30 Days	13
+
+	12. Key Contacts	14
+
+# **1. Welcome to the Customer Onboarding Team**
+
+Welcome! You've joined the Customer Onboarding Team — a specialist team within Nexora's Customer Success Department focused entirely on getting new customers to first value as quickly and smoothly as possible.
+
+|  | **OUR MISSION** To deliver every new Nexora customer a world-class onboarding experience — ensuring they are live, trained, integrated, and achieving measurable value within their contracted go-live timeframe. |
+| --- | --- |
+
+| **Team name** | Customer Onboarding Team |
+| --- | --- |
+| **Our product** | The end-to-end new customer onboarding journey — from contract signature to 'healthy and live' |
+| **Primary consumers** | New Nexora customers, Account Executives (who hand off deals), Customer Success Managers |
+| **Your manager** | [Assigned Onboarding Lead — see Workday] |
+| **Handbook version** | v1.0, January 2026 |
+
+# **2. Team Structure ****&**** Customer Success Department**
+
+## **Customer Success Department**
+
+The Customer Success Department owns the post-sale customer relationship at Nexora — from the moment a contract is signed through to renewal and expansion. It operates across Account Management (retention and growth), Support & Service (issue resolution), and our team — Customer Onboarding (new customer activation).
+
+| **Function** | **Made up of** | **Focuses on** |
+| --- | --- | --- |
+| **Account Management** | Customer Success Managers, Renewal Managers | Ongoing relationships, health scores, renewals, upsell |
+| **Support ****&**** Service** | Support Engineers, Escalation Managers | Ticket resolution, SLA adherence, escalation management |
+| **Customer Onboarding (YOU)** | Onboarding Specialists, Solutions Engineers, Customer Education | New customer activation, technical setup, training, go-live |
+
+# **3. The Onboarding Role — What You Do**
+
+## **Core Responsibilities**
+
+### **Customer onboarding programme management**
+
+You own the end-to-end onboarding journey for assigned customers — from the sales handoff call through to go-live sign-off. You manage the project plan, coordinate internal resources (Solutions Engineering, Customer Education), and keep the customer on track.
+
+### **Technical configuration ****&**** integration support**
+
+Working with Solutions Engineers, you guide customers through platform configuration, data integration, and user provisioning. You are not responsible for writing code, but you must understand the technical setup well enough to track progress and manage expectations.
+
+### **Customer training delivery**
+
+You deliver or coordinate training sessions for customer admin users and end users. Training follows the Nexora Customer Education playbook — live workshops, e-learning assets, and role-based certification programmes.
+
+### **Risk identification ****&**** escalation**
+
+You monitor onboarding health scores and flag at-risk customers early. A customer is 'at risk' if they are more than 5 days behind plan or have an unresolved blocker. Escalate to the Onboarding Lead immediately — never wait for the weekly review.
+
+## **Key Skills**
+
+| **Project management** | Running multiple parallel customer projects; Gantt charts; stakeholder updates |
+| --- | --- |
+| **Customer communication** | Professional, empathetic, and clear communication with non-technical buyers |
+| **Technical fluency** | Understanding enough of the platform to guide configuration and troubleshoot |
+| **Training facilitation** | Delivering engaging live training to diverse customer audiences |
+| **Risk management** | Identifying early warning signs of at-risk onboardings; escalating proactively |
+
+# **4. How We Work — Sprint Cadence**
+
+The Onboarding Team works in 2-week sprints. Each sprint contains a mix of active customer onboarding project milestones and team improvement work (playbook updates, new training content, process automation).
+
+| **Sprint Planning** | Monday Week 1, 1.5h — review all active onboardings; assign milestone work |
+| --- | --- |
+| **Daily Stand-up** | Every morning, 15 min — customer health, blockers, escalations |
+| **Journey Refinement** | Wednesday Week 1, 90 min — review upcoming onboardings, refine playbook tasks |
+| **Sprint Review** | Friday Week 2, 45 min — review completed milestones and any playbook improvements |
+| **Retrospective** | Friday Week 2, 45 min — team process and playbook improvements |
+
+|  | **CUSTOMER ESCALATIONS** Customer escalations bypass the sprint process entirely. If a customer escalates or is at high risk of churn during onboarding, notify the Onboarding Lead immediately via direct Slack message. Don't wait for stand-up. |
+| --- | --- |
+
+# **5. Customer Onboarding Journey Flow**
+
+| **Stage** | **Owner** | **What happens** |
+| --- | --- | --- |
+| **1. Sales handoff** | Account Executive + Onboarding Lead | Contract signed. AE hands off customer context. Onboarding Specialist assigned. |
+| **2. Kickoff call** | Onboarding Specialist | Introductions, project plan reviewed, success criteria agreed, stakeholders mapped |
+| **3. Technical setup** | Solutions Engineer + Onboarding Specialist | Platform configured, integrations built, data migrated, users provisioned |
+| **4. Training** | Customer Education + Onboarding Specialist | Admin training, end-user training, certification programme |
+| **5. Go-live** | Onboarding Specialist + Customer | Customer live on platform. Go-live checklist completed and signed off. |
+| **6. Handoff to CSM** | Onboarding Lead + CSM | 30-day post-go-live health check. Formal handoff to Account Management. |
+
+# **6. Meetings ****&**** Ceremonies**
+
+| **Meeting** | **Frequency / Duration** | **Your role** |
+| --- | --- | --- |
+| **Sprint Planning** | Biweekly, Monday, 90 min | Attend; flag customer project milestones and capacity constraints |
+| **Daily Stand-up** | Daily, 15 min | Attend; share customer health updates and blockers |
+| **Journey Refinement** | Biweekly, Wednesday, 90 min | Contribute to playbook improvements and new onboarding scoping |
+| **Sprint Review** | Biweekly, Friday, 45 min | Present go-live completions and milestone achievements |
+| **Sprint Retrospective** | Biweekly, Friday, 45 min | Participate and raise playbook improvements |
+| **Customer Kickoff Calls** | Per new customer | Lead or co-lead — see onboarding playbook for agenda template |
+| **At-Risk Customer Reviews** | Weekly, 30 min | Attend; discuss and action plan all at-risk onboardings |
+| **Onboarding ****<****>**** CSM Sync** | Weekly, 30 min | Attend; co-ordinate handoffs from Onboarding to Account Management |
+
+# **7. Customer Data ****&**** Privacy**
+
+## **Handling Customer Data**
+
+- Customer data shared during onboarding is strictly confidential — never shared outside the project team without written customer consent
+
+- All customer data is stored in Salesforce and the designated SharePoint customer folder — never in personal drives
+
+- Customer contact details, contractual terms, and configuration data are classified as Confidential per Nexora's Data Governance Policy
+
+- Any suspected data breach involving customer data must be reported to Legal immediately via legal@nexoraglobal.com
+
+|  | **NDA ****&**** CONFIDENTIALITY** Some enterprise customers operate under additional NDA terms. Check the customer record in Salesforce before sharing any project documentation externally. Flag to the Onboarding Lead if you're unsure. |
+| --- | --- |
+
+# **8. Definition of Ready ****&**** Done**
+
+## **An onboarding project is Ready to start when:**
+
+- Signed contract is in Salesforce and contract value is confirmed
+
+- Sales handoff call completed and discovery notes shared in Salesforce
+
+- Success criteria and go-live date agreed with the customer
+
+- Internal resources (Solutions Engineer, Customer Education) confirmed available
+
+## **An onboarding is Done when:**
+
+- Customer is live on the platform and go-live checklist is signed off by customer
+
+- All contracted training sessions delivered and attendance recorded
+
+- 30-day health score is Green (per CS health score framework)
+
+- Formal handoff to CSM completed and documented in Salesforce
+
+# **9. Communication Norms**
+
+| **#onboarding-team** | Internal team channel — daily coordination and escalations |
+| --- | --- |
+| **#cs-general** | Broader CS department channel — join for context |
+| **#customer-[name]** | Dedicated Slack channel per enterprise customer — created at kickoff |
+| **Email** | All customer-facing communications — professional tone, respond within 4 hours |
+| **Salesforce** | Single source of truth for all customer project status and notes |
+| **Confluence** | Internal onboarding playbooks, training materials, process docs |
+
+# **10. Tools Access ****&**** Setup Guide**
+
+## **Core Tools**
+
+### **Salesforce — CRM and customer project management**
+
+| **Access** | ServiceNow > Software Access > Salesforce > Role: Customer Success |
+| --- | --- |
+| **Approval** | Manager approval (1 business day) |
+| **Training** | NexoraLearn: 'Salesforce for CS Teams' (2h, mandatory Week 1) |
+| **Use** | Customer records, onboarding project tracking, health scores, handoff documentation |
+
+### **Gainsight — Customer health and success platform**
+
+| **Access** | ServiceNow > Software Access > Gainsight > Role: Onboarding Specialist |
+| --- | --- |
+| **Approval** | Manager approval (2 business days) |
+| **Use** | Onboarding health scores, milestone tracking, automated customer journeys |
+
+### **Nexora Analytics Platform — The product you onboard customers onto**
+
+| **Access** | ServiceNow > Data Platform > Analytics Platform > Role: Customer Onboarding (DG approval required) |
+| --- | --- |
+| **Approval** | Manager + Data Governance (3 business days) |
+| **Note** | You will use the platform's sandbox environment for customer configuration — never production |
+
+### **Jira ****&**** Confluence**
+
+| **Jira** | ServiceNow > Software Access > Jira > Project: Customer Onboarding |
+| --- | --- |
+| **Confluence** | ServiceNow > Software Access > Confluence > Space: Customer Success |
+
+### **Zoom Webinars — Customer training delivery**
+
+| **Access** | Provisioned with Microsoft 365. Request Webinar licence via ServiceNow if running training for > 50 attendees. |
+| --- | --- |
+
+# **11. Your First 30 Days**
+
+## **Week 1 — Orient**
+
+- Complete Customer Data Privacy and Salesforce training in NexoraLearn
+
+- Submit access requests for Salesforce, Gainsight, and Analytics Platform Sandbox
+
+- Meet your Onboarding Lead, Solutions Engineers, and onboarding buddy
+
+- Review 2 recently completed onboarding projects in Salesforce to understand the journey
+
+## **Week 2 — Immerse**
+
+- Shadow your buddy on a live customer kickoff call and weekly check-in
+
+- Attend sprint ceremonies and the weekly At-Risk Customer Review
+
+- Review the Customer Onboarding Playbook in Confluence end-to-end
+
+## **Weeks 3–4 — Contribute**
+
+- Co-manage one active customer onboarding with your buddy
+
+- Deliver your first customer training session (with buddy present)
+
+- Complete your 30-day check-in with your manager in Workday
+
+# **12. Key Contacts**
+
+| **Onboarding Lead** | [Name TBC]   │   onboarding@nexoraglobal.com |
+| --- | --- |
+| **VP of Customer Success** | Nina Chakraborty   │   n.chakraborty@nexoraglobal.com |
+| **Solutions Engineering Lead** | [Name TBC]   │   solutions.eng@nexoraglobal.com |
+| **Legal (NDA queries)** | legal@nexoraglobal.com |
+| **IT Helpdesk** | helpdesk@nexoraglobal.com   │   ext. 5000 |
+
+**The onboarding experience shapes a customer****'****s entire perception of Nexora. What you do in those first weeks matters enormously. Welcome to the team.**
+
+	Confidential — Internal Use Only
