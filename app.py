@@ -172,7 +172,7 @@ if __name__ == "__main__":
     app.launch(
         server_name="0.0.0.0",   # Required for HF Spaces
         server_port=7860,         # Default HF Spaces port
-        share=False,              # Set True for local share link
+        share=True,              # Set True for local share link
         show_error=True,
         theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
         css=ADMIN_CSS + JOINER_CSS + """
