@@ -156,7 +156,6 @@ def build_app() -> gr.Blocks:
         interface_list=[admin_app, joiner_app],
         tab_names=["🧭 Admin Portal", "🌱 My Onboarding Journey"],
         title=f"{APP_TITLE} — Nexora Global Corporation",
-        theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
         css=ADMIN_CSS + JOINER_CSS + """
         /* Global tab bar styling */
         .tab-nav button {
@@ -187,4 +186,5 @@ if __name__ == "__main__":
         server_port=7860,         # Default HF Spaces port
         share=False,              # Set True for local share link
         show_error=True,
+        theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
     )
