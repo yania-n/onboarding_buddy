@@ -34,8 +34,8 @@ from core.config import (
 from core.knowledge_base import KnowledgeBase
 from core.state_store import StateStore
 from agents.orchestrator import Orchestrator
-from ui.admin_app import build_admin_app
-from ui.joiner_app import build_joiner_app
+from ui.admin_app import build_admin_app, ADMIN_CSS
+from ui.joiner_app import build_joiner_app, JOINER_CSS
 
 
 # ─────────────────────────────────────────────
@@ -156,7 +156,8 @@ def build_app() -> gr.Blocks:
         interface_list=[admin_app, joiner_app],
         tab_names=["🧭 Admin Portal", "🌱 My Onboarding Journey"],
         title=f"{APP_TITLE} — Nexora Global Corporation",
-        css="""
+        theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
+        css=ADMIN_CSS + JOINER_CSS + """
         /* Global tab bar styling */
         .tab-nav button {
             font-weight: 600;
