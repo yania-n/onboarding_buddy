@@ -1,130 +1,125 @@
 #!/usr/bin/env bash
 # =============================================================
-# deploy_to_hf.sh — OnboardingBuddy Deployment Script
+# deploy_to_hf.sh — OnboardingBuddy → Hugging Face Spaces
 # =============================================================
-# Sets up a GitHub repo and pushes to Hugging Face Spaces.
-#
 # Usage:
-#   chmod +x deploy_to_hf.sh
-#   ./deploy_to_hf.sh
+#   export HF_TOKEN=hf_xxxxxxxxxxxx
+#   bash deploy_to_hf.sh
 #
-# Prerequisites:
-#   - git installed and configured (git config --global user.email / user.name)
-#   - huggingface_hub installed: pip install huggingface_hub
-#   - Your HF token set: huggingface-cli login   OR   export HF_TOKEN=hf_...
-#
-# What this script does:
-#   1. Initialises a git repo (if not already one)
-#   2. Copies README_HF.md → README.md for Spaces (overwrites local README)
-#   3. Commits all files
-#   4. Adds the HF Spaces remote
-#   5. Force-pushes to HF Spaces
-#
-# After running: open https://huggingface.co/spaces/YOUR_USERNAME/OnboardingBuddy
-# Then go to Settings → Secrets and add ANTHROPIC_API_KEY + VOYAGE_API_KEY
+# Or run interactively — it will prompt for your token.
 # =============================================================
 
-set -e  # Exit on first error
+set -e
 
-# ── Configuration ──────────────────────────────────────────
-HF_USERNAME="${HF_USERNAME:-}"          # Set via env or prompt below
-SPACE_NAME="${SPACE_NAME:-OnboardingBuddy}"
-GITHUB_USERNAME="${GITHUB_USERNAME:-}"  # Optional — for GitHub remote
-
-# ── Colours ────────────────────────────────────────────────
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 CYAN='\033[0;36m'
-NC='\033[0m'  # No colour
+NC='\033[0m'
+
+REPO_ID="yania-n/OnboardingBuddy"
+SPACE_URL="https://huggingface.co/spaces/${REPO_ID}"
 
 echo -e "${CYAN}"
-echo "  ┌─────────────────────────────────────────────┐"
-echo "  │   OnboardingBuddy — Deployment to HF Spaces │"
-echo "  └─────────────────────────────────────────────┘"
+echo "  ┌──────────────────────────────────────────────┐"
+echo "  │   OnboardingBuddy — Deploy to HF Spaces      │"
+echo "  │   Target: ${REPO_ID}    │"
+echo "  └──────────────────────────────────────────────┘"
 echo -e "${NC}"
 
-# ── Prompt for HF username if not set ──────────────────────
-if [ -z "$HF_USERNAME" ]; then
-    read -rp "Enter your Hugging Face username: " HF_USERNAME
+# ── Get HF token ───────────────────────────────────────────
+if [ -z "$HF_TOKEN" ]; then
+    read -rsp "Enter your Hugging Face token (hf_...): " HF_TOKEN
+    echo ""
 fi
 
-HF_SPACE_URL="https://huggingface.co/spaces/${HF_USERNAME}/${SPACE_NAME}"
-HF_GIT_URL="https://huggingface.co/spaces/${HF_USERNAME}/${SPACE_NAME}"
+if [ -z "$HF_TOKEN" ]; then
+    echo "Error: HF_TOKEN is required."
+    exit 1
+fi
 
-echo -e "${YELLOW}Target Space:${NC} ${HF_SPACE_URL}"
+echo -e "${GREEN}[1/2]${NC} Uploading files to ${REPO_ID}..."
+
+python3 << PYEOF
+import os, sys
+from pathlib import Path
+
+token = "${HF_TOKEN}"
+
+try:
+    from huggingface_hub import HfApi, login
+except ImportError:
+    print("Installing huggingface_hub...")
+    os.system("pip install huggingface_hub -q --break-system-packages")
+    from huggingface_hub import HfApi, login
+
+login(token=token, add_to_git_credential=False)
+api = HfApi()
+
+REPO_ID   = "${REPO_ID}"
+REPO_TYPE = "space"
+BASE      = Path(__file__).parent if "__file__" in dir() else Path(".")
+
+# Detect script location reliably
+import inspect
+BASE = Path(inspect.getfile(lambda: None) if False else os.path.abspath("."))
+
+SKIP_DIRS = {"__pycache__", ".git", ".venv", "venv", "onboarding_buddy"}
+SKIP_EXTS = {".pyc", ".pkl", ".faiss", ".bin"}
+INCLUDE   = ["app.py", "requirements.txt", "README_HF.md", "core", "agents", "ui"]
+
+all_files = []
+for inc in INCLUDE:
+    p = BASE / inc
+    if p.is_file():
+        all_files.append(p)
+    elif p.is_dir():
+        for f in sorted(p.rglob("*")):
+            if f.is_file():
+                if any(d in f.parts for d in SKIP_DIRS):
+                    continue
+                if f.suffix in SKIP_EXTS:
+                    continue
+                all_files.append(f)
+
+print(f"Uploading {len(all_files)} files...")
+errors = []
+for fpath in all_files:
+    rel = str(fpath.relative_to(BASE))
+    path_in_repo = "README.md" if rel == "README_HF.md" else rel
+    try:
+        api.upload_file(
+            path_or_fileobj=str(fpath),
+            path_in_repo=path_in_repo,
+            repo_id=REPO_ID,
+            repo_type=REPO_TYPE,
+            token=token,
+        )
+        print(f"  ✓ {path_in_repo}")
+    except Exception as e:
+        errors.append(f"  ✗ {path_in_repo}: {e}")
+        print(errors[-1])
+
+if errors:
+    print(f"\n{len(errors)} file(s) failed to upload.")
+    sys.exit(1)
+else:
+    print("\nAll files uploaded successfully.")
+PYEOF
+
 echo ""
-
-# ── Step 1: Git init ───────────────────────────────────────
-echo -e "${GREEN}[1/5]${NC} Initialising git repository..."
-if [ ! -d ".git" ]; then
-    git init
-    echo "  ✓ New git repo initialised"
-else
-    echo "  ✓ Existing git repo found"
-fi
-
-# ── Step 2: Prepare README for HF Spaces ──────────────────
-echo -e "${GREEN}[2/5]${NC} Preparing README for Hugging Face Spaces..."
-# HF Spaces requires the YAML front-matter in README.md
-# We keep README_HF.md as the Spaces readme and README.md as the developer readme
-# On HF, we want the front-matter version
-cp README_HF.md README.md
-echo "  ✓ README.md updated with HF front-matter"
-
-# ── Step 3: Ensure data directory is committed ────────────
-echo -e "${GREEN}[3/5]${NC} Checking KB documents..."
-KB_COUNT=$(find data/kb_documents -name "*.txt" 2>/dev/null | wc -l | tr -d ' ')
-echo "  ✓ ${KB_COUNT} KB documents in data/kb_documents/"
-
-# Create a .gitkeep so empty data/ subfolders are tracked
-touch data/.gitkeep
-
-# ── Step 4: Git add & commit ───────────────────────────────
-echo -e "${GREEN}[4/5]${NC} Committing files..."
-git add -A
-git diff --cached --stat | head -20
-echo ""
-git commit -m "OnboardingBuddy — deploy $(date '+%Y-%m-%d %H:%M')" || echo "  (nothing new to commit)"
-echo "  ✓ Committed"
-
-# ── Step 5: Push to HF Spaces ─────────────────────────────
-echo -e "${GREEN}[5/5]${NC} Pushing to Hugging Face Spaces..."
-
-# Add remote if not already present
-if ! git remote get-url hf &>/dev/null; then
-    git remote add hf "${HF_GIT_URL}"
-    echo "  ✓ Added HF remote: ${HF_GIT_URL}"
-else
-    git remote set-url hf "${HF_GIT_URL}"
-    echo "  ✓ Updated HF remote"
-fi
-
-# Push (HF Spaces uses 'main' branch)
-git push hf main --force
-echo "  ✓ Pushed to HF Spaces"
-
-# ── Optional: GitHub remote ───────────────────────────────
-if [ -n "$GITHUB_USERNAME" ]; then
-    GITHUB_URL="https://github.com/${GITHUB_USERNAME}/onboarding-buddy"
-    if ! git remote get-url origin &>/dev/null; then
-        git remote add origin "${GITHUB_URL}"
-    fi
-    git push origin main --force 2>/dev/null || echo "  (GitHub push skipped — create the repo at github.com first)"
-fi
-
-# ── Done ──────────────────────────────────────────────────
+echo -e "${GREEN}[2/2]${NC} Done!"
 echo ""
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${GREEN}✅ Deployment complete!${NC}"
 echo ""
-echo -e "  Space URL:    ${YELLOW}${HF_SPACE_URL}${NC}"
+echo -e "  Space URL:  ${YELLOW}${SPACE_URL}${NC}"
 echo ""
-echo -e "${YELLOW}⚠️  Next step — add your secrets:${NC}"
-echo "  1. Go to: ${HF_SPACE_URL}/settings"
+echo -e "${YELLOW}⚠️  Add your API secrets in Space Settings:${NC}"
+echo "  1. Go to: ${SPACE_URL}/settings"
 echo "  2. Scroll to 'Repository Secrets'"
-echo "  3. Add:  ANTHROPIC_API_KEY = your_key"
-echo "  4.       VOYAGE_API_KEY    = your_key"
+echo "  3. Add:  ANTHROPIC_API_KEY  = your_anthropic_key"
+echo "  4. Add:  VOYAGE_API_KEY     = your_voyage_key"
+echo "  5. Add:  GOOGLE_API_KEY     = your_google_key  (optional)"
 echo ""
-echo "  The Space will rebuild automatically after secrets are set."
+echo "  The Space rebuilds automatically after secrets are saved."
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
