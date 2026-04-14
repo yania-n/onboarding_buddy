@@ -15,6 +15,9 @@ faiss-cpu>=1.7.4
 
 # ── UI Framework ─────────────────────────────────────────────
 gradio>=4.44.0
+# audioop-lts: backport of the audioop stdlib module removed in Python 3.13.
+# Required because gradio → pydub → audioop, and HF Spaces runs Python 3.13.
+audioop-lts>=0.2.1
 
 # ── Google Drive Integration ──────────────────────────────────
 # Used to sync KB documents from the organisation's Drive folder
