@@ -1,19 +1,26 @@
 """
 agents/org_agent.py — Org & Role Context Agent
 ===============================================
-Surfaces organisational context relevant to the joiner:
+Surfaces organisational context relevant to the new joiner:
   - Where their team sits in the company structure
-  - Team mission and responsibilities
-  - How the role connects to company OKRs and growth
-  - Key stakeholders to know
+  - Company mission, values, and OKRs
+  - How the role connects to company growth
+  - Key stakeholders they should know and why (with contact details)
 
-Activates in parallel on Day 1.
-Content is posted as an in-app notification available from Day 3 (per spec).
+Data source: knowledge base ONLY (no HRIS — PoC constraint).
+The KB contains org charts, team charters, department missions, and
+role wikis ingested from the company's Google Drive.
 
-Model: Claude Haiku (retrieval-based — not high reasoning complexity).
+Activation: called on Day 1 by the orchestrator in parallel with other agents.
+Output is stored as an in-app notification viewable in "My Journey" tab.
+
+Model routing:
+  - KB retrieval  : Voyage + FAISS (no LLM)
+  - Brief writing : Claude Haiku (cheap, fast, factual summary)
 """
 
 import anthropic
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from core.config import ANTHROPIC_API_KEY, MODEL_FAST
 from core.models import JoinerProfile, JoinerState
@@ -21,84 +28,137 @@ from core.state_store import StateStore
 from core.knowledge_base import KnowledgeBase
 
 
-_ORG_SYSTEM_PROMPT = """You are OnboardingBuddy's org context specialist.
-Using only the provided knowledge base content, write a warm and clear summary for a new joiner
-that covers: (1) where their team sits in the company, (2) their department's mission,
-(3) how their role connects to company goals, (4) 3–5 key people they should know.
-Keep it under 350 words. Use a friendly, welcoming tone. Use bullet points where helpful.
-Only use information from the context — do not invent names, titles, or facts.
-"""
+# ─────────────────────────────────────────────
+# System prompt
+# ─────────────────────────────────────────────
+
+_ORG_SYSTEM = """You are OnboardingBuddy's Org & Role agent.
+Write a personalised "Your Team & Organisation" brief for a new joiner.
+Use ONLY the knowledge base context provided — no external knowledge or invented details.
+
+Structure your brief with these headings:
+## Your Team
+## Where You Fit in the Company
+## Key People to Know  (list 3–5, each with a one-line reason why)
+## Culture Highlights  (2–3 key culture points)
+
+Style:
+- Warm and direct — write TO the joiner ("you", "your team")
+- 300–400 words total
+- End with one encouraging sentence
+- If KB context is thin for this team/role, say so honestly instead of inventing content."""
 
 
 class OrgAgent:
-    """Builds the org & role context brief for a new joiner."""
+    """
+    Builds a personalised org & role context brief for each new joiner.
+    Called once at activation. Output stored as an in-app notification.
+    """
 
     def __init__(self, store: StateStore, kb: KnowledgeBase):
-        self.store = store
-        self.kb = kb
-        self._client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else None
+        self.store   = store
+        self.kb      = kb
+        self._client = (
+            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            if ANTHROPIC_API_KEY else None
+        )
+
+    # ── Public API ────────────────────────────────────────────────────────────
 
     def build_org_brief(self, profile: JoinerProfile, state: JoinerState) -> None:
         """
-        Query the KB for org/team/role context, generate a brief, and
-        post it as a Day-3-ready notification in the joiner's state.
+        Build and store the org context brief.
+
+        1. Retrieve KB chunks for department, team, role, and culture
+        2. Generate the personalised brief with Claude Haiku
+        3. Append the brief as an in-app notification to the state store
         """
-        # Retrieve relevant KB content
+        print(f"[OrgAgent] Building brief for {profile.full_name} / {profile.department}")
+
+        # Targeted queries covering the four brief sections
         queries = [
-            f"{profile.department} department team structure mission",
-            f"{profile.job_title} role responsibilities stakeholders",
-            "company OKRs strategy how teams connect",
-            f"{profile.team} team ways of working",
+            f"{profile.department} {profile.team} team charter mission responsibilities",
+            f"{profile.job_title} {profile.seniority} role stakeholders key contacts",
+            f"company OKRs strategy growth {profile.business_unit} {profile.division}",
+            f"culture values ways of working communication norms rituals",
         ]
 
-        chunks = []
-        seen_sources = set()
-        for q in queries:
-            for chunk in self.kb.retrieve(q, top_k=3):
-                if chunk["source"] not in seen_sources:
-                    chunks.append(chunk)
-                    seen_sources.add(chunk["source"])
+        # Collect and deduplicate retrieved chunks
+        seen:       set[str]  = set()
+        all_chunks: list[dict] = []
+        for query in queries:
+            for chunk in self.kb.retrieve(query, top_k=3):
+                key = f"{chunk['source']}:{chunk['chunk_index']}"
+                if key not in seen:
+                    seen.add(key)
+                    all_chunks.append(chunk)
 
-        context = "\n\n---\n\n".join(
-            f"[{c['source']}]\n{c['text']}" for c in chunks[:8]
-        )
+        # Generate brief (LLM or structured fallback)
+        if self._client and all_chunks:
+            brief = self._generate_with_llm(profile, all_chunks)
+        elif all_chunks:
+            brief = self._template_brief(profile, all_chunks)
+        else:
+            brief = self._fallback_brief(profile)
 
-        # Generate brief
-        brief = self._generate_brief(profile, context)
-
-        # Post to joiner state atomically (avoid race with other Day-1 agents)
+        # Store as in-app notification
         self.store.append_to_state(
-            profile.joiner_id,
-            notifications=[f"🏢 Your Org Context Brief (available from Day 3)\n\n{brief}"],
+            joiner_id=profile.joiner_id,
+            notifications=[f"🏢 **Your Team & Organisation Brief**\n\n{brief}"],
+        )
+        print(f"[OrgAgent] Brief stored for {profile.full_name}")
+
+    # ── Private helpers ───────────────────────────────────────────────────────
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
+    def _generate_with_llm(self, profile: JoinerProfile, chunks: list[dict]) -> str:
+        """Call Claude Haiku with KB context to produce the personalised brief."""
+        context = "\n\n---\n\n".join(
+            f"[Source: {c['source']}]\n{c['text']}" for c in chunks[:10]
+        )
+        user_msg = (
+            f"New joiner details:\n"
+            f"  Name: {profile.full_name}\n"
+            f"  Role: {profile.job_title} ({profile.seniority})\n"
+            f"  Department: {profile.department} · Team: {profile.team}\n"
+            f"  Business Unit: {profile.business_unit} · Division: {profile.division}\n"
+            f"  Manager: {profile.manager_name} <{profile.manager_email}>\n"
+            f"  Buddy: {profile.buddy_name} <{profile.buddy_email}>\n\n"
+            f"Knowledge base context:\n\n{context}\n\n"
+            f"Write the personalised org & role brief for {profile.full_name}."
+        )
+        resp = self._client.messages.create(
+            model=MODEL_FAST,
+            max_tokens=700,
+            system=_ORG_SYSTEM,
+            messages=[{"role": "user", "content": user_msg}],
+        )
+        return resp.content[0].text.strip()
+
+    def _template_brief(self, profile: JoinerProfile, chunks: list[dict]) -> str:
+        """Structured fallback when LLM is unavailable — surfaces top KB chunk."""
+        top = chunks[0]["text"][:600]
+        return (
+            f"## Your Team — {profile.department}\n\n"
+            f"**Role:** {profile.job_title} · **Manager:** {profile.manager_name} "
+            f"({profile.manager_email})\n\n"
+            f"From the knowledge base:\n\n{top}\n\n"
+            f"Use **Ask Me Anything** to explore more about your team and role."
         )
 
-    def _generate_brief(self, profile: JoinerProfile, context: str) -> str:
-        if self._client is None or not context.strip():
-            return (
-                f"Welcome to the {profile.department} department, {profile.full_name}! "
-                f"Your manager {profile.manager_name} will walk you through your team's "
-                f"structure and priorities in your first 1:1. "
-                f"Check the Employee Directory and Culture Playbook for more context."
-            )
-
-        try:
-            prompt = (
-                f"New joiner profile:\n"
-                f"- Name: {profile.full_name}\n"
-                f"- Role: {profile.job_title} ({profile.seniority})\n"
-                f"- Department: {profile.department}\n"
-                f"- Team: {profile.team}\n"
-                f"- Division: {profile.division}\n\n"
-                f"Knowledge base context:\n\n{context}\n\n"
-                f"Write the org context brief for this joiner."
-            )
-            response = self._client.messages.create(
-                model=MODEL_FAST,
-                max_tokens=512,
-                system=_ORG_SYSTEM_PROMPT,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            return response.content[0].text.strip()
-        except Exception as e:
-            print(f"[OrgAgent] LLM error: {e}")
-            return f"Your org context is being prepared. Check back on Day 3 — your manager {profile.manager_name} can also walk you through it."
+    def _fallback_brief(self, profile: JoinerProfile) -> str:
+        """Minimal brief when KB has no relevant content for this team/role."""
+        return (
+            f"## Welcome to {profile.department}, {profile.full_name}!\n\n"
+            f"You're joining as **{profile.job_title}**.\n\n"
+            f"Your manager **{profile.manager_name}** ({profile.manager_email}) "
+            f"and buddy **{profile.buddy_name}** ({profile.buddy_email}) are your "
+            f"primary sources of team context.\n\n"
+            f"**To arrange your buddy intro call:** reach out to {profile.buddy_name} "
+            f"directly at {profile.buddy_email}"
+            + (f" or via their calendar link: {profile.buddy_calendar_link}"
+               if profile.buddy_calendar_link else "")
+            + ".\n\n"
+            f"Use **Ask Me Anything** to query the knowledge base — any gaps you "
+            f"find will be flagged for the admin team to fill in."
+        )

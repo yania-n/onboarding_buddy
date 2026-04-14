@@ -1,160 +1,133 @@
-# 🧭 OnboardingBuddy
+---
+title: OnboardingBuddy
+emoji: 🌱
+colorFrom: green
+colorTo: gray
+sdk: gradio
+sdk_version: "4.44.0"
+app_file: app.py
+pinned: false
+license: mit
+---
 
-> AI-powered employee onboarding for Nexora Global Corporation — a Proof of Concept.
+# 🌱 OnboardingBuddy
 
-OnboardingBuddy guides new joiners through a structured 90-day onboarding journey with:
-- A **manager admin portal** to register joiners and monitor progress
-- A **personalised joiner experience** with phase checklists, a KB-grounded chatbot, training plan, and notifications
-- A **multi-agent AI backend** that activates in parallel on Day 1
+**AI-powered 90-day employee onboarding system** built with Claude (Anthropic) + Gradio.
 
 ---
 
-## 🏗 Architecture
+## What it does
 
-```
-app.py                        ← Entry point (Gradio, scheduler)
-├── core/
-│   ├── config.py             ← All constants, phase definitions, model routing
-│   ├── models.py             ← Pydantic data models
-│   ├── state_store.py        ← JSON persistence layer (swappable for DB)
-│   └── knowledge_base.py     ← RAG pipeline (Voyage AI + FAISS)
-├── agents/
-│   ├── orchestrator.py       ← Central router — activates all agents on Day 1
-│   ├── qa_agent.py           ← KB-grounded Q&A chatbot (Haiku)
-│   ├── org_agent.py          ← Org & role context builder (Haiku)
-│   ├── access_agent.py       ← IT provisioning ticket tracker
-│   ├── training_agent.py     ← LMS course plan builder
-│   ├── buddy_agent.py        ← Buddy intro booking + peer recommendations (Haiku)
-│   ├── feedback_agent.py     ← Phase-end pulse surveys + sentiment (Haiku/Sonnet)
-│   └── progress_tracker.py   ← Overdue phase nudges + manager summaries (Haiku)
-├── ui/
-│   ├── admin_app.py          ← Manager portal (Gradio Blocks)
-│   └── joiner_app.py         ← Joiner journey app (Gradio Blocks)
-└── data/
-    └── kb_documents/         ← 40 Nexora knowledge base documents
-```
+OnboardingBuddy guides new employees through a structured 6-phase onboarding journey while giving managers real-time visibility and control.
 
-### Model routing strategy (cost-optimised)
+**Admin Portal** (manager-facing):
+- Add new joiners via a form with dropdowns (business unit, department, role, tools)
+- Monitor all active joiners: phase progress, checklist completion, sentiment
+- Confirm LMS training completion to unlock Phase 3
+- Review knowledge gaps (unanswered chatbot questions)
+- Generate weekly manager summaries
 
-| Task | Model | Why |
-|------|-------|-----|
-| KB Q&A, nudges, sentiment classification | `claude-haiku-4-5` | Fast, cheap, sufficient |
-| Buddy intro letters, escalation messages | `claude-sonnet-4-5` | Higher-stakes communication |
-| Embeddings | `voyage-3-lite` | Free tier, high quality |
-| Vector search | FAISS `IndexFlatIP` | In-memory, no infra cost |
+**Joiner App** (new employee-facing):
+- Phase timeline showing progress across all 6 phases
+- Interactive checklist per phase — tick items and mark phases complete
+- "Ask Anything" chatbot grounded in the company knowledge base
+- Training plan with mandatory vs role-specific courses
+- IT access request tracker
+- Pulse feedback surveys at 50% and 100% completion
+- All agent notifications in one place
 
 ---
 
-## 🚀 Setup
+## Architecture
 
-### 1. Clone the repo
+```
+Apps (Gradio)
+  ├── admin_app.py        Manager portal
+  └── joiner_app.py       New joiner companion
 
-```bash
-git clone https://github.com/YOUR_USERNAME/onboarding-buddy.git
-cd onboarding-buddy
+Orchestrator
+  └── orchestrator.py     Wires all agents, enforces phase gates
+
+Core Agents
+  ├── org_agent           Org structure brief
+  ├── access_agent        IT ticket simulation
+  ├── training_agent      Personalised course plan
+  └── qa_agent            KB-grounded chatbot
+
+Added Agents
+  ├── buddy_agent         Buddy welcome note
+  ├── integration_agent   IT/LMS confirmation, buddy contact
+  ├── feedback_agent      Pulse survey + sentiment analysis
+  └── progress_tracker    Overdue phase nudges (every 6h)
+
+Infrastructure
+  ├── KnowledgeBase       Google Drive sync → FAISS RAG pipeline
+  └── StateStore          Thread-safe JSON persistence
 ```
 
-### 2. Install dependencies
+**Models**: `claude-haiku-4-5-20251001` (fast tasks) · `claude-sonnet-4-6` (quality tasks)  
+**Embeddings**: Voyage AI `voyage-3-lite`  
+**Vector search**: FAISS IndexFlatIP (cosine similarity)
+
+---
+
+## Environment variables
+
+Set these in **Space Settings → Variables and Secrets**:
+
+| Variable | Required | Description |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | ✅ Yes | Claude API key |
+| `VOYAGE_API_KEY` | ✅ Yes | Voyage AI embeddings key |
+| `GOOGLE_API_KEY` | Optional | Google Drive API key for KB sync |
+| `GOOGLE_DRIVE_FOLDER_ID` | Optional | Drive folder with company docs (default: shared folder) |
+
+The app starts in **degraded mode** if keys are missing — agents fall back to templates, KB uses keyword search.
+
+---
+
+## 6-Phase onboarding journey
+
+| Phase | Name | Days | Gate |
+|---|---|---|---|
+| 1 | Welcome | 1–2 | Joiner ticks checklist |
+| 2 | Bearings | 3–5 | Joiner ticks checklist |
+| 3 | Learning | 5–30 | **LMS gate** — admin confirms course completion |
+| 4 | Hands Dirty | 15–60 | Joiner ticks checklist |
+| 5 | Ready to Own | 60–90 | Joiner ticks checklist |
+| 6 | Finish Line | Day 90 | Joiner ticks checklist + feedback |
+
+---
+
+## PoC constraints
+
+This is a **Proof of Concept** — the following are simulated (not live integrations):
+- IT provisioning → tickets written to in-app state; would call IT API in production
+- LMS → admin confirms manually; would poll LMS API in production
+- Calendar booking → joiner is directed to email/calendar link directly
+- Notifications → in-app only; would use MS Teams/email in production
+- HRIS → no integration; org data sourced from knowledge base
+
+---
+
+## Local development
 
 ```bash
+git clone https://huggingface.co/spaces/yania-n/OnboardingBuddy
+cd OnboardingBuddy
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-### 3. Configure API keys
+# Create .env
+echo "ANTHROPIC_API_KEY=your_key" > .env
+echo "VOYAGE_API_KEY=your_key" >> .env
 
-```bash
-cp .env.example .env
-# Edit .env and add your keys
-```
-
-Required keys:
-- `ANTHROPIC_API_KEY` — [console.anthropic.com](https://console.anthropic.com)
-- `VOYAGE_API_KEY` — [dash.voyageai.com](https://dash.voyageai.com) (free tier available)
-
-### 4. Run locally
-
-```bash
+# Run
 python app.py
+# → Open http://localhost:7860
 ```
 
-Open `http://localhost:7860`
-
 ---
 
-## ☁️ Deploy to Hugging Face Spaces
-
-### One-time setup
-
-1. Create a new Space at [huggingface.co/new-space](https://huggingface.co/new-space)
-   - SDK: **Gradio**
-   - Hardware: **CPU Basic** (free)
-
-2. Set Secrets in Space Settings → Secrets:
-   - `ANTHROPIC_API_KEY`
-   - `VOYAGE_API_KEY`
-
-3. Push this repo:
-
-```bash
-# Add HF remote
-git remote add hf https://huggingface.co/spaces/YOUR_USERNAME/OnboardingBuddy
-
-# Push
-git push hf main
-```
-
-The Space will build automatically. The app stays live 24/7 — no need to keep your laptop on.
-
-> **Note:** On first startup the KB ingestion runs (~2–3 min). Subsequent starts load from cache instantly.
-
----
-
-## 🗺 Onboarding Phases
-
-| Phase | Days | Gate |
-|-------|------|------|
-| 1 — Welcome | Day 1–2 | Joiner marks complete |
-| 2 — Bearings | Day 3–5 | Joiner marks complete |
-| 3 — Learning | Day 5–29 | **LMS confirmation required** + joiner marks complete |
-| 4 — Hands Dirty | Day 15–60 | Joiner marks complete |
-| 5 — Ready to Own | Day 60–90 | Joiner marks complete |
-| 6 — Finish Line | Day 90 | Joiner submits final feedback |
-
----
-
-## 💰 Cost estimate (per onboarding session)
-
-| Component | Cost |
-|-----------|------|
-| Claude Haiku (KB Q&A, nudges) | ~$0.02–0.05 |
-| Claude Sonnet (buddy letters, escalations) | ~$0.03–0.08 |
-| Voyage AI embeddings (free tier) | $0.00 |
-| FAISS (in-memory) | $0.00 |
-| HF Spaces CPU Basic | $0.00 |
-| **Total** | **< $0.15 per joiner** |
-
----
-
-## 📁 Knowledge Base
-
-The `data/kb_documents/` folder contains 40 Nexora knowledge documents covering:
-- Employee Handbook, Policy Library, Culture Playbook
-- IT, CE&Q, Finance, HR, Sales, R&D, Operations department handbooks
-- Org charts, RACI frameworks, FAQ libraries, meeting templates
-- 30/60/90-day plans, career frameworks, compliance matrices
-
-To add new documents: drop `.txt` or `.docx` files into `data/kb_documents/` and the KB
-will re-ingest on next startup (or call `kb.ingest()` directly).
-
----
-
-## 🔧 Development notes
-
-- **State persistence:** JSON files in `data/`. Replace `StateStore._load_json/_save_json` with a DB adapter for production.
-- **Integrations:** Slack, Calendar, LMS, and IT provisioning run in **simulated mode**. Each agent has a clear integration point marked with `# In production:` comments.
-- **Thread safety:** `StateStore` uses a `threading.Lock`. All agent Day-1 activations run on daemon threads.
-- **Output count:** If adding Gradio outputs, count `gr.update()` calls carefully per return path.
-
----
-
-*Nexora Global Corporation is a fictional company created for this PoC.*
+*Built with ❤️ using [Anthropic Claude](https://www.anthropic.com), [Gradio](https://gradio.app), and [Voyage AI](https://www.voyageai.com)*

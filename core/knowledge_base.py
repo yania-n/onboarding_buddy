@@ -2,27 +2,47 @@
 core/knowledge_base.py — RAG Pipeline: Ingestion + Retrieval
 =============================================================
 Reads all knowledge documents, chunks them, embeds with Voyage AI,
-stores in a FAISS flat index, and exposes a retrieve() method.
+stores in a FAISS flat cosine-similarity index, and exposes retrieve().
+
+Two document sources (in priority order):
+  1. Google Drive folder — synced on startup if GOOGLE_API_KEY is set.
+     Supports: Google Docs (exported as plain text), .txt, .pdf files.
+  2. Local data/kb_documents/ — always available as fallback / seed content.
 
 Architecture:
-  1. ingest()   → reads docs → chunks → embeds → saves FAISS index to disk
-  2. retrieve() → embeds query → cosine search → returns top-K chunks
+  ingest()   → read docs → chunk → embed → save FAISS index to disk
+  retrieve() → embed query → cosine search → return top-K chunks
 
 Models:
-  - Embedding: voyage-3-lite (free tier, fast, 1024-dim)
-  - No LLM here — this module is purely retrieval.
+  Embedding: voyage-3-lite (1024-dim, free tier, fast)
+  No LLM here — this module is purely retrieval.
 
-The KB is pre-loaded once at app startup and shared by all agents.
+The KB is loaded once at startup and shared by all agents via the Orchestrator.
+Thread-safe for reads; ingest() is called once only.
 """
 
 import os
 import pickle
 import re
-import textwrap
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
+import requests
+
+from core.config import (
+    VOYAGE_API_KEY,
+    GOOGLE_API_KEY,
+    GOOGLE_DRIVE_FOLDER_ID,
+    EMBEDDING_MODEL,
+    CHUNK_SIZE,
+    CHUNK_OVERLAP,
+    TOP_K_RESULTS,
+    KB_DOCS_PATH,
+    FAISS_INDEX_PATH,
+)
+
+# ── Optional dependency guards ────────────────────────────────────────────────
 
 try:
     import voyageai
@@ -36,45 +56,173 @@ try:
 except ImportError:
     FAISS_AVAILABLE = False
 
-from core.config import (
-    VOYAGE_API_KEY, EMBEDDING_MODEL,
-    CHUNK_SIZE, CHUNK_OVERLAP, TOP_K_RESULTS,
-    KB_DOCS_PATH, FAISS_INDEX_PATH,
-)
-
 
 # ─────────────────────────────────────────────
-# Text chunking
+# Text cleaning & chunking helpers
 # ─────────────────────────────────────────────
+
+def _clean_text(text: str) -> str:
+    """
+    Strip repeated whitespace and very short lines (page numbers, headers).
+    Preserves paragraph structure.
+    """
+    lines = text.splitlines()
+    cleaned = []
+    for line in lines:
+        stripped = line.strip()
+        if len(stripped) >= 4:
+            cleaned.append(stripped)
+    return "\n".join(cleaned)
+
 
 def _chunk_text(text: str, source: str) -> list[dict]:
     """
-    Split a document into overlapping chunks.
-    Returns list of dicts: {text, source, chunk_index}
-    Uses simple word-level windowing (avoids tokenizer dependency).
+    Split a document into overlapping word-level chunks.
+
+    Each chunk is a dict:
+        { text: str, source: str, chunk_index: int }
+
+    Uses simple word-level windowing — no tokenizer dependency.
+    CHUNK_SIZE and CHUNK_OVERLAP are defined in config.
     """
-    # Estimate tokens as words (close enough for chunking)
+    text = _clean_text(text)
     words = text.split()
-    chunks = []
+    chunks: list[dict] = []
     start = 0
     idx = 0
 
     while start < len(words):
         end = min(start + CHUNK_SIZE, len(words))
-        chunk_words = words[start:end]
-        chunk_text = " ".join(chunk_words).strip()
+        chunk_text = " ".join(words[start:end]).strip()
 
-        if len(chunk_text) > 50:   # Skip near-empty chunks
+        # Skip near-empty chunks
+        if len(chunk_text) > 60:
             chunks.append({
-                "text": chunk_text,
-                "source": source,
+                "text":        chunk_text,
+                "source":      source,
                 "chunk_index": idx,
             })
             idx += 1
 
+        if end == len(words):
+            break
         start += CHUNK_SIZE - CHUNK_OVERLAP
 
     return chunks
+
+
+# ─────────────────────────────────────────────
+# Google Drive sync helpers
+# ─────────────────────────────────────────────
+
+def _extract_pdf_text(pdf_bytes: bytes, filename: str) -> Optional[str]:
+    """Extract plain text from a PDF byte stream using pdfplumber."""
+    try:
+        import io
+        import pdfplumber
+        parts = []
+        with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+            for page in pdf.pages:
+                t = page.extract_text()
+                if t:
+                    parts.append(t)
+        return "\n\n".join(parts) if parts else None
+    except Exception as e:
+        print(f"[KB] PDF extraction failed for {filename}: {e}")
+        return None
+
+
+def _sync_from_google_drive(folder_id: str, api_key: str, dest_dir: Path) -> int:
+    """
+    List and download all supported files from a public Google Drive folder.
+
+    Supported MIME types:
+      - application/vnd.google-apps.document → exported as plain text
+      - text/plain                            → downloaded directly
+      - application/pdf                       → text extracted via pdfplumber
+
+    Files already present in dest_dir are skipped (idempotent).
+    Returns the number of new files downloaded.
+
+    Requires a free Google API key with the Drive API enabled.
+    Setup: https://console.cloud.google.com → APIs → Drive API → Credentials
+    """
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    downloaded = 0
+
+    # Step 1: List files in the folder
+    try:
+        list_resp = requests.get(
+            "https://www.googleapis.com/drive/v3/files",
+            params={
+                "q":        f"'{folder_id}' in parents and trashed=false",
+                "key":      api_key,
+                "fields":   "files(id,name,mimeType)",
+                "pageSize": 200,
+            },
+            timeout=20,
+        )
+        list_resp.raise_for_status()
+    except Exception as e:
+        print(f"[KB] Google Drive listing failed: {e}")
+        return 0
+
+    files = list_resp.json().get("files", [])
+    print(f"[KB] Drive folder contains {len(files)} file(s).")
+
+    # Step 2: Download each supported file
+    for f in files:
+        # Sanitise filename so it's safe to write on any OS
+        fname = re.sub(r'[\\/*?:"<>|]', "_", f["name"])
+        fid   = f["id"]
+        mime  = f["mimeType"]
+
+        dest_file = dest_dir / f"{fname}.txt"
+        if dest_file.exists():
+            continue  # Already synced
+
+        try:
+            if mime == "application/vnd.google-apps.document":
+                # Export Google Doc as plain text
+                resp = requests.get(
+                    f"https://www.googleapis.com/drive/v3/files/{fid}/export",
+                    params={"mimeType": "text/plain", "key": api_key},
+                    timeout=30,
+                )
+                if resp.status_code == 200:
+                    dest_file.write_text(resp.text, encoding="utf-8")
+                    downloaded += 1
+                    print(f"[KB]   Downloaded (Doc): {fname}")
+
+            elif mime == "text/plain":
+                resp = requests.get(
+                    f"https://www.googleapis.com/drive/v3/files/{fid}?alt=media",
+                    params={"key": api_key},
+                    timeout=30,
+                )
+                if resp.status_code == 200:
+                    dest_file.write_text(resp.text, encoding="utf-8")
+                    downloaded += 1
+                    print(f"[KB]   Downloaded (txt): {fname}")
+
+            elif mime == "application/pdf":
+                resp = requests.get(
+                    f"https://www.googleapis.com/drive/v3/files/{fid}?alt=media",
+                    params={"key": api_key},
+                    timeout=60,
+                )
+                if resp.status_code == 200:
+                    text = _extract_pdf_text(resp.content, fname)
+                    if text:
+                        dest_file.write_text(text, encoding="utf-8")
+                        downloaded += 1
+                        print(f"[KB]   Downloaded (PDF): {fname}")
+            # Other types (images, spreadsheets) are skipped
+
+        except Exception as e:
+            print(f"[KB]   Failed to download '{fname}': {e}")
+
+    return downloaded
 
 
 # ─────────────────────────────────────────────
@@ -83,242 +231,217 @@ def _chunk_text(text: str, source: str) -> list[dict]:
 
 class KnowledgeBase:
     """
-    Singleton-style KB — build once, query many times.
+    Shared RAG knowledge base — loaded once at startup, injected into all agents.
 
-    Usage:
-        kb = KnowledgeBase()
-        kb.load_or_ingest()   # at startup
-        results = kb.retrieve("how do I request IT access?")
+    Internally holds:
+      _chunks  : list of { text, source, chunk_index } dicts
+      _index   : FAISS IndexFlatIP (cosine after L2 normalisation)
+      _vectors : np.ndarray (N, 1024) — kept for future re-ranking
+
+    If Voyage AI / FAISS are unavailable, falls back to keyword overlap search.
     """
 
     def __init__(self):
-        self.chunks: list[dict] = []      # Raw text chunks with metadata
-        self.index = None                  # FAISS index (or None if unavailable)
-        self.embeddings: Optional[np.ndarray] = None
-        self._voyage_client = None
-        self._ready = False
+        self._chunks:  list[dict]           = []
+        self._index:   Optional[object]     = None  # faiss.Index
+        self._vectors: Optional[np.ndarray] = None
+        self._voyage:  Optional[object]     = None  # voyageai.Client
 
-    # ── Voyage AI client (lazy init) ─────────
+        if VOYAGE_AVAILABLE and VOYAGE_API_KEY:
+            self._voyage = voyageai.Client(api_key=VOYAGE_API_KEY)
 
-    def _get_voyage(self):
-        if self._voyage_client is None and VOYAGE_AVAILABLE and VOYAGE_API_KEY:
-            self._voyage_client = voyageai.Client(api_key=VOYAGE_API_KEY)
-        return self._voyage_client
-
-    # ── Embedding helper ─────────────────────
-
-    def _embed(self, texts: list[str]) -> Optional[np.ndarray]:
-        """Return float32 numpy array of shape (N, dim), or None on failure."""
-        voyage = self._get_voyage()
-        if voyage is None:
-            return None
-        try:
-            result = voyage.embed(texts, model=EMBEDDING_MODEL, input_type="document")
-            return np.array(result.embeddings, dtype=np.float32)
-        except Exception as e:
-            print(f"[KB] Embedding error: {e}")
-            return None
-
-    def _embed_query(self, query: str) -> Optional[np.ndarray]:
-        voyage = self._get_voyage()
-        if voyage is None:
-            return None
-        try:
-            result = voyage.embed([query], model=EMBEDDING_MODEL, input_type="query")
-            return np.array(result.embeddings, dtype=np.float32)
-        except Exception as e:
-            print(f"[KB] Query embedding error: {e}")
-            return None
-
-    # ── Document loading ──────────────────────
-
-    def _load_documents(self) -> list[tuple[str, str]]:
-        """
-        Load all text documents from KB_DOCS_PATH.
-        Returns list of (source_name, content) tuples.
-        Falls back to bundled /mnt/project files if data dir is empty.
-        """
-        docs = []
-        kb_path = Path(KB_DOCS_PATH)
-        project_path = Path("/mnt/project")
-
-        # Try data/kb_documents first
-        if kb_path.exists():
-            for fpath in sorted(kb_path.glob("**/*")):
-                if fpath.suffix.lower() in {".txt", ".md", ".docx"} and fpath.is_file():
-                    try:
-                        content = fpath.read_text(encoding="utf-8", errors="replace")
-                        docs.append((fpath.stem, content))
-                    except Exception as e:
-                        print(f"[KB] Could not read {fpath}: {e}")
-
-        # Always include project files (our canonical KB)
-        if project_path.exists():
-            for fpath in sorted(project_path.glob("*.docx")):
-                if fpath.stem == "OnboardingBuddy_System_Design":
-                    continue   # Internal design doc — not for joiner KB
-                try:
-                    content = fpath.read_text(encoding="utf-8", errors="replace")
-                    # Clean markdown-style bold markers
-                    content = re.sub(r'\*\*(.+?)\*\*', r'\1', content)
-                    content = re.sub(r'\*(.+?)\*', r'\1', content)
-                    docs.append((fpath.stem, content))
-                except Exception as e:
-                    print(f"[KB] Could not read {fpath}: {e}")
-
-        print(f"[KB] Loaded {len(docs)} documents.")
-        return docs
-
-    # ── Ingestion ─────────────────────────────
-
-    def ingest(self) -> None:
-        """
-        Full ingestion pipeline:
-          1. Load all documents
-          2. Chunk each document
-          3. Embed all chunks (batched to avoid rate limits)
-          4. Build FAISS index
-          5. Save index + chunks to disk
-        """
-        print("[KB] Starting ingestion...")
-        documents = self._load_documents()
-
-        if not documents:
-            print("[KB] No documents found. KB will be empty.")
-            self._ready = True
-            return
-
-        # Chunk all documents
-        all_chunks: list[dict] = []
-        for source, content in documents:
-            all_chunks.extend(_chunk_text(content, source))
-        print(f"[KB] Created {len(all_chunks)} chunks from {len(documents)} documents.")
-
-        self.chunks = all_chunks
-        texts = [c["text"] for c in all_chunks]
-
-        # Embed (in batches of 128 to respect API limits)
-        if not VOYAGE_AVAILABLE or not VOYAGE_API_KEY:
-            print("[KB] Voyage AI not available — KB will use keyword fallback.")
-            self._ready = True
-            self._save_index()
-            return
-
-        print("[KB] Embedding chunks (this may take a moment)...")
-        batch_size = 128
-        all_embeddings = []
-
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
-            emb = self._embed(batch)
-            if emb is not None:
-                all_embeddings.append(emb)
-            else:
-                print(f"[KB] Embedding failed for batch {i}–{i+batch_size}")
-
-        if all_embeddings:
-            self.embeddings = np.vstack(all_embeddings)
-            print(f"[KB] Embeddings shape: {self.embeddings.shape}")
-
-            if FAISS_AVAILABLE:
-                dim = self.embeddings.shape[1]
-                # Normalise for cosine similarity via inner product
-                norms = np.linalg.norm(self.embeddings, axis=1, keepdims=True)
-                norms = np.where(norms == 0, 1, norms)
-                normed = self.embeddings / norms
-                self.index = faiss.IndexFlatIP(dim)
-                self.index.add(normed)
-                print(f"[KB] FAISS index built with {self.index.ntotal} vectors.")
-        else:
-            print("[KB] No embeddings produced — falling back to keyword search.")
-
-        self._ready = True
-        self._save_index()
-
-    # ── Persistence ───────────────────────────
-
-    def _save_index(self) -> None:
-        idx_path = Path(FAISS_INDEX_PATH)
-        idx_path.parent.mkdir(exist_ok=True)
-        with open(idx_path, "wb") as f:
-            pickle.dump({
-                "chunks": self.chunks,
-                "embeddings": self.embeddings,
-            }, f)
-        if FAISS_AVAILABLE and self.index is not None:
-            faiss.write_index(self.index, str(idx_path) + ".faiss")
-        print(f"[KB] Index saved to {idx_path}")
-
-    def load(self) -> bool:
-        """Load a previously built index from disk. Returns True on success."""
-        idx_path = Path(FAISS_INDEX_PATH)
-        if not idx_path.exists():
-            return False
-        try:
-            with open(idx_path, "rb") as f:
-                saved = pickle.load(f)
-            self.chunks = saved["chunks"]
-            self.embeddings = saved.get("embeddings")
-
-            faiss_path = str(idx_path) + ".faiss"
-            if FAISS_AVAILABLE and Path(faiss_path).exists():
-                self.index = faiss.read_index(faiss_path)
-
-            self._ready = True
-            print(f"[KB] Loaded {len(self.chunks)} chunks from disk.")
-            return True
-        except Exception as e:
-            print(f"[KB] Load failed: {e}")
-            return False
+    # ── Public API ────────────────────────────────────────────────────────────
 
     def load_or_ingest(self) -> None:
-        """Load from disk if available; otherwise run full ingestion."""
-        if not self.load():
-            self.ingest()
+        """
+        Entry point called once at app startup.
 
-    # ── Retrieval ─────────────────────────────
+        1. Sync new docs from Google Drive (if GOOGLE_API_KEY is set)
+        2. Try to load cached FAISS index from disk
+        3. If no cache → ingest from local documents and build index
+        """
+        docs_path = Path(KB_DOCS_PATH)
+        docs_path.mkdir(parents=True, exist_ok=True)
+
+        # 1. Google Drive sync (optional)
+        if GOOGLE_API_KEY and GOOGLE_DRIVE_FOLDER_ID:
+            print(f"[KB] Syncing from Google Drive: {GOOGLE_DRIVE_FOLDER_ID}")
+            n = _sync_from_google_drive(GOOGLE_DRIVE_FOLDER_ID, GOOGLE_API_KEY, docs_path)
+            print(f"[KB] Drive sync: {n} new file(s) added.")
+        else:
+            print("[KB] No GOOGLE_API_KEY set — using local kb_documents only.")
+
+        # 2. Try loading cached index
+        index_path = Path(FAISS_INDEX_PATH)
+        if index_path.exists():
+            try:
+                self._load_index(index_path)
+                print(f"[KB] Loaded cached index — {len(self._chunks)} chunks ready.")
+                return
+            except Exception as e:
+                print(f"[KB] Cache load failed ({e}) — rebuilding index.")
+
+        # 3. Ingest and build fresh index
+        self._ingest(docs_path)
+        self._save_index(index_path)
+        print(f"[KB] Ready — {len(self._chunks)} chunks indexed.")
 
     def retrieve(self, query: str, top_k: int = TOP_K_RESULTS) -> list[dict]:
         """
-        Find the most relevant KB chunks for a query.
-        Returns list of {text, source, score} dicts.
-        Falls back to keyword matching if embeddings are unavailable.
+        Return the top_k most relevant chunks for the given query string.
+
+        Result dicts include: { text, source, chunk_index, score }
+
+        Falls back to keyword search when Voyage / FAISS are unavailable.
         """
-        if not self._ready or not self.chunks:
+        if not self._chunks:
             return []
-
-        # ── Semantic search (preferred) ───────
-        if self.index is not None and FAISS_AVAILABLE:
-            q_emb = self._embed_query(query)
-            if q_emb is not None:
-                norm = np.linalg.norm(q_emb)
-                if norm > 0:
-                    q_emb = q_emb / norm
-                scores, indices = self.index.search(q_emb, min(top_k, len(self.chunks)))
-                results = []
-                for score, idx in zip(scores[0], indices[0]):
-                    if idx >= 0:
-                        chunk = self.chunks[idx].copy()
-                        chunk["score"] = float(score)
-                        results.append(chunk)
-                return results
-
-        # ── Keyword fallback ──────────────────
+        if self._index is not None and self._voyage is not None:
+            return self._semantic_search(query, top_k)
         return self._keyword_search(query, top_k)
 
+    def chunk_count(self) -> int:
+        """Return total indexed chunks — used in health/status displays."""
+        return len(self._chunks)
+
+    # ── Ingestion ─────────────────────────────────────────────────────────────
+
+    def _ingest(self, docs_path: Path) -> None:
+        """
+        Read all .txt and .md files from docs_path, chunk them, and
+        optionally build a FAISS vector index.
+        """
+        all_chunks: list[dict] = []
+        txt_files = sorted(
+            list(docs_path.glob("*.txt")) + list(docs_path.glob("*.md"))
+        )
+
+        if not txt_files:
+            print("[KB] Warning: no documents found in kb_documents/ — KB will be empty.")
+            return
+
+        for fpath in txt_files:
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="ignore").strip()
+                if not text:
+                    continue
+                source = fpath.stem  # filename without extension as source label
+                chunks = _chunk_text(text, source)
+                all_chunks.extend(chunks)
+                print(f"[KB]   {source}: {len(chunks)} chunk(s)")
+            except Exception as e:
+                print(f"[KB]   Skipped {fpath.name}: {e}")
+
+        self._chunks = all_chunks
+        print(f"[KB] Total chunks to embed: {len(all_chunks)}")
+
+        if VOYAGE_AVAILABLE and FAISS_AVAILABLE and self._voyage and all_chunks:
+            self._build_faiss_index(all_chunks)
+        else:
+            print("[KB] Voyage/FAISS unavailable — will use keyword search fallback.")
+
+    def _build_faiss_index(self, chunks: list[dict]) -> None:
+        """
+        Embed all chunks via Voyage AI and build a FAISS IndexFlatIP.
+        Batches of 128 are used to stay within API rate limits.
+        Vectors are L2-normalised so inner-product = cosine similarity.
+        """
+        texts = [c["text"] for c in chunks]
+        BATCH = 128
+        all_vecs = []
+
+        for i in range(0, len(texts), BATCH):
+            batch = texts[i : i + BATCH]
+            try:
+                result = self._voyage.embed(batch, model=EMBEDDING_MODEL, input_type="document")
+                all_vecs.extend(result.embeddings)
+                print(f"[KB]   Embedded batch {i // BATCH + 1}/{(len(texts) - 1) // BATCH + 1}")
+            except Exception as e:
+                print(f"[KB]   Embedding batch failed: {e} — using zero vectors")
+                all_vecs.extend([[0.0] * 1024] * len(batch))
+
+        vectors = np.array(all_vecs, dtype="float32")
+
+        # L2-normalise for cosine similarity via inner product
+        norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+        norms[norms == 0] = 1
+        vectors /= norms
+
+        dim   = vectors.shape[1]
+        index = faiss.IndexFlatIP(dim)
+        index.add(vectors)
+
+        self._index   = index
+        self._vectors = vectors
+        print(f"[KB] FAISS index: {index.ntotal} vectors, dim={dim}")
+
+    # ── Persistence ───────────────────────────────────────────────────────────
+
+    def _save_index(self, path: Path) -> None:
+        """Pickle chunks + vectors to disk; save FAISS index in native format."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "wb") as f:
+            pickle.dump({"chunks": self._chunks, "vectors": self._vectors}, f)
+        if self._index is not None and FAISS_AVAILABLE:
+            faiss.write_index(self._index, str(path) + ".faiss")
+
+    def _load_index(self, path: Path) -> None:
+        """Load chunks, vectors, and FAISS index from disk."""
+        with open(path, "rb") as f:
+            data = pickle.load(f)
+        self._chunks  = data["chunks"]
+        self._vectors = data.get("vectors")
+
+        faiss_path = str(path) + ".faiss"
+        if FAISS_AVAILABLE and os.path.exists(faiss_path):
+            self._index = faiss.read_index(faiss_path)
+
+    # ── Search ────────────────────────────────────────────────────────────────
+
+    def _semantic_search(self, query: str, top_k: int) -> list[dict]:
+        """Embed the query and search FAISS for the nearest chunk vectors."""
+        try:
+            result = self._voyage.embed([query], model=EMBEDDING_MODEL, input_type="query")
+            qvec   = np.array(result.embeddings, dtype="float32")
+            norm   = np.linalg.norm(qvec)
+            if norm > 0:
+                qvec /= norm
+
+            scores, indices = self._index.search(qvec, min(top_k, len(self._chunks)))
+            results = []
+            for score, idx in zip(scores[0], indices[0]):
+                if idx < 0:
+                    continue
+                chunk = dict(self._chunks[idx])
+                chunk["score"] = float(score)
+                results.append(chunk)
+            return results
+
+        except Exception as e:
+            print(f"[KB] Semantic search error: {e} — using keyword fallback.")
+            return self._keyword_search(query, top_k)
+
     def _keyword_search(self, query: str, top_k: int) -> list[dict]:
-        """Simple TF-style keyword overlap scoring — no external dependencies."""
-        query_words = set(query.lower().split())
+        """
+        Simple keyword overlap search — no ML required.
+        Scores each chunk by the fraction of query words it contains.
+        Used when Voyage / FAISS are not available.
+        """
+        query_words = set(re.sub(r"[^\w\s]", "", query.lower()).split())
+        if not query_words:
+            return []
+
         scored = []
-        for chunk in self.chunks:
-            chunk_words = set(chunk["text"].lower().split())
-            overlap = len(query_words & chunk_words)
+        for chunk in self._chunks:
+            chunk_words = set(re.sub(r"[^\w\s]", "", chunk["text"].lower()).split())
+            overlap = len(query_words & chunk_words) / max(len(query_words), 1)
             if overlap > 0:
                 scored.append((overlap, chunk))
+
         scored.sort(key=lambda x: x[0], reverse=True)
         results = []
         for score, chunk in scored[:top_k]:
-            c = chunk.copy()
+            c = dict(chunk)
             c["score"] = score
             results.append(c)
         return results

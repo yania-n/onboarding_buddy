@@ -1,869 +1,806 @@
 """
-ui/joiner_app.py — New Joiner Onboarding Experience (Gradio UI)
-================================================================
-The joiner's primary interface throughout their 90-day onboarding.
+ui/joiner_app.py — New Joiner App (Joiner-facing Gradio UI)
+============================================================
+The onboarding companion that guides a new employee through all 6 phases
+of their 90-day onboarding journey.
 
 Tab structure:
-  ├── 🏠 My Journey      (phase timeline + current phase card + checklist)
-  ├── 💬 Ask Anything    (KB-grounded Q&A chatbot)
-  ├── 📚 My Training     (LMS course plan + completion tracking)
-  ├── 🔐 My Access       (IT provisioning status)
-  ├── 📝 Feedback        (phase-end pulse survey)
-  └── 🔔 Notifications   (all agent messages and nudges)
+  ├── 🗺️ My Journey      (phase timeline + interactive checklist)
+  ├── 💬 Ask Anything    (KB-grounded chatbot)
+  ├── 🎓 My Training     (course plan from training agent)
+  ├── 🔑 My Access       (IT ticket status table)
+  ├── 📝 Feedback        (pulse survey — phases 3 & 6)
+  └── 🔔 Notifications   (all agent messages)
 
-Design principles:
-  - Joiner owns their progress — phases advance only when THEY mark complete
-  - Warm, encouraging tone — feels like a wellness/habit app, not HR admin
-  - Every view is live-rendered from state store — no stale data
-  - Q&A chat maintains conversation history within the session
+Access model: joiner enters their Joiner ID (UUID) to load their record.
+The orchestrator handles all reads/writes — no direct store access from UI.
 """
-
-from datetime import date
-from typing import Optional
 
 import gradio as gr
 
-from core.config import (
-    PHASES, PHASE_BY_ID, APP_TITLE,
-    COLOR_PRIMARY, COLOR_ACCENT,
-)
-from core.models import PhaseStatus
+from core.config import PHASE_BY_ID, PHASES, GLOBAL_CSS_VARS
+from core.models import PhaseStatus, AccessStatus
 from core.state_store import StateStore
 
 
 # ─────────────────────────────────────────────
-# CSS — Joiner App Styles
+# CSS Theme — Grass Green + Black + White
 # ─────────────────────────────────────────────
 
-JOINER_CSS = """
-/* OnboardingBuddy Joiner App — styles */
-:root {
-    --ob-primary:      #00897B;
-    --ob-accent:       #FF7043;
-    --ob-surface:      #F5F5F5;
-    --ob-card:         #FFFFFF;
-    --ob-text:         #212121;
-    --ob-muted:        #757575;
-    --ob-border:       #E0E0E0;
-    --ob-success:      #43A047;
-    --ob-locked:       #BDBDBD;
-    --ob-pending:      #FB8C00;
-    --ob-danger:       #E53935;
-    --ob-error-bg:     #FFEBEE;
-    --ob-error-text:   #E53935;
-    --ob-success-bg:   #E8F5E9;
-    --ob-success-text: #1B5E20;
-    --ob-warning-bg:   #FFF3E0;
-    --ob-warning-text: #E65100;
-    --ob-progress-track: #E0E0E0;
-}
+JOINER_CSS = GLOBAL_CSS_VARS + """
+/* ── Base ─────────────────────────────────── */
+body, .gradio-container { background: var(--ob-surface) !important; }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --ob-surface:        #1E1E1E;
-        --ob-card:           #2D2D2D;
-        --ob-text:           #E0E0E0;
-        --ob-muted:          #9E9E9E;
-        --ob-border:         #424242;
-        --ob-locked:         #616161;
-        --ob-error-bg:       #3B1212;
-        --ob-error-text:     #EF9A9A;
-        --ob-success-bg:     #1B3321;
-        --ob-success-text:   #A5D6A7;
-        --ob-warning-bg:     #3B2A00;
-        --ob-warning-text:   #FFCC80;
-        --ob-progress-track: #424242;
-    }
-}
-
-/* ── Utility classes ──────────── */
-.ob-error       { color: var(--ob-error-text);   background: var(--ob-error-bg);   padding: 8px;  border-radius: 8px; }
-.ob-success-msg { color: var(--ob-success-text); background: var(--ob-success-bg); padding: 14px; border-radius: 8px; font-weight: 500; }
-.ob-muted       { color: var(--ob-muted); }
-
-/* ── Journey timeline ─────────── */
-.journey-header {
-    background: linear-gradient(135deg, #00897B 0%, #26A69A 60%, #FF7043 100%);
-    color: white;
-    padding: 28px 32px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-}
-.journey-header h2 { margin: 0 0 4px; font-size: 1.5rem; }
-.journey-header p  { margin: 0; opacity: 0.9; font-size: 0.95rem; }
-
-.phase-timeline {
-    display: flex;
-    gap: 0;
-    margin-bottom: 24px;
+/* ── Joiner header ───────────────────────── */
+.joiner-header {
+    background: linear-gradient(135deg, var(--ob-primary-darker) 0%, var(--ob-primary) 100%);
+    color: var(--ob-card);
+    padding: 20px 28px;
     border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--ob-border);
-}
-.phase-node {
-    flex: 1;
-    padding: 12px 8px;
-    text-align: center;
-    font-size: 0.78rem;
-    font-weight: 600;
-    position: relative;
-    cursor: default;
-    transition: background 0.2s;
-}
-.phase-node.active {
-    background: var(--ob-primary);
-    color: white;
-}
-.phase-node.complete {
-    background: var(--ob-success-bg);
-    color: var(--ob-success);
-}
-.phase-node.locked {
-    background: var(--ob-surface);
-    color: var(--ob-locked);
-}
-.phase-node.pending_lms {
-    background: var(--ob-warning-bg);
-    color: var(--ob-pending);
-}
-
-/* ── Phase card ───────────────── */
-.phase-card {
-    background: var(--ob-card);
-    border: 2px solid var(--ob-primary);
-    border-radius: 14px;
-    padding: 24px;
     margin-bottom: 20px;
 }
-.phase-card-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--ob-primary);
-    margin-bottom: 6px;
-}
-.phase-card-objective {
-    color: var(--ob-muted);
-    font-size: 0.92rem;
-    margin-bottom: 18px;
-    line-height: 1.5;
-}
+.joiner-header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+.joiner-header p  { margin: 4px 0 0; opacity: 0.85; font-size: 0.9rem; }
 
-/* ── Progress ring ────────────── */
-.progress-ring-wrap {
+/* ── Phase timeline ──────────────────────── */
+.phase-row {
     display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 20px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 14px;
 }
-.progress-stats {
+.phase-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+.phase-dot.complete { background: var(--ob-primary); }
+.phase-dot.active   { background: var(--ob-primary); box-shadow: 0 0 0 3px rgba(76,175,80,0.3); }
+.phase-dot.locked   { background: var(--ob-border); }
+
+/* ── Current phase card ──────────────────── */
+.current-phase-card {
+    background: var(--ob-card);
+    border: 1px solid var(--ob-border);
+    border-left: 5px solid var(--ob-primary);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+}
+.current-phase-card h3 {
+    margin: 0 0 4px;
+    color: var(--ob-primary-darker);
+    font-size: 1.1rem;
+}
+.current-phase-card .objective {
+    color: var(--ob-text-muted);
     font-size: 0.9rem;
-    color: var(--ob-muted);
-}
-.progress-stats strong {
-    font-size: 1.4rem;
-    color: var(--ob-primary);
-    display: block;
+    margin: 0 0 12px;
 }
 
-/* ── Checklist ────────────────── */
+/* ── Checklist items ─────────────────────── */
 .checklist-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
     margin-bottom: 6px;
     background: var(--ob-surface);
-    font-size: 0.9rem;
-    transition: background 0.15s;
+    border: 1px solid var(--ob-border);
 }
-.checklist-item.done { background: var(--ob-success-bg); }
-.checklist-item .check-icon { font-size: 1.1rem; }
+.checklist-item.done { border-color: var(--ob-primary); }
+.checklist-tick.done { color: var(--ob-primary); font-weight: 700; }
+.checklist-tick.todo { color: var(--ob-border); }
 
-/* ── Notifications ────────────── */
-.notif-item {
+/* ── Progress bar ────────────────────────── */
+.progress-bar-wrap {
+    background: var(--ob-border);
+    border-radius: 6px;
+    height: 10px;
+    width: 100%;
+    margin: 10px 0;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    background: var(--ob-primary);
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+}
+
+/* ── Access status badges ────────────────── */
+.badge-pending      { background: #FFF3E0; color: #E65100; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
+.badge-provisioned  { background: #E8F5E9; color: var(--ob-primary-darker); padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
+.badge-blocked      { background: #FFEBEE; color: #C62828; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
+
+/* ── Notification cards ──────────────────── */
+.notif-card {
     background: var(--ob-card);
     border: 1px solid var(--ob-border);
-    border-left: 4px solid var(--ob-primary);
-    border-radius: 0 10px 10px 0;
+    border-radius: 8px;
     padding: 14px 18px;
     margin-bottom: 10px;
-    font-size: 0.92rem;
-    white-space: pre-wrap;
-    line-height: 1.55;
-}
-
-/* ── Training card ────────────── */
-.course-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    background: var(--ob-surface);
-    font-size: 0.9rem;
-}
-.course-item.done { background: var(--ob-success-bg); }
-.course-badge {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: 12px;
-    background: var(--ob-primary);
-    color: white;
-    font-weight: 600;
-}
-.course-badge.mandatory { background: var(--ob-accent); }
-
-/* ── Access status ────────────── */
-.access-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    background: var(--ob-surface);
-    font-size: 0.9rem;
-}
-.status-pill {
-    font-size: 0.78rem;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-weight: 600;
-}
-.status-pill.pending     { background: var(--ob-warning-bg); color: var(--ob-pending); }
-.status-pill.provisioned { background: var(--ob-success-bg); color: var(--ob-success); }
-.status-pill.blocked     { background: var(--ob-error-bg);   color: var(--ob-error-text); }
-
-/* ── Chat ─────────────────────── */
-.buddy-intro {
-    background: var(--ob-surface);
-    border-left: 4px solid var(--ob-primary);
-    border-radius: 12px;
-    padding: 18px 22px;
-    margin-bottom: 16px;
-    font-size: 0.93rem;
     line-height: 1.6;
 }
 
-/* ── General ──────────────────── */
-.section-label {
+/* ── Section title ───────────────────────── */
+.section-title {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--ob-primary);
-    margin: 16px 0 10px;
+    color: var(--ob-primary-darker);
+    margin: 16px 0 8px;
     padding-bottom: 4px;
     border-bottom: 2px solid var(--ob-primary);
 }
-.gate-warning {
-    background: var(--ob-warning-bg);
-    border: 1px solid var(--ob-pending);
-    border-radius: 8px;
-    padding: 14px 18px;
-    font-size: 0.92rem;
-    color: var(--ob-warning-text);
-    margin-top: 12px;
-}
-.complete-banner {
-    background: var(--ob-success-bg);
-    border: 2px solid var(--ob-success);
-    border-radius: 14px;
-    padding: 24px;
-    text-align: center;
-    font-size: 1.1rem;
-    color: var(--ob-success-text);
-    margin-top: 16px;
-}
-.connection-card {
-    padding: 10px 14px;
-    background: var(--ob-surface);
-    border-radius: 8px;
-    margin-bottom: 6px;
-}
+
+/* ── Chatbot tweaks ──────────────────────── */
+.chatbot-wrap .message.bot { background: #E8F5E9 !important; }
 """
 
 
 # ─────────────────────────────────────────────
-# HTML rendering helpers
-# ─────────────────────────────────────────────
-
-def _phase_timeline_html(state) -> str:
-    """Render the 6-phase horizontal timeline strip."""
-    nodes = []
-    for phase in PHASES:
-        status = state.phase_statuses.get(phase.phase_id, PhaseStatus.LOCKED).value
-        icon = {"active": "▶", "complete": "✓", "locked": "○", "pending_lms": "⏳"}.get(status, "○")
-        nodes.append(
-            f'<div class="phase-node {status}">'
-            f'{icon} {phase.phase_id}. {phase.name}'
-            f'<br><span style="font-size:0.7rem;opacity:0.8">Day {phase.day_start}–{phase.day_end}</span>'
-            f'</div>'
-        )
-    return f'<div class="phase-timeline">{"".join(nodes)}</div>'
-
-
-def _progress_ring_svg(done: int, total: int) -> str:
-    """Generate an SVG progress ring showing checklist completion %."""
-    pct = done / total if total else 0
-    r = 30
-    circumference = 2 * 3.14159 * r
-    dash = circumference * pct
-    return f"""
-    <svg width="80" height="80" viewBox="0 0 80 80" style="transform:rotate(-90deg)">
-      <circle cx="40" cy="40" r="{r}" fill="none"
-              style="stroke:var(--ob-progress-track)" stroke-width="8"/>
-      <circle cx="40" cy="40" r="{r}" fill="none"
-              style="stroke:var(--ob-primary)" stroke-width="8"
-              stroke-dasharray="{dash:.1f} {circumference:.1f}"
-              stroke-linecap="round"/>
-      <text x="40" y="47" text-anchor="middle"
-            style="fill:var(--ob-primary);transform:rotate(90deg) translate(0,-80px)"
-            font-size="16" font-weight="bold">
-        {int(pct*100)}%
-      </text>
-    </svg>
-    """
-
-
-def _render_phase_card(state, phase_id: int) -> str:
-    """Render the active phase card with checklist items."""
-    phase_def = PHASE_BY_ID.get(phase_id)
-    if not phase_def:
-        return "<p>Phase not found.</p>"
-
-    status = state.phase_statuses.get(phase_id, PhaseStatus.LOCKED)
-    checklist = state.get_checklist_for_phase(phase_id)
-    done = sum(1 for c in checklist if c.completed)
-    total = len(checklist)
-
-    ring = _progress_ring_svg(done, total)
-    checklist_html = "".join(
-        f'<div class="checklist-item {"done" if c.completed else ""}">'
-        f'<span class="check-icon">{"✅" if c.completed else "⬜"}</span>'
-        f'<span>{c.label}</span>'
-        f'</div>'
-        for c in checklist
-    )
-
-    gate_warning = ""
-    if phase_def.system_gated and not state.lms_mandatory_confirmed:
-        gate_warning = (
-            '<div class="gate-warning">'
-            '⏳ <strong>Phase 3 gate:</strong> This phase requires LMS confirmation of all mandatory '
-            'courses before you can mark it complete. Check your training tab — completion is tracked automatically.'
-            '</div>'
-        )
-
-    return f"""
-    <div class="phase-card">
-        <div class="phase-card-title">Phase {phase_id}: {phase_def.name}</div>
-        <div class="phase-card-objective">{phase_def.objective}</div>
-        <div class="progress-ring-wrap">
-            {ring}
-            <div class="progress-stats">
-                <strong>{done}/{total}</strong>
-                checklist items complete
-            </div>
-        </div>
-        <div class="section-label">Your Checklist</div>
-        {checklist_html}
-        {gate_warning}
-    </div>
-    """
-
-
-def _render_notifications(state) -> str:
-    """Render all in-app notifications, newest first."""
-    notifs = state.app_notifications
-    if not notifs:
-        return '<p class="ob-muted" style="padding:16px">No notifications yet — they\'ll appear here as your onboarding progresses.</p>'
-
-    items = []
-    for msg in reversed(notifs):
-        # Convert **bold** markdown to HTML
-        import re
-        msg_html = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', str(msg))
-        items.append(f'<div class="notif-item">{msg_html}</div>')
-    return "".join(items)
-
-
-def _render_training(store: StateStore, joiner_id: str, training_agent) -> str:
-    """Render the training plan dashboard."""
-    plan = training_agent.get_course_plan(joiner_id)
-
-    def course_row(c: dict, badge_class: str = "") -> str:
-        done = c.get("completed", False)
-        return (
-            f'<div class="course-item {"done" if done else ""}">'
-            f'<span>{"✅" if done else "📖"} [{c["id"]}] {c["title"]} '
-            f'<span class="ob-muted" style="font-size:0.82rem">({c.get("duration_mins", 0)} min)</span></span>'
-            f'<span class="course-badge {badge_class}">{"Complete" if done else ("Mandatory" if badge_class == "mandatory" else "Optional")}</span>'
-            f'</div>'
-        )
-
-    mandatory_html = "".join(course_row(c, "mandatory") for c in plan["mandatory"])
-    role_html = "".join(course_row(c) for c in plan["role_specific"] + plan["tools"]) or \
-                '<p class="ob-muted" style="font-size:0.9rem">No role-specific courses configured yet.</p>'
-
-    if plan["lms_gate_confirmed"]:
-        gate_status = '<span style="color:var(--ob-success);font-weight:600">✅ LMS confirmed — Phase 3 gate is open</span>'
-    else:
-        gate_status = '<span style="color:var(--ob-pending);font-weight:600">⏳ Awaiting LMS confirmation</span>'
-
-    return f"""
-    <div style="margin-bottom:8px">{gate_status}</div>
-    <div class="section-label">Mandatory Courses (required for Phase 3)</div>
-    {mandatory_html}
-    <div class="section-label">Role-Specific & Tool Courses</div>
-    {role_html}
-    <p class="ob-muted" style="font-size:0.82rem;margin-top:12px">
-        Access your courses via the LMS dashboard link in your welcome email.
-        Completions sync automatically.
-    </p>
-    """
-
-
-def _render_access(store: StateStore, joiner_id: str, access_agent) -> str:
-    """Render the IT access status panel."""
-    requests = access_agent.get_access_summary(joiner_id)
-    if not requests:
-        return '<p class="ob-muted" style="padding:16px">No access requests found. Your manager may not have configured tool access yet.</p>'
-
-    rows = []
-    for r in requests:
-        status_cls = r["status"]
-        icon = {"pending": "⏳", "provisioned": "✅", "blocked": "❌"}.get(status_cls, "❓")
-        rows.append(
-            f'<div class="access-item">'
-            f'<div><strong>{r["tool"]}</strong> <span class="ob-muted" style="font-size:0.85rem">({r["level"]})</span>'
-            f'<br><span style="font-size:0.78rem;color:var(--ob-muted)">Ticket: {r["ticket"]}</span></div>'
-            f'<span class="status-pill {status_cls}">{icon} {status_cls.title()}</span>'
-            f'</div>'
-        )
-    return "".join(rows)
-
-
-# ─────────────────────────────────────────────
-# Build the Joiner Gradio App
+# Joiner App Builder
 # ─────────────────────────────────────────────
 
 def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
     """
-    Construct and return the full Joiner Gradio Blocks app.
-    Joiner selects themselves from a dropdown (no auth for PoC).
-    All views are re-rendered on tab switch and after actions.
+    Build and return the complete Gradio Blocks UI for the new joiner.
+    Called by app.py; the orchestrator is injected at startup.
     """
 
-    def get_joiner_choices() -> list[str]:
-        profiles = store.list_profiles()
-        return [f"{p.full_name} — {p.job_title} ({p.joiner_id[:8]}...)" for p in profiles]
+    # ── Helper: format phase status label ───────────────────────────────────
 
-    def parse_joiner_id(choice: str) -> Optional[str]:
-        """Extract the joiner_id from a dropdown display string."""
-        if not choice:
-            return None
-        # Find the profile whose id starts with the prefix shown
-        prefix = choice.split("(")[-1].replace("...)", "").strip()
-        for p in store.list_profiles():
-            if p.joiner_id.startswith(prefix):
-                return p.joiner_id
-        return None
+    def _phase_status_label(status: PhaseStatus, phase_id: int, current: int) -> str:
+        """Return a short text badge for a phase status."""
+        if status == PhaseStatus.COMPLETE:
+            return "✅ Complete"
+        if status == PhaseStatus.ACTIVE:
+            return "🟢 In Progress"
+        if phase_id == current + 1:
+            return "⏳ Up Next"
+        return "🔒 Locked"
 
-    with gr.Blocks(
-        title="OnboardingBuddy — Your Journey",
-    ) as joiner_app:
+    # ── Helper: build phase timeline HTML ───────────────────────────────────
 
-        # ── Joiner selector ────────────────────
-        with gr.Row():
-            joiner_dropdown = gr.Dropdown(
-                label="👤 Select Your Profile",
-                choices=get_joiner_choices(),
-                value=None,
-                scale=3,
-                info="Your manager will have set this up — select your name to begin.",
+    def _build_timeline_html(state) -> str:
+        """Render a vertical timeline of all 6 phases as HTML."""
+        rows = []
+        for ph in PHASES:
+            ph_id   = ph.phase_id
+            status  = state.phase_statuses.get(ph_id, PhaseStatus.LOCKED)
+            label   = _phase_status_label(status, ph_id, state.current_phase)
+            dot_cls = (
+                "complete" if status == PhaseStatus.COMPLETE
+                else "active" if status == PhaseStatus.ACTIVE
+                else "locked"
             )
-            refresh_selector = gr.Button("🔄 Refresh", scale=1)
+            start = state.phase_start_dates.get(ph_id)
+            end   = state.phase_complete_dates.get(ph_id)
+            date_str = ""
+            if end:
+                date_str = f" · Completed {end}"
+            elif start:
+                date_str = f" · Started {start}"
 
-        refresh_selector.click(
-            fn=lambda: gr.Dropdown(choices=get_joiner_choices()),
-            outputs=[joiner_dropdown],
+            rows.append(
+                f'<div class="phase-row">'
+                f'  <div class="phase-dot {dot_cls}"></div>'
+                f'  <div>'
+                f'    <strong>Phase {ph_id}: {ph.name}</strong> '
+                f'    <span style="font-size:0.82rem; color:#666">{label}{date_str}</span><br>'
+                f'    <span style="font-size:0.85rem; color:#555">Days {ph.day_start}–{ph.day_end} · {ph.objective}</span>'
+                f'  </div>'
+                f'</div>'
+            )
+
+        return '<div style="padding:8px 0">' + "\n".join(rows) + "</div>"
+
+    # ── Helper: build checklist HTML ─────────────────────────────────────────
+
+    def _build_checklist_html(state) -> str:
+        """Render the current phase checklist as styled HTML."""
+        items = [c for c in state.checklist_items if c.phase_id == state.current_phase]
+        if not items:
+            return "<p style='color:#888'>No checklist items for this phase.</p>"
+
+        total = len(items)
+        done  = sum(1 for c in items if c.completed)
+        pct   = int(done / total * 100) if total else 0
+
+        rows = []
+        for item in items:
+            tick_cls = "done" if item.completed else "todo"
+            tick_sym = "✔" if item.completed else "○"
+            rows.append(
+                f'<div class="checklist-item {"done" if item.completed else ""}">'
+                f'  <span class="checklist-tick {tick_cls}">{tick_sym}</span>'
+                f'  <span>{item.label}</span>'
+                f'</div>'
+            )
+
+        return (
+            f'<div class="progress-bar-wrap">'
+            f'  <div class="progress-bar-fill" style="width:{pct}%"></div>'
+            f'</div>'
+            f'<p style="font-size:0.85rem;color:#555;margin:4px 0 12px">{done}/{total} items complete ({pct}%)</p>'
+            + "\n".join(rows)
         )
 
-        # ── Dynamic header ─────────────────────
-        header_html = gr.HTML(value="""
-        <div class="journey-header">
-            <h2>👋 Welcome to OnboardingBuddy</h2>
-            <p>Select your profile above to begin your onboarding journey at Nexora.</p>
-        </div>
-        """)
+    # ── Helper: build current phase card ─────────────────────────────────────
 
-        # ── Tabs ───────────────────────────────
-        with gr.Tabs() as tabs:
+    def _build_phase_card(state, profile) -> str:
+        """Render the current phase summary card."""
+        ph_id  = state.current_phase
+        ph_def = PHASE_BY_ID.get(ph_id)
+        if not ph_def:
+            return ""
 
-            # ══════════════════════════════════
-            # TAB 1 — My Journey (Phase view)
-            # ══════════════════════════════════
-            with gr.Tab("🏠 My Journey"):
+        lms_note = ""
+        if ph_def.system_gated and not state.lms_mandatory_confirmed:
+            lms_note = (
+                '<div style="background:#FFF3E0;border-radius:6px;padding:10px 14px;'
+                'margin-top:10px;font-size:0.88rem;color:#E65100">'
+                '⏳ <strong>Phase gate:</strong> Your admin must confirm LMS course completion before '
+                'you can mark this phase done. Reach out to your manager if this is taking too long.'
+                '</div>'
+            )
 
-                timeline_html = gr.HTML()
-                phase_card_html = gr.HTML()
+        complete_note = ""
+        if state.onboarding_complete:
+            complete_note = (
+                '<div style="background:#E8F5E9;border-radius:8px;padding:14px 18px;text-align:center">'
+                '<span style="font-size:1.8rem">🎉</span>'
+                '<h3 style="margin:6px 0;color:var(--ob-primary-darker)">Onboarding Complete!</h3>'
+                '<p style="color:#555;margin:0">You\'ve finished all 6 phases. Welcome fully aboard!</p>'
+                '</div>'
+            )
+
+        return (
+            f'<div class="current-phase-card">'
+            f'  <h3>Phase {ph_id}: {ph_def.name}</h3>'
+            f'  <p class="objective">🎯 {ph_def.objective}</p>'
+            f'  <span style="font-size:0.82rem;color:#777">Days {ph_def.day_start}–{ph_def.day_end}</span>'
+            f'{lms_note}'
+            f'</div>'
+            f'{complete_note}'
+        )
+
+    # ── Helper: build access table HTML ─────────────────────────────────────
+
+    def _build_access_html(state) -> str:
+        """Render IT access request status as an HTML table."""
+        if not state.access_requests:
+            return "<p style='color:#888'>No access requests on record.</p>"
+
+        rows = []
+        for req in state.access_requests:
+            badge_cls = {
+                AccessStatus.PENDING:     "badge-pending",
+                AccessStatus.PROVISIONED: "badge-provisioned",
+                AccessStatus.BLOCKED:     "badge-blocked",
+            }.get(req.status, "badge-pending")
+            status_label = req.status.value.title()
+            rows.append(
+                f"<tr>"
+                f"  <td style='padding:8px 12px'>{req.tool_name}</td>"
+                f"  <td style='padding:8px 12px'>{req.permission_level or '—'}</td>"
+                f"  <td style='padding:8px 12px'><span class='{badge_cls}'>{status_label}</span></td>"
+                f"  <td style='padding:8px 12px;font-size:0.82rem;color:#777'>{req.ticket_id}</td>"
+                f"</tr>"
+            )
+
+        return (
+            '<table style="width:100%;border-collapse:collapse;font-size:0.9rem">'
+            '<thead><tr style="background:#E8F5E9">'
+            '  <th style="padding:10px 12px;text-align:left">Tool</th>'
+            '  <th style="padding:10px 12px;text-align:left">Permission</th>'
+            '  <th style="padding:10px 12px;text-align:left">Status</th>'
+            '  <th style="padding:10px 12px;text-align:left">Ticket ID</th>'
+            '</tr></thead>'
+            '<tbody>' + "\n".join(rows) + "</tbody></table>"
+        )
+
+    # ── Helper: extract training content from notifications ──────────────────
+
+    def _build_training_html(state) -> str:
+        """
+        Pull the training plan notification from state.
+        The training agent writes this as a notification containing 'Training Plan'.
+        """
+        plan_notif = next(
+            (n for n in state.app_notifications if "Training Plan" in n or "🎓" in n),
+            None,
+        )
+        if not plan_notif:
+            return (
+                "<p style='color:#888'>Your training plan is being prepared — "
+                "check back shortly or refresh the page.</p>"
+            )
+        # Convert markdown-style bold to HTML
+        txt = plan_notif.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        parts = txt.split("**")
+        html = ""
+        for i, part in enumerate(parts):
+            html += ("<strong>" if i % 2 == 1 else "") + part
+            if i % 2 == 1:
+                html += "</strong>"
+        html = html.replace("\n\n", "<br><br>").replace("\n", "<br>")
+        return f'<div style="line-height:1.7">{html}</div>'
+
+    # ── Helper: build notifications list ─────────────────────────────────────
+
+    def _build_notifications_html(state) -> str:
+        """Render all in-app notifications as stacked cards."""
+        if not state.app_notifications:
+            return "<p style='color:#888'>No notifications yet.</p>"
+
+        cards = []
+        for notif in state.app_notifications:
+            txt = notif.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            parts = txt.split("**")
+            converted = ""
+            for i, part in enumerate(parts):
+                converted += ("<strong>" if i % 2 == 1 else "") + part
+                if i % 2 == 1:
+                    converted += "</strong>"
+            converted = converted.replace("\n\n", "<br><br>").replace("\n", "<br>")
+            cards.append(f'<div class="notif-card">{converted}</div>')
+
+        return "\n".join(cards)
+
+    # ────────────────────────────────────────────────────────────────────────
+    # Gradio Blocks UI
+    # ────────────────────────────────────────────────────────────────────────
+
+    with gr.Blocks(css=JOINER_CSS, title="OnboardingBuddy — My Journey") as joiner_ui:
+
+        # ── Header ──────────────────────────────────────────────────────────
+        gr.HTML(
+            '<div class="joiner-header">'
+            '  <h1>🌱 OnboardingBuddy</h1>'
+            '  <p>Your 90-day onboarding companion — welcome aboard!</p>'
+            '</div>'
+        )
+
+        # ── Joiner ID login ──────────────────────────────────────────────────
+        with gr.Row():
+            joiner_id_input = gr.Textbox(
+                label="Your Joiner ID",
+                placeholder="Paste your Joiner ID here (you received it in your welcome email)…",
+                max_lines=1,
+                scale=5,
+            )
+            load_btn = gr.Button("Load My Dashboard", variant="primary", scale=1)
+
+        login_status = gr.HTML("")
+
+        # ── Tabs (hidden until logged in) ────────────────────────────────────
+        with gr.Tabs(visible=False) as main_tabs:
+
+            # ── TAB 1: My Journey ────────────────────────────────────────────
+            with gr.TabItem("🗺️ My Journey"):
+                phase_card_html   = gr.HTML("")
+                timeline_html     = gr.HTML("")
+
+                gr.HTML('<div class="section-title">Current Phase Checklist</div>')
+                checklist_html    = gr.HTML("")
 
                 with gr.Row():
-                    with gr.Column(scale=2):
-                        gr.HTML('<div class="section-label">Checklist Actions</div>')
-                        item_id_input = gr.Textbox(
-                            label="Checklist Item ID",
-                            placeholder="phase1_item0",
-                            info="Copy the item_id from the checklist (shown in the phase card source)"
-                        )
-                        with gr.Row():
-                            mark_done_btn = gr.Button("✅ Mark Item Complete", variant="primary")
-                            mark_undone_btn = gr.Button("↩ Mark Incomplete", variant="secondary")
-
-                    with gr.Column(scale=1):
-                        gr.HTML('<div class="section-label">Phase Control</div>')
-                        complete_phase_btn = gr.Button(
-                            "🏁 Mark Phase Complete",
-                            variant="primary",
-                            size="lg",
-                        )
-
-                action_result = gr.HTML(visible=False)
-
-                def load_journey(choice):
-                    """Render the full journey view for the selected joiner."""
-                    jid = parse_joiner_id(choice)
-                    if not jid:
-                        return (
-                            """<div class="journey-header"><h2>👋 Select your profile above</h2>
-                            <p>Your manager should have created your record — refresh the list if you don't see your name.</p></div>""",
-                            "", "", gr.update(visible=False),
-                        )
-                    state = store.get_state(jid)
-                    profile = store.get_profile(jid)
-                    if not state or not profile:
-                        return "Error loading profile.", "", "", gr.update(visible=False)
-
-                    first_name = profile.full_name.split()[0]
-                    phase_def = PHASE_BY_ID.get(state.current_phase)
-                    phase_name = phase_def.name if phase_def else "—"
-
-                    header = f"""
-                    <div class="journey-header">
-                        <h2>Hi {first_name}! 👋 You're on Phase {state.current_phase}: {phase_name}</h2>
-                        <p>{profile.job_title} · {profile.department} · Started {profile.start_date}</p>
-                    </div>
-                    """
-                    if state.onboarding_complete:
-                        header += '<div class="complete-banner">🎉 Congratulations! You\'ve completed your 90-day onboarding journey at Nexora!</div>'
-
-                    timeline = _phase_timeline_html(state)
-                    card = _render_phase_card(state, state.current_phase)
-                    return header, timeline, card, gr.update(visible=False)
-
-                joiner_dropdown.change(
-                    fn=load_journey,
-                    inputs=[joiner_dropdown],
-                    outputs=[header_html, timeline_html, phase_card_html, action_result],
-                )
-
-                def toggle_item(choice, item_id, completed: bool):
-                    jid = parse_joiner_id(choice)
-                    if not jid or not item_id.strip():
-                        return (
-                            gr.update(value='<div class="ob-error">Please select a joiner and enter an item ID.</div>', visible=True),
-                            gr.update(),
-                            gr.update(),
-                        )
-                    success = orchestrator.toggle_checklist_item(jid, item_id.strip(), completed)
-                    state = store.get_state(jid)
-                    if success and state:
-                        return (
-                            gr.update(visible=False),
-                            gr.update(value=_phase_timeline_html(state)),
-                            gr.update(value=_render_phase_card(state, state.current_phase)),
-                        )
-                    return (
-                        gr.update(value='<div class="ob-error">Item ID not found.</div>', visible=True),
-                        gr.update(),
-                        gr.update(),
+                    refresh_journey_btn   = gr.Button("🔄 Refresh", size="sm")
+                    mark_complete_btn     = gr.Button(
+                        "✅ Mark Phase Complete", variant="primary", size="sm"
                     )
 
-                mark_done_btn.click(
-                    fn=lambda c, i: toggle_item(c, i, True),
-                    inputs=[joiner_dropdown, item_id_input],
-                    outputs=[action_result, timeline_html, phase_card_html],
-                )
-                mark_undone_btn.click(
-                    fn=lambda c, i: toggle_item(c, i, False),
-                    inputs=[joiner_dropdown, item_id_input],
-                    outputs=[action_result, timeline_html, phase_card_html],
-                )
+                advance_msg = gr.Markdown("")
 
-                def advance_phase(choice):
-                    jid = parse_joiner_id(choice)
-                    if not jid:
-                        return (
-                            gr.update(value='<div class="ob-error">Please select your profile first.</div>', visible=True),
-                            gr.update(),
-                            gr.update(),
-                            gr.update(),
-                        )
-                    success, msg = orchestrator.advance_phase(jid)
-                    state = store.get_state(jid)
-                    css_class = "ob-success-msg" if success else "ob-error"
-                    icon = "✅" if success else "⚠️"
-                    connections = load_connections(choice) if success and state else gr.update()
-                    return (
-                        gr.update(
-                            value=f'<div class="{css_class}">{icon} {msg}</div>',
-                            visible=True,
-                        ),
-                        gr.update(value=_phase_timeline_html(state)) if state else gr.update(),
-                        gr.update(value=_render_phase_card(state, state.current_phase)) if state else gr.update(),
-                        connections,
+                # Checklist tick controls
+                gr.HTML('<div class="section-title" style="margin-top:20px">Tick Off Items</div>')
+                gr.Markdown(
+                    "_Enter part of the item label to mark it complete or incomplete._"
+                )
+                with gr.Row():
+                    tick_label_input = gr.Textbox(
+                        label="Checklist item label",
+                        placeholder="e.g. Complete IT security induction",
+                        scale=4,
                     )
+                    tick_done_input  = gr.Checkbox(label="Mark as complete", value=True, scale=1)
+                    tick_btn         = gr.Button("Update", size="sm", scale=1)
+                tick_msg = gr.Markdown("")
 
-            # ══════════════════════════════════
-            # TAB 2 — Q&A Chatbot
-            # ══════════════════════════════════
-            with gr.Tab("💬 Ask Anything"):
-                gr.HTML("""
-                <div class="buddy-intro">
-                    <strong>🤖 OnboardingBuddy knows your company inside out.</strong><br>
-                    Ask me anything about Nexora — policies, tools, culture, your team structure,
-                    expenses, how to get things done. I'll always tell you where to look for more.
-                    <br><br>
-                    <em>Note: I only answer from the official knowledge base. If I don't know something,
-                    I'll flag it and you'll get an answer soon.</em>
-                </div>
-                """)
-
+            # ── TAB 2: Ask Anything ──────────────────────────────────────────
+            with gr.TabItem("💬 Ask Anything"):
+                gr.Markdown(
+                    "### Ask Me Anything\n"
+                    "Ask any question about the company, your role, tools, processes, or anything "
+                    "else you'd like to know. I'll search the knowledge base to help you."
+                )
                 chatbot = gr.Chatbot(
-                    label="Chat with OnboardingBuddy",
-                    height=450,
-                    show_label=False,
+                    label="OnboardingBuddy Chat",
+                    elem_classes=["chatbot-wrap"],
+                    height=400,
+                    type="messages",
                 )
                 with gr.Row():
                     chat_input = gr.Textbox(
-                        placeholder="Ask me anything about Nexora...",
-                        label="",
+                        label="Your question",
+                        placeholder="What is the expense policy?",
                         scale=5,
-                        container=False,
+                        max_lines=2,
                     )
-                    send_btn = gr.Button("Send →", variant="primary", scale=1)
-                clear_chat_btn = gr.Button("🗑 Clear Chat", variant="secondary", size="sm")
+                    chat_send_btn = gr.Button("Send", variant="primary", scale=1)
+                chat_clear_btn = gr.Button("🗑️ Clear Chat", size="sm")
 
-                def chat(user_msg: str, history: list, choice: str):
-                    jid = parse_joiner_id(choice) or "anonymous"
-                    if not user_msg.strip():
-                        return history, ""
-                    answer = orchestrator.answer_question(jid, user_msg.strip())
-                    history = history or []
-                    history.append((user_msg, answer))
-                    return history, ""
-
-                send_btn.click(
-                    fn=chat,
-                    inputs=[chat_input, chatbot, joiner_dropdown],
-                    outputs=[chatbot, chat_input],
+            # ── TAB 3: My Training ───────────────────────────────────────────
+            with gr.TabItem("🎓 My Training"):
+                gr.Markdown(
+                    "### Your Learning Plan\n"
+                    "Here is the personalised course plan prepared for your role. "
+                    "Mandatory courses must be completed before Phase 3 can be marked done."
                 )
-                chat_input.submit(
-                    fn=chat,
-                    inputs=[chat_input, chatbot, joiner_dropdown],
-                    outputs=[chatbot, chat_input],
+                training_html        = gr.HTML("")
+                refresh_training_btn = gr.Button("🔄 Refresh", size="sm")
+
+            # ── TAB 4: My Access ─────────────────────────────────────────────
+            with gr.TabItem("🔑 My Access"):
+                gr.Markdown(
+                    "### IT Access Requests\n"
+                    "Access requests were raised on your first day. "
+                    "Most tools are provisioned within 1–3 business days. "
+                    "If anything is still **Pending** after Day 3, contact your manager."
                 )
-                clear_chat_btn.click(fn=lambda: [], outputs=[chatbot])
+                access_html        = gr.HTML("")
+                refresh_access_btn = gr.Button("🔄 Refresh", size="sm")
 
-            # ══════════════════════════════════
-            # TAB 3 — Training
-            # ══════════════════════════════════
-            with gr.Tab("📚 My Training"):
-                training_html = gr.HTML(
-                    value='<p class="ob-muted">Select your profile to see your training plan.</p>'
+            # ── TAB 5: Feedback ──────────────────────────────────────────────
+            with gr.TabItem("📝 Feedback"):
+                gr.Markdown(
+                    "### Pulse Survey\n"
+                    "Please share your honest feedback at two key milestones: "
+                    "**Phase 3** (50% journey) and **Phase 6** (finish line). "
+                    "Your answers are shared with your manager only in summary form."
                 )
-                training_refresh = gr.Button("🔄 Refresh Training Status", variant="secondary")
-
-                def load_training(choice):
-                    jid = parse_joiner_id(choice)
-                    if not jid:
-                        return '<p class="ob-muted">Select your profile first.</p>'
-                    return _render_training(store, jid, orchestrator.training_agent)
-
-                joiner_dropdown.change(fn=load_training, inputs=[joiner_dropdown], outputs=[training_html])
-                training_refresh.click(fn=load_training, inputs=[joiner_dropdown], outputs=[training_html])
-
-            # ══════════════════════════════════
-            # TAB 4 — Access Status
-            # ══════════════════════════════════
-            with gr.Tab("🔐 My Access"):
-                gr.HTML("""
-                <p class="ob-muted" style="font-size:0.9rem">
-                Your IT access requests were raised on Day 1. Provisioning typically takes 1–2 business days.
-                Contact IT Support if any access is blocked.
-                </p>
-                """)
-                access_html = gr.HTML(
-                    value='<p class="ob-muted">Select your profile to see access status.</p>'
+                feedback_phase_selector = gr.Dropdown(
+                    choices=[3, 6],
+                    value=3,
+                    label="Which phase is this feedback for?",
                 )
-                access_refresh = gr.Button("🔄 Refresh Access Status", variant="secondary")
+                load_questions_btn      = gr.Button("Load Questions", size="sm")
+                feedback_questions_html = gr.HTML("")
 
-                def load_access(choice):
-                    jid = parse_joiner_id(choice)
-                    if not jid:
-                        return '<p class="ob-muted">Select your profile first.</p>'
-                    return _render_access(store, jid, orchestrator.access_agent)
+                fb_q1 = gr.Textbox(label="Q1", visible=False, lines=2)
+                fb_q2 = gr.Textbox(label="Q2", visible=False, lines=2)
+                fb_q3 = gr.Textbox(label="Q3", visible=False, lines=2)
 
-                joiner_dropdown.change(fn=load_access, inputs=[joiner_dropdown], outputs=[access_html])
-                access_refresh.click(fn=load_access, inputs=[joiner_dropdown], outputs=[access_html])
-
-            # ══════════════════════════════════
-            # TAB 5 — Feedback
-            # ══════════════════════════════════
-            with gr.Tab("📝 Feedback"):
-                gr.HTML("""
-                <div class="buddy-intro">
-                    <strong>💬 Your voice shapes the onboarding experience.</strong><br>
-                    At the end of each phase, share how it felt. Your answers are read by HR
-                    and used to improve the experience for future joiners.
-                    Responses are confidential — they are never shared with your direct manager verbatim.
-                </div>
-                """)
-
-                fb_phase_display = gr.HTML(
-                    value='<p class="ob-muted">Select your profile and submit a phase to see feedback questions.</p>'
+                submit_feedback_btn = gr.Button(
+                    "Submit Feedback", variant="primary", visible=False
                 )
+                feedback_result_msg = gr.Markdown("")
 
-                with gr.Row():
-                    fb_phase_select = gr.Dropdown(
-                        label="Submit feedback for phase",
-                        choices=[f"Phase {p.phase_id} — {p.name}" for p in PHASES],
-                        value=None,
-                    )
+            # ── TAB 6: Notifications ─────────────────────────────────────────
+            with gr.TabItem("🔔 Notifications"):
+                gr.Markdown(
+                    "### All Notifications\n"
+                    "Messages from OnboardingBuddy agents — org brief, training plan, "
+                    "buddy intro, access updates, and progress nudges."
+                )
+                notifications_html = gr.HTML("")
+                refresh_notif_btn  = gr.Button("🔄 Refresh", size="sm")
 
-                fb_q1 = gr.Textbox(label="Question 1", visible=False)
-                fb_a1 = gr.Textbox(label="Your answer", placeholder="Write your honest thoughts...", lines=2, visible=False)
-                fb_q2 = gr.Textbox(label="Question 2", visible=False)
-                fb_a2 = gr.Textbox(label="Your answer", placeholder="Write your honest thoughts...", lines=2, visible=False)
-                fb_q3 = gr.Textbox(label="Question 3", visible=False)
-                fb_a3 = gr.Textbox(label="Your answer", placeholder="Write your honest thoughts...", lines=2, visible=False)
+        # ── State: validated joiner ID + cached feedback questions ───────────
+        active_joiner_id = gr.State("")
+        active_questions = gr.State([])
 
-                fb_submit_btn = gr.Button("Submit Feedback", variant="primary", visible=False)
-                fb_result = gr.HTML(visible=False)
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Load Dashboard
+        # ────────────────────────────────────────────────────────────────────
 
-                def load_feedback_questions(phase_choice):
-                    if not phase_choice:
-                        return [gr.update(visible=False)] + [gr.update(visible=False)] * 7
-                    phase_id = int(phase_choice.split(" ")[1])
-                    phase_def = PHASE_BY_ID.get(phase_id)
-                    if not phase_def:
-                        return [gr.update(visible=False)] + [gr.update(visible=False)] * 7
-                    qs = phase_def.feedback_questions
-                    q_updates = []
-                    for i in range(3):
-                        if i < len(qs):
-                            q_updates.extend([gr.update(label=f"Q{i+1}", value=qs[i], visible=True),
-                                              gr.update(visible=True)])
-                        else:
-                            q_updates.extend([gr.update(visible=False), gr.update(visible=False)])
-                    return [gr.update(visible=False)] + q_updates + [gr.update(visible=True)]
+        def load_dashboard(joiner_id_raw: str):
+            """
+            Validate joiner ID, load state, and populate all tab content.
+            Returns updates for every dependent component.
+            """
+            joiner_id = joiner_id_raw.strip()
+            state     = store.get_state(joiner_id)
+            profile   = store.get_profile(joiner_id)
 
-                fb_phase_select.change(
-                    fn=load_feedback_questions,
-                    inputs=[fb_phase_select],
-                    outputs=[fb_phase_display, fb_q1, fb_a1, fb_q2, fb_a2, fb_q3, fb_a3, fb_submit_btn],
+            if not state or not profile:
+                return (
+                    gr.update(value=(
+                        '<p style="color:#C62828">❌ Joiner ID not found. '
+                        'Please check your welcome email and try again.</p>'
+                    )),
+                    gr.update(visible=False),
+                    "",
+                    "", "", "", "", "", "",
                 )
 
-                def submit_feedback(choice, phase_choice, a1, a2, a3):
-                    jid = parse_joiner_id(choice)
-                    if not jid:
-                        return gr.update(
-                            value='<div class="ob-error">Please select your profile first.</div>',
-                            visible=True,
-                        )
-                    if not phase_choice:
-                        return gr.update(
-                            value='<div class="ob-error">Please select a phase.</div>',
-                            visible=True,
-                        )
-                    phase_id = int(phase_choice.split(" ")[1])
-                    phase_def = PHASE_BY_ID.get(phase_id)
-                    qs = phase_def.feedback_questions if phase_def else []
-                    answers = {}
-                    for q, a in zip(qs, [a1, a2, a3]):
-                        if a and a.strip():
-                            answers[q] = a.strip()
-
-                    if not answers:
-                        return gr.update(
-                            value='<div class="ob-error">Please answer at least one question.</div>',
-                            visible=True,
-                        )
-
-                    orchestrator.feedback_agent.record_feedback(jid, phase_id, answers)
-                    return gr.update(
-                        value='<div class="ob-success-msg">✅ Thank you for your feedback! Your responses have been recorded.</div>',
-                        visible=True,
-                    )
-
-                fb_submit_btn.click(
-                    fn=submit_feedback,
-                    inputs=[joiner_dropdown, fb_phase_select, fb_a1, fb_a2, fb_a3],
-                    outputs=[fb_result],
-                )
-
-            # ══════════════════════════════════
-            # TAB 6 — Notifications
-            # ══════════════════════════════════
-            with gr.Tab("🔔 Notifications"):
-                notif_html = gr.HTML(
-                    value='<p class="ob-muted">Select your profile to see your notifications.</p>'
-                )
-                notif_refresh = gr.Button("🔄 Refresh", variant="secondary")
-
-                def load_notifs(choice):
-                    jid = parse_joiner_id(choice)
-                    if not jid:
-                        return '<p class="ob-muted">Select your profile first.</p>'
-                    state = store.get_state(jid)
-                    if not state:
-                        return '<p class="ob-muted">Profile state not found.</p>'
-                    return _render_notifications(state)
-
-                joiner_dropdown.change(fn=load_notifs, inputs=[joiner_dropdown], outputs=[notif_html])
-                notif_refresh.click(fn=load_notifs, inputs=[joiner_dropdown], outputs=[notif_html])
-
-        # ── Peer connections sidebar ───────────
-        with gr.Accordion("👥 Recommended Connections for This Phase", open=False):
-            connections_html = gr.HTML(
-                value='<p class="ob-muted">Select your profile to see recommendations.</p>'
+            ph_name = PHASE_BY_ID[state.current_phase].name
+            status_html = (
+                f'<p style="color:var(--ob-primary-darker)">✅ Welcome back, '
+                f'<strong>{profile.full_name}</strong>! '
+                f'Currently on Phase {state.current_phase}: {ph_name}</p>'
             )
 
-            def load_connections(choice):
-                jid = parse_joiner_id(choice)
-                if not jid:
-                    return '<p class="ob-muted">Select your profile first.</p>'
-                state = store.get_state(jid)
-                if not state:
-                    return ""
-                recs = orchestrator.buddy_agent.recommend_connections(jid, state.current_phase)
-                rows = "".join(
-                    f'<div class="connection-card">'
-                    f'<strong>{r["name"]}</strong><br>'
-                    f'<span class="ob-muted" style="font-size:0.88rem">{r["reason"]}</span>'
-                    f'</div>'
-                    for r in recs
-                )
-                return rows or '<p class="ob-muted">No specific recommendations for this phase.</p>'
+            return (
+                gr.update(value=status_html),
+                gr.update(visible=True),
+                joiner_id,
+                _build_phase_card(state, profile),
+                _build_timeline_html(state),
+                _build_checklist_html(state),
+                _build_training_html(state),
+                _build_access_html(state),
+                _build_notifications_html(state),
+            )
 
-            joiner_dropdown.change(fn=load_connections, inputs=[joiner_dropdown], outputs=[connections_html])
-
-        # Wire phase completion to also refresh connections (now that connections_html is defined)
-        complete_phase_btn.click(
-            fn=advance_phase,
-            inputs=[joiner_dropdown],
-            outputs=[action_result, timeline_html, phase_card_html, connections_html],
+        load_btn.click(
+            fn=load_dashboard,
+            inputs=[joiner_id_input],
+            outputs=[
+                login_status,
+                main_tabs,
+                active_joiner_id,
+                phase_card_html,
+                timeline_html,
+                checklist_html,
+                training_html,
+                access_html,
+                notifications_html,
+            ],
         )
 
-    return joiner_app
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Refresh Journey Tab
+        # ────────────────────────────────────────────────────────────────────
+
+        def refresh_journey(joiner_id: str):
+            if not joiner_id:
+                return "", "", ""
+            state   = store.get_state(joiner_id)
+            profile = store.get_profile(joiner_id)
+            if not state or not profile:
+                return "", "", ""
+            return (
+                _build_phase_card(state, profile),
+                _build_timeline_html(state),
+                _build_checklist_html(state),
+            )
+
+        refresh_journey_btn.click(
+            fn=refresh_journey,
+            inputs=[active_joiner_id],
+            outputs=[phase_card_html, timeline_html, checklist_html],
+        )
+
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Mark Phase Complete
+        # ────────────────────────────────────────────────────────────────────
+
+        def mark_phase_complete(joiner_id: str):
+            """Ask the orchestrator to advance the phase; refresh all journey components."""
+            if not joiner_id:
+                return "Please load your dashboard first.", "", "", ""
+
+            success, msg = orchestrator.advance_phase(joiner_id)
+
+            state   = store.get_state(joiner_id)
+            profile = store.get_profile(joiner_id)
+            card = timeline = checklist = ""
+            if state and profile:
+                card      = _build_phase_card(state, profile)
+                timeline  = _build_timeline_html(state)
+                checklist = _build_checklist_html(state)
+
+            prefix = "✅ " if success else "⚠️ "
+            return prefix + msg, card, timeline, checklist
+
+        mark_complete_btn.click(
+            fn=mark_phase_complete,
+            inputs=[active_joiner_id],
+            outputs=[advance_msg, phase_card_html, timeline_html, checklist_html],
+        )
+
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Tick Checklist Item
+        # ────────────────────────────────────────────────────────────────────
+
+        def tick_item(joiner_id: str, label: str, completed: bool):
+            """Find checklist item by partial label match and toggle its status."""
+            if not joiner_id or not label.strip():
+                return "Please load your dashboard and enter a checklist item label.", ""
+
+            state = store.get_state(joiner_id)
+            if not state:
+                return "Could not load your record. Try refreshing.", ""
+
+            matched = next(
+                (
+                    item for item in state.checklist_items
+                    if label.strip().lower() in item.label.lower()
+                ),
+                None,
+            )
+            if not matched:
+                return (
+                    f"⚠️ No item matching '{label}' found. Copy the exact label from the checklist.",
+                    _build_checklist_html(state),
+                )
+
+            updated = orchestrator.toggle_checklist_item(joiner_id, matched.item_id, completed)
+            if not updated:
+                return "❌ Could not update the item. Please try again.", _build_checklist_html(state)
+
+            state  = store.get_state(joiner_id)
+            action = "marked complete ✅" if completed else "marked incomplete"
+            return f"'{matched.label}' {action}.", _build_checklist_html(state)
+
+        tick_btn.click(
+            fn=tick_item,
+            inputs=[active_joiner_id, tick_label_input, tick_done_input],
+            outputs=[tick_msg, checklist_html],
+        )
+
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Chat / Ask Anything
+        # ────────────────────────────────────────────────────────────────────
+
+        def send_question(joiner_id: str, question: str, history: list):
+            """Route question to QA agent and append both turns to chat history."""
+            history = history or []
+
+            if not joiner_id:
+                history.append({
+                    "role": "assistant",
+                    "content": "Please load your dashboard first by entering your Joiner ID above.",
+                })
+                return history, ""
+
+            if not question.strip():
+                return history, ""
+
+            history.append({"role": "user", "content": question.strip()})
+            answer = orchestrator.answer_question(joiner_id, question.strip())
+            history.append({"role": "assistant", "content": answer})
+            return history, ""
+
+        chat_send_btn.click(
+            fn=send_question,
+            inputs=[active_joiner_id, chat_input, chatbot],
+            outputs=[chatbot, chat_input],
+        )
+        chat_input.submit(
+            fn=send_question,
+            inputs=[active_joiner_id, chat_input, chatbot],
+            outputs=[chatbot, chat_input],
+        )
+        chat_clear_btn.click(fn=lambda: [], outputs=[chatbot])
+
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Refresh Training / Access / Notifications
+        # ────────────────────────────────────────────────────────────────────
+
+        def refresh_training(joiner_id: str):
+            if not joiner_id:
+                return ""
+            state = store.get_state(joiner_id)
+            return _build_training_html(state) if state else ""
+
+        def refresh_access(joiner_id: str):
+            if not joiner_id:
+                return ""
+            state = store.get_state(joiner_id)
+            return _build_access_html(state) if state else ""
+
+        def refresh_notifications(joiner_id: str):
+            if not joiner_id:
+                return ""
+            state = store.get_state(joiner_id)
+            return _build_notifications_html(state) if state else ""
+
+        refresh_training_btn.click(
+            fn=refresh_training,
+            inputs=[active_joiner_id],
+            outputs=[training_html],
+        )
+        refresh_access_btn.click(
+            fn=refresh_access,
+            inputs=[active_joiner_id],
+            outputs=[access_html],
+        )
+        refresh_notif_btn.click(
+            fn=refresh_notifications,
+            inputs=[active_joiner_id],
+            outputs=[notifications_html],
+        )
+
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Load Feedback Questions
+        # ────────────────────────────────────────────────────────────────────
+
+        def load_feedback_questions(joiner_id: str, phase_id: int):
+            """
+            Fetch questions for the chosen phase from the feedback agent.
+            Returns updates for the three answer textboxes and the submit button.
+            """
+            if not joiner_id:
+                return (
+                    "<p style='color:#C62828'>Load your dashboard first.</p>",
+                    gr.update(visible=False, label="Q1"),
+                    gr.update(visible=False, label="Q2"),
+                    gr.update(visible=False, label="Q3"),
+                    gr.update(visible=False),
+                    [],
+                )
+
+            questions = orchestrator.feedback_agent.get_feedback_questions(int(phase_id))
+
+            q_updates = []
+            for i in range(3):
+                if i < len(questions):
+                    q_updates.append(gr.update(label=questions[i], value="", visible=True))
+                else:
+                    q_updates.append(gr.update(visible=False))
+
+            header = (
+                f'<div class="section-title">Phase {phase_id} Feedback</div>'
+                '<p style="font-size:0.9rem;color:#555">Please answer honestly — '
+                'your feedback is kept confidential.</p>'
+            )
+            return header, q_updates[0], q_updates[1], q_updates[2], gr.update(visible=True), questions
+
+        load_questions_btn.click(
+            fn=load_feedback_questions,
+            inputs=[active_joiner_id, feedback_phase_selector],
+            outputs=[
+                feedback_questions_html,
+                fb_q1, fb_q2, fb_q3,
+                submit_feedback_btn,
+                active_questions,
+            ],
+        )
+
+        # ────────────────────────────────────────────────────────────────────
+        # Event: Submit Feedback
+        # ────────────────────────────────────────────────────────────────────
+
+        def submit_feedback(
+            joiner_id: str,
+            phase_id: int,
+            questions: list,
+            a1: str, a2: str, a3: str,
+        ):
+            """Pair answers with question labels and route to the feedback agent."""
+            if not joiner_id:
+                return "Please load your dashboard first."
+
+            answers_raw = [a1, a2, a3]
+            answers = {
+                q: a.strip()
+                for q, a in zip(questions, answers_raw)
+                if a and a.strip()
+            }
+
+            if not answers:
+                return "⚠️ Please fill in at least one answer before submitting."
+
+            return orchestrator.store_feedback(
+                joiner_id=joiner_id,
+                phase_id=int(phase_id),
+                answers=answers,
+            )
+
+        submit_feedback_btn.click(
+            fn=submit_feedback,
+            inputs=[
+                active_joiner_id,
+                feedback_phase_selector,
+                active_questions,
+                fb_q1, fb_q2, fb_q3,
+            ],
+            outputs=[feedback_result_msg],
+        )
+
+    return joiner_ui

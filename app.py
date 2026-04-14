@@ -1,190 +1,184 @@
 """
 app.py — OnboardingBuddy Main Launcher
 =======================================
-Entry point for the application. Wires together:
-  1. Knowledge base (load or ingest on startup)
-  2. State store (JSON persistence)
-  3. Orchestrator + all agents
-  4. Admin Gradio app
-  5. Joiner Gradio app
-  6. APScheduler for periodic progress checks
+Entry point for the entire application. Wires together:
+  1. Knowledge base  → loads or ingests on startup (Google Drive / local docs)
+  2. State store     → JSON persistence for all joiner records
+  3. Orchestrator    → wires all 8 agents
+  4. Admin Gradio UI → manager portal (Add Joiner, Dashboard, Gaps, Reports)
+  5. Joiner Gradio UI→ new joiner experience (Journey, Chat, Training, Access, Feedback)
+  6. APScheduler     → background progress checks every 6 hours
 
-Both apps are merged into a single Gradio server using gr.TabbedInterface
-so one Hugging Face Space link serves both admin and joiner views.
+Both UIs are merged into one gr.TabbedInterface so a single Hugging Face
+Space URL serves both the admin portal and the new joiner app.
 
-Production deployment: Hugging Face Spaces (app.py at root, requirements.txt adjacent).
-Local development: python app.py
+Local:  python app.py
+Deploy: push to huggingface.co/spaces/yania-n/OnboardingBuddy (see README_HF.md)
 """
 
-import os
 import sys
-import threading
 from pathlib import Path
 
-# ── Ensure the project root is on sys.path ──
+# ── Ensure project root is on sys.path (required in HF Spaces) ──────────────
 sys.path.insert(0, str(Path(__file__).parent))
 
 import gradio as gr
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from core.config import (
-    ANTHROPIC_API_KEY, VOYAGE_API_KEY,
-    NUDGE_POLL_INTERVAL_SECONDS, APP_TITLE,
+    ANTHROPIC_API_KEY,
+    VOYAGE_API_KEY,
+    NUDGE_POLL_INTERVAL_SECONDS,
+    APP_TITLE,
+    COLOR_PRIMARY,
+    COLOR_PRIMARY_DARK,
+    GLOBAL_CSS_VARS,
 )
 from core.knowledge_base import KnowledgeBase
 from core.state_store import StateStore
 from agents.orchestrator import Orchestrator
-from ui.admin_app import build_admin_app, ADMIN_CSS
-from ui.joiner_app import build_joiner_app, JOINER_CSS
+from ui.admin_app import build_admin_app
+from ui.joiner_app import build_joiner_app
 
 
 # ─────────────────────────────────────────────
-# Startup validation
+# Combined CSS for the top-level TabbedInterface
+# ─────────────────────────────────────────────
+
+TOP_LEVEL_CSS = GLOBAL_CSS_VARS + f"""
+/* Outer tab bar — grass green accent */
+.tab-nav button {{
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 10px 22px;
+    color: var(--ob-text-muted);
+    border: none;
+    background: transparent;
+    transition: color 0.2s;
+}}
+.tab-nav button.selected {{
+    color: var(--ob-primary-darker);
+    border-bottom: 3px solid var(--ob-primary);
+    background: transparent;
+}}
+.tab-nav button:hover {{ color: var(--ob-primary); }}
+
+body, .gradio-container {{ background: var(--ob-surface) !important; }}
+"""
+
+
+# ─────────────────────────────────────────────
+# Startup checks
 # ─────────────────────────────────────────────
 
 def _check_env() -> list[str]:
-    """Warn about missing API keys — app still starts but with degraded functionality."""
+    """
+    Check for required API keys and warn (not crash) if any are missing.
+    The app still starts in degraded mode so it can be tested without keys.
+    """
     warnings = []
     if not ANTHROPIC_API_KEY:
-        warnings.append("ANTHROPIC_API_KEY not set — LLM features will be unavailable.")
+        warnings.append(
+            "ANTHROPIC_API_KEY not set — all LLM features disabled. "
+            "Agents will fall back to templates."
+        )
     if not VOYAGE_API_KEY:
-        warnings.append("VOYAGE_API_KEY not set — semantic search disabled, using keyword fallback.")
+        warnings.append(
+            "VOYAGE_API_KEY not set — semantic search disabled. "
+            "KB Q&A will use keyword fallback."
+        )
     return warnings
 
 
 # ─────────────────────────────────────────────
-# Copy KB documents from /mnt/project to data/
-# ─────────────────────────────────────────────
-
-def _copy_kb_documents() -> None:
-    """
-    On first run, copy the knowledge base .docx (plain-text) files
-    from /mnt/project (Colab / HF Spaces project directory) to data/kb_documents/.
-    This makes them available to the ingestion pipeline.
-    Skips the system design doc (internal only).
-    """
-    src = Path("/mnt/project")
-    dst = Path("data/kb_documents")
-    dst.mkdir(parents=True, exist_ok=True)
-
-    if not src.exists():
-        # Running locally — check for docs in same directory as app.py
-        src = Path(__file__).parent / "docs"
-        if not src.exists():
-            print("[App] No /mnt/project or docs/ folder found — KB will be empty.")
-            return
-
-    SKIP = {"OnboardingBuddy_System_Design"}
-    copied = 0
-    for fpath in sorted(src.glob("*.docx")):
-        if fpath.stem in SKIP:
-            continue
-        dest_file = dst / fpath.name
-        if not dest_file.exists():
-            dest_file.write_bytes(fpath.read_bytes())
-            copied += 1
-
-    if copied:
-        print(f"[App] Copied {copied} KB documents to data/kb_documents/")
-
-
-# ─────────────────────────────────────────────
-# Scheduler setup
+# Scheduler
 # ─────────────────────────────────────────────
 
 def _start_scheduler(orchestrator: Orchestrator) -> BackgroundScheduler:
     """
-    Start a background scheduler that:
-    - Checks for overdue phases and sends nudges every 6 hours
+    Launch APScheduler in the background. Runs orchestrator.run_progress_check()
+    every 6 hours to detect overdue phases and send in-app nudges.
+    The daemon=True flag ensures it shuts down cleanly with the main process.
     """
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler(daemon=True)
     scheduler.add_job(
         func=orchestrator.run_progress_check,
         trigger="interval",
         seconds=NUDGE_POLL_INTERVAL_SECONDS,
         id="progress_check",
         replace_existing=True,
+        misfire_grace_time=60,   # tolerate up to 60-second scheduler jitter
     )
     scheduler.start()
-    print(f"[App] Scheduler started — progress checks every {NUDGE_POLL_INTERVAL_SECONDS // 3600}h.")
+    hours = NUDGE_POLL_INTERVAL_SECONDS // 3600
+    print(f"[App] ✅ Background scheduler started — nudge checks every {hours}h.")
     return scheduler
 
 
 # ─────────────────────────────────────────────
-# Main build function
+# App builder
 # ─────────────────────────────────────────────
 
 def build_app() -> gr.Blocks:
     """
-    Initialise all shared infrastructure and build the combined Gradio app.
-    Returns a gr.Blocks instance ready for .launch().
+    Initialise all shared infrastructure, build both Gradio apps, and
+    return a combined TabbedInterface ready for .launch().
+
+    Shared objects (kb, store, orchestrator) are created once and injected
+    into both UIs — no singletons, no global state outside this function.
     """
     print("=" * 60)
-    print("  OnboardingBuddy — Starting Up")
+    print(f"  {APP_TITLE} — Starting Up")
     print("=" * 60)
 
-    # 1. Environment check
-    for warning in _check_env():
-        print(f"  ⚠️  {warning}")
+    # 1. Warn on missing keys (never crash — graceful degradation)
+    for w in _check_env():
+        print(f"  ⚠️  {w}")
 
-    # 2. Copy KB documents (idempotent)
-    _copy_kb_documents()
-
-    # 3. Knowledge base
+    # 2. Knowledge base — sync from Google Drive then build FAISS index
     print("[App] Initialising knowledge base...")
     kb = KnowledgeBase()
-    kb.load_or_ingest()
+    kb.load_or_ingest()   # idempotent: skips re-indexing if index already exists
 
-    # 4. State store
+    # 3. State store — reads existing joiner records from data/state/
     store = StateStore()
+    existing = len(store.list_profiles())
+    print(f"[App] State store loaded — {existing} existing joiner record(s).")
 
-    # 5. Orchestrator (wires all agents)
+    # 4. Orchestrator — wires all 8 agents around the shared store and KB
     orchestrator = Orchestrator(store=store, kb=kb)
 
-    # 6. Background scheduler
+    # 5. Background scheduler — progress nudges every 6 hours
     _start_scheduler(orchestrator)
 
-    # 7. Build both Gradio apps
-    print("[App] Building Admin app...")
-    admin_app = build_admin_app(orchestrator=orchestrator, store=store)
+    # 6. Build each Gradio Blocks app (CSS + event logic defined inside)
+    print("[App] Building Admin Portal UI...")
+    admin_ui  = build_admin_app(orchestrator=orchestrator, store=store)
 
-    print("[App] Building Joiner app...")
-    joiner_app = build_joiner_app(orchestrator=orchestrator, store=store)
+    print("[App] Building Joiner Journey UI...")
+    joiner_ui = build_joiner_app(orchestrator=orchestrator, store=store)
 
-    # 8. Combine into a single tabbed interface
+    # 7. Merge into a single tabbed root UI
     combined = gr.TabbedInterface(
-        interface_list=[admin_app, joiner_app],
+        interface_list=[admin_ui, joiner_ui],
         tab_names=["🧭 Admin Portal", "🌱 My Onboarding Journey"],
-        title=f"{APP_TITLE} — Nexora Global Corporation",
+        title=f"{APP_TITLE}",
+        css=TOP_LEVEL_CSS,
     )
 
-    print("[App] ✅ OnboardingBuddy is ready!")
+    print(f"[App] ✅ {APP_TITLE} is ready — visit http://0.0.0.0:7860")
     print("=" * 60)
     return combined
 
 
 # ─────────────────────────────────────────────
-# Launch
+# Entry point
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
     app = build_app()
     app.launch(
-        server_name="0.0.0.0",   # Required for HF Spaces
-        server_port=7860,         # Default HF Spaces port
-        share=True,              # Set True for local share link
-        show_error=True,
-        theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
-        css=ADMIN_CSS + JOINER_CSS + """
-        /* Global tab bar styling */
-        .tab-nav button {
-            font-weight: 600;
-            font-size: 0.95rem;
-            padding: 10px 20px;
-        }
-        .tab-nav button.selected {
-            border-bottom: 3px solid #00897B;
-            color: #00897B;
-        }
-        """,
+        server_name="0.0.0.0",  # bind to all interfaces — required for HF Spaces
+        server_port=7860,        # HF Spaces default port
+        show_error=True,         # surface Python tracebacks in the UI during dev
     )

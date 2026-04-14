@@ -1,150 +1,175 @@
 """
 agents/training_agent.py — Training Planner Agent
 ==================================================
-Builds a personalised course plan based on role, seniority, department,
-and assigned tools. Separates mandatory company-wide courses from
-role-specific courses. Surfaces the plan in the joiner app.
+Builds a personalised course plan for the new joiner.
 
-Phase 3 Gate: monitors lms_mandatory_confirmed on the state record.
-In production: syncs with the LMS API to read completion status.
-Current mode: simulated course list with a manual admin confirm button.
+Separates two course tracks:
+  - Mandatory company-wide: GDPR, Info Security, Code of Conduct, etc.
+  - Role-specific: tools training, department processes, technical skills
 
-Model: None (rule-based course selection from KB content).
+Sources: knowledge base only (no LMS API in PoC).
+The KB contains per-tool onboarding guides, training matrices, learning
+paths, and compliance training links from the company's Google Drive.
+
+Phase 3 gate: all mandatory courses must be confirmed complete in the LMS
+before the joiner can mark Phase 3 done. Admins confirm via the admin portal.
+
+Output: stored as in-app notification; displayed in "My Training" tab.
+
+Model routing:
+  - KB retrieval  : Voyage + FAISS
+  - Plan writing  : Claude Haiku (structured, factual output)
 """
 
+import anthropic
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+from core.config import ANTHROPIC_API_KEY, MODEL_FAST
 from core.models import JoinerProfile, JoinerState
 from core.state_store import StateStore
 from core.knowledge_base import KnowledgeBase
 
 
 # ─────────────────────────────────────────────
-# Mandatory courses — all joiners, all departments
+# System prompt
 # ─────────────────────────────────────────────
-MANDATORY_COURSES = [
-    {"id": "COMP-001", "title": "GDPR & Data Privacy", "duration_mins": 45, "lms_link": "#lms-gdpr"},
-    {"id": "COMP-002", "title": "Information Security Awareness", "duration_mins": 60, "lms_link": "#lms-security"},
-    {"id": "COMP-003", "title": "Code of Conduct & Ethics", "duration_mins": 30, "lms_link": "#lms-ethics"},
-    {"id": "COMP-004", "title": "Anti-Bribery & Corruption", "duration_mins": 30, "lms_link": "#lms-abc"},
-    {"id": "COMP-005", "title": "Health & Safety Fundamentals", "duration_mins": 20, "lms_link": "#lms-hns"},
-]
 
-# Department-specific required courses
-DEPT_COURSES = {
-    "IT": [
-        {"id": "IT-001", "title": "Cloud Security Essentials", "duration_mins": 90, "lms_link": "#lms-cloud-sec"},
-        {"id": "IT-002", "title": "Nexora Infrastructure Overview", "duration_mins": 60, "lms_link": "#lms-infra"},
-        {"id": "IT-003", "title": "Incident Response Procedures", "duration_mins": 45, "lms_link": "#lms-incident"},
-    ],
-    "Commercial Excellence & Quality (CE&Q)": [
-        {"id": "CEQ-001", "title": "Quality Management System (QMS) Overview", "duration_mins": 60, "lms_link": "#lms-qms"},
-        {"id": "CEQ-002", "title": "Commercial Excellence Framework", "duration_mins": 45, "lms_link": "#lms-cex"},
-    ],
-    "Finance / FP&A": [
-        {"id": "FIN-001", "title": "Financial Controls & SOX Compliance", "duration_mins": 60, "lms_link": "#lms-sox"},
-        {"id": "FIN-002", "title": "Nexora Chart of Accounts", "duration_mins": 30, "lms_link": "#lms-coa"},
-    ],
-    "HR & People Analytics": [
-        {"id": "HR-001", "title": "People Data Privacy & Ethics", "duration_mins": 45, "lms_link": "#lms-people-data"},
-    ],
-}
+_TRAINING_SYSTEM = """You are OnboardingBuddy's Training Planner agent.
+Build a personalised training plan for a new joiner based on their role, seniority,
+department, and assigned tools.
 
-# Generic role-type courses (assigned based on seniority)
-LEADERSHIP_COURSES = [
-    {"id": "LEAD-001", "title": "Leading at Nexora — Manager Essentials", "duration_mins": 120, "lms_link": "#lms-lead"},
-    {"id": "LEAD-002", "title": "Performance Conversations Framework", "duration_mins": 60, "lms_link": "#lms-perf"},
-]
+Use ONLY the knowledge base context provided — no invented course names or links.
 
-SENIORITY_TRIGGERS_LEADERSHIP = {"Manager", "Senior Manager", "Director", "Senior Director / VP", "C-Suite / Executive"}
+Structure your output as:
+
+## Mandatory Company-Wide Training (Phase 3 — must complete for gate)
+List each course on a new line: **Course Name** — brief description
+
+## Role-Specific Training
+List each course/resource on a new line: **Name** — brief description
+
+## Recommended Resources
+2–3 additional KB documents or reading materials relevant to this role
+
+Keep each description to one sentence. Total length: 250–350 words.
+Do NOT invent LMS links or course codes — only reference what the KB confirms exists."""
 
 
 class TrainingAgent:
-    """Builds and surfaces the personalised training plan for a joiner."""
+    """
+    Builds a personalised training plan for a new joiner.
+    Called at activation alongside other agents (parallel).
+    Output stored as in-app notification and shown in the My Training tab.
+    """
 
     def __init__(self, store: StateStore, kb: KnowledgeBase):
-        self.store = store
-        self.kb = kb
+        self.store   = store
+        self.kb      = kb
+        self._client = (
+            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            if ANTHROPIC_API_KEY else None
+        )
+
+    # ── Public API ────────────────────────────────────────────────────────────
 
     def build_course_plan(self, profile: JoinerProfile, state: JoinerState) -> None:
         """
-        Assemble the course plan and post it to the joiner's notifications.
-        Stores course list in the state for later LMS tracking.
+        Build and store the personalised training plan.
+
+        1. Retrieve KB chunks for compliance training, tool guides, role learning paths
+        2. Generate the plan with Claude Haiku
+        3. Append as in-app notification and update state store
         """
-        mandatory = list(MANDATORY_COURSES)
-        role_specific = list(DEPT_COURSES.get(profile.department, []))
+        print(f"[TrainingAgent] Building training plan for {profile.full_name}")
 
-        if profile.seniority in SENIORITY_TRIGGERS_LEADERSHIP:
-            role_specific.extend(LEADERSHIP_COURSES)
-
-        # Tool-specific training (generic — in production, pull from LMS)
-        tool_courses = []
-        for tool in profile.tool_access:
-            tool_courses.append({
-                "id": f"TOOL-{tool[:3].upper()}",
-                "title": f"{tool} — Getting Started",
-                "duration_mins": 30,
-                "lms_link": f"#lms-{tool.lower().replace(' ', '-')}",
-            })
-
-        all_courses = mandatory + role_specific + tool_courses
-
-        # Build notification
-        mandatory_lines = "\n".join(
-            f"  • [{c['id']}] {c['title']} ({c['duration_mins']} min)"
-            for c in mandatory
-        )
-        role_lines = "\n".join(
-            f"  • [{c['id']}] {c['title']} ({c['duration_mins']} min)"
-            for c in role_specific + tool_courses
-        ) or "  • No additional role-specific courses identified."
-
-        total_mins = sum(c["duration_mins"] for c in all_courses)
-        notification = (
-            f"📚 Your Training Plan — Phase 3 (Days 5–29)\n\n"
-            f"Mandatory courses (required for Phase 3 gate):\n{mandatory_lines}\n\n"
-            f"Role-specific courses:\n{role_lines}\n\n"
-            f"Total estimated time: {total_mins // 60}h {total_mins % 60}min\n\n"
-            f"Access all courses via your LMS dashboard. Phase 3 unlocks automatically "
-            f"once the LMS confirms all mandatory courses are complete."
-        )
-
-        # Post atomically to avoid race with other Day-1 agents
-        self.store.append_to_state(
-            profile.joiner_id,
-            notifications=[notification],
-        )
-
-    def get_course_plan(self, joiner_id: str) -> dict:
-        """Return structured course plan for the UI training dashboard."""
-        state = self.store.get_state(joiner_id)
-        profile = self.store.get_profile(joiner_id)
-        if not state or not profile:
-            return {"mandatory": [], "role_specific": [], "tools": []}
-
-        mandatory = list(MANDATORY_COURSES)
-        role_specific = list(DEPT_COURSES.get(profile.department, []))
-        if profile.seniority in SENIORITY_TRIGGERS_LEADERSHIP:
-            role_specific.extend(LEADERSHIP_COURSES)
-
-        tool_courses = [
-            {
-                "id": f"TOOL-{t[:3].upper()}",
-                "title": f"{t} — Getting Started",
-                "duration_mins": 30,
-                "completed": t in state.lms_courses_completed,
-            }
-            for t in profile.tool_access
+        # Queries targeting compliance, tools, and role-specific learning
+        tools_list = ", ".join(profile.tool_access.keys()) if profile.tool_access else "standard tools"
+        queries = [
+            f"mandatory compliance training GDPR security code of conduct",
+            f"role-specific training {profile.job_title} {profile.department} learning path",
+            f"tool onboarding guide training {tools_list}",
+            f"LMS courses mandatory {profile.seniority} {profile.business_unit}",
         ]
 
-        # Add completion status from state
-        completed_ids = set(state.lms_courses_completed)
-        for c in mandatory:
-            c["completed"] = c["id"] in completed_ids
-        for c in role_specific:
-            c["completed"] = c["id"] in completed_ids
+        seen:       set[str]  = set()
+        all_chunks: list[dict] = []
+        for query in queries:
+            for chunk in self.kb.retrieve(query, top_k=3):
+                key = f"{chunk['source']}:{chunk['chunk_index']}"
+                if key not in seen:
+                    seen.add(key)
+                    all_chunks.append(chunk)
 
-        return {
-            "mandatory": mandatory,
-            "role_specific": role_specific,
-            "tools": tool_courses,
-            "lms_gate_confirmed": state.lms_mandatory_confirmed,
-        }
+        if self._client and all_chunks:
+            plan = self._generate_with_llm(profile, all_chunks)
+        elif all_chunks:
+            plan = self._template_plan(profile, all_chunks)
+        else:
+            plan = self._fallback_plan(profile)
+
+        # Store as in-app notification
+        self.store.append_to_state(
+            joiner_id=profile.joiner_id,
+            notifications=[f"📚 **Your Training Plan**\n\n{plan}"],
+        )
+        print(f"[TrainingAgent] Training plan stored for {profile.full_name}")
+
+    # ── Private helpers ───────────────────────────────────────────────────────
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
+    def _generate_with_llm(self, profile: JoinerProfile, chunks: list[dict]) -> str:
+        """Generate the personalised training plan via Claude Haiku + KB context."""
+        context = "\n\n---\n\n".join(
+            f"[Source: {c['source']}]\n{c['text']}" for c in chunks[:10]
+        )
+        tools_str = (
+            "\n".join(f"  - {t}: {lvl}" for t, lvl in profile.tool_access.items())
+            if profile.tool_access else "  No specific tools assigned"
+        )
+        user_msg = (
+            f"New joiner details:\n"
+            f"  Name: {profile.full_name}\n"
+            f"  Role: {profile.job_title} ({profile.seniority})\n"
+            f"  Department: {profile.department} · Team: {profile.team}\n"
+            f"  Assigned tools:\n{tools_str}\n\n"
+            f"Knowledge base context:\n\n{context}\n\n"
+            f"Write the personalised training plan for {profile.full_name}."
+        )
+        resp = self._client.messages.create(
+            model=MODEL_FAST,
+            max_tokens=600,
+            system=_TRAINING_SYSTEM,
+            messages=[{"role": "user", "content": user_msg}],
+        )
+        return resp.content[0].text.strip()
+
+    def _template_plan(self, profile: JoinerProfile, chunks: list[dict]) -> str:
+        """Structured fallback when LLM is unavailable."""
+        top = chunks[0]["text"][:500]
+        tools = list(profile.tool_access.keys()) if profile.tool_access else []
+        tool_lines = "\n".join(f"- {t} ({profile.tool_access[t]})" for t in tools) or "- No tools assigned"
+        return (
+            f"## Mandatory Company-Wide Training (Phase 3)\n"
+            f"- **GDPR & Data Privacy** — complete in your LMS\n"
+            f"- **Information Security Awareness** — complete in your LMS\n"
+            f"- **Code of Conduct & Ethics** — complete in your LMS\n\n"
+            f"## Your Assigned Tools\n{tool_lines}\n\n"
+            f"## From the Knowledge Base\n{top}\n\n"
+            f"Ask your manager for direct LMS links to each course."
+        )
+
+    def _fallback_plan(self, profile: JoinerProfile) -> str:
+        """Minimal plan when KB has no training content."""
+        tools = list(profile.tool_access.keys()) if profile.tool_access else []
+        tool_lines = "\n".join(f"- {t}" for t in tools) or "- Check with your manager"
+        return (
+            f"## Your Training Plan — {profile.job_title}\n\n"
+            f"**Mandatory (Phase 3 gate):**\n"
+            f"- GDPR & Data Privacy (LMS)\n"
+            f"- Information Security Awareness (LMS)\n"
+            f"- Code of Conduct & Ethics (LMS)\n"
+            f"- Department-specific compliance module (LMS)\n\n"
+            f"**Your Tool Access to Set Up:**\n{tool_lines}\n\n"
+            f"Please contact your manager **{profile.manager_name}** "
+            f"({profile.manager_email}) for LMS login details and specific course links."
+        )

@@ -5,15 +5,16 @@ The manager's interface for:
   1. Creating new joiner records → triggers the full onboarding pipeline
   2. Monitoring all active joiners (phase, sentiment, access status)
   3. Reviewing the knowledge gap backlog
-  4. Manually confirming LMS completion (Phase 3 gate admin override)
-  5. Viewing manager weekly summaries
+  4. Confirming LMS completion (Phase 3 gate unlock)
+  5. Manager weekly summary reports
 
 Tab structure:
-  ├── 🆕 Add New Joiner  (onboarding setup form)
-  ├── 📋 Active Joiners  (progress dashboard)
-  ├── 🔍 Knowledge Gaps  (unanswered Q&A log)
-  └── 📊 Reports         (weekly summary + sentiment signals)
+  ├── ➕ Add New Joiner     (form with dropdowns from config library)
+  ├── 📋 Active Joiners     (progress dashboard)
+  ├── 🔍 Knowledge Gaps     (unanswered Q&A log)
+  └── 📊 Reports            (weekly summary + sentiment overview)
 
+Colour theme: grass green (#4CAF50), black, white.
 All state changes go through the Orchestrator — the UI never writes to
 the store directly.
 """
@@ -24,96 +25,88 @@ from datetime import date
 import gradio as gr
 
 from core.config import (
-    DEPARTMENTS, SENIORITY_LEVELS, PHASES, PHASE_BY_ID,
-    APP_TITLE, COLOR_PRIMARY, COLOR_ACCENT,
+    BUSINESS_UNITS, DIVISIONS, DEPARTMENTS, TEAMS, ROLES,
+    SENIORITY_LEVELS, ALL_TOOLS, ALL_PERMISSION_LEVELS,
+    PHASE_BY_ID, GLOBAL_CSS_VARS,
 )
 from core.models import JoinerProfile, PhaseStatus
 from core.state_store import StateStore
 
 
 # ─────────────────────────────────────────────
-# Shared CSS (injected once)
+# Shared CSS — Grass Green + Black + White theme
 # ─────────────────────────────────────────────
 
-ADMIN_CSS = """
-/* OnboardingBuddy Admin Portal — shared styles */
-:root {
-    --ob-primary:      #00897B;
-    --ob-accent:       #FF7043;
-    --ob-surface:      #F5F5F5;
-    --ob-card:         #FFFFFF;
-    --ob-text:         #212121;
-    --ob-muted:        #757575;
-    --ob-border:       #E0E0E0;
-    --ob-success:      #43A047;
-    --ob-warning:      #FB8C00;
-    --ob-danger:       #E53935;
-    --ob-error-bg:     #FFEBEE;
-    --ob-error-text:   #E53935;
-    --ob-success-bg:   #E8F5E9;
-    --ob-success-text: #1B5E20;
-    --ob-warning-bg:   #FFF3E0;
-    --ob-warning-text: #E65100;
-    --ob-gap-bg:       #FFF8E1;
-    --ob-progress-track: #E0E0E0;
-}
+ADMIN_CSS = GLOBAL_CSS_VARS + """
+/* ── Layout & typography ─────────────────── */
+body, .gradio-container { background: var(--ob-surface) !important; }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --ob-surface:        #1E1E1E;
-        --ob-card:           #2D2D2D;
-        --ob-text:           #E0E0E0;
-        --ob-muted:          #9E9E9E;
-        --ob-border:         #424242;
-        --ob-error-bg:       #3B1212;
-        --ob-error-text:     #EF9A9A;
-        --ob-success-bg:     #1B3321;
-        --ob-success-text:   #A5D6A7;
-        --ob-warning-bg:     #3B2A00;
-        --ob-warning-text:   #FFCC80;
-        --ob-gap-bg:         #2A2618;
-        --ob-progress-track: #424242;
-    }
-}
-
-/* ── Utility classes ──────────── */
-.ob-error       { color: var(--ob-error-text);   background: var(--ob-error-bg);   padding: 10px; border-radius: 8px; }
-.ob-success-msg { color: var(--ob-success-text); background: var(--ob-success-bg); padding: 14px; border-radius: 8px; font-weight: 500; }
-.ob-muted       { color: var(--ob-muted); }
-
+/* ── Admin header ────────────────────────── */
 .admin-header {
-    background: linear-gradient(135deg, var(--ob-primary), #00695C);
-    color: white;
+    background: linear-gradient(135deg, var(--ob-primary-darker) 0%, var(--ob-primary) 100%);
+    color: var(--ob-card);
     padding: 24px 32px;
     border-radius: 12px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    margin-bottom: 20px;
 }
 .admin-header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; }
 .admin-header p  { margin: 4px 0 0; opacity: 0.85; font-size: 0.95rem; }
 
+/* ── Section titles ──────────────────────── */
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ob-primary-darker);
+    margin: 16px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--ob-primary);
+}
+
+/* ── Joiner cards ────────────────────────── */
 .joiner-card {
     background: var(--ob-card);
     border: 1px solid var(--ob-border);
+    border-left: 4px solid var(--ob-primary);
     border-radius: 10px;
     padding: 16px 20px;
     margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
 }
 .phase-badge {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 3px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
     background: var(--ob-primary);
-    color: white;
+    color: var(--ob-card);
 }
+.phase-complete { background: var(--ob-primary-darker) !important; }
+
+/* ── Sentiment ───────────────────────────── */
 .sentiment-positive  { color: var(--ob-success); font-weight: 600; }
 .sentiment-neutral   { color: var(--ob-muted); }
 .sentiment-concerning { color: var(--ob-danger); font-weight: 600; }
 
+/* ── Status messages ─────────────────────── */
+.ob-success {
+    background: var(--ob-success-bg);
+    border: 1px solid var(--ob-primary);
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: var(--ob-success-text);
+    font-weight: 500;
+}
+.ob-error {
+    background: var(--ob-error-bg);
+    border: 1px solid var(--ob-danger);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--ob-error-text);
+}
+.ob-muted { color: var(--ob-muted); }
+
+/* ── Knowledge gap items ─────────────────── */
 .gap-item {
     background: var(--ob-gap-bg);
     border-left: 4px solid var(--ob-warning);
@@ -122,337 +115,23 @@ ADMIN_CSS = """
     margin-bottom: 8px;
     font-size: 0.9rem;
 }
-.success-banner {
-    background: var(--ob-success-bg);
-    border: 1px solid var(--ob-success);
-    border-radius: 8px;
-    padding: 12px 16px;
-    color: var(--ob-success-text);
+
+/* ── Tool checklist ──────────────────────── */
+.tool-tag {
+    display: inline-block;
+    background: var(--ob-primary-light);
+    color: var(--ob-primary-darker);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    margin: 2px;
     font-weight: 500;
 }
-.section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--ob-primary);
-    margin: 20px 0 12px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid var(--ob-primary);
-}
+
+/* ── Buttons ─────────────────────────────── */
+.gr-button-primary { background: var(--ob-primary) !important; color: white !important; }
+.gr-button-primary:hover { background: var(--ob-primary-dark) !important; }
 """
-
-
-def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
-    """
-    Construct and return the full Admin Gradio Blocks app.
-    `orchestrator` and `store` are injected at startup (shared instances).
-    """
-
-    with gr.Blocks(
-        title="OnboardingBuddy — Admin Portal",
-    ) as admin_app:
-
-        # ── Header ────────────────────────────
-        gr.HTML("""
-        <div class="admin-header">
-            <div style="font-size:2.5rem">🧭</div>
-            <div>
-                <h1>OnboardingBuddy — Admin Portal</h1>
-                <p>Nexora Global Corporation · Manager & HR view</p>
-            </div>
-        </div>
-        """)
-
-        with gr.Tabs():
-
-            # ══════════════════════════════════
-            # TAB 1 — Add New Joiner
-            # ══════════════════════════════════
-            with gr.Tab("🆕 Add New Joiner"):
-                gr.HTML('<div class="section-title">New Joiner Setup</div>')
-                gr.Markdown(
-                    "Fill in all details below. Submitting this form triggers the full "
-                    "onboarding pipeline — tool access tickets, training plan, buddy booking, "
-                    "and the joiner's app will all activate in parallel."
-                )
-
-                with gr.Row():
-                    with gr.Column():
-                        gr.HTML('<div class="section-title">Personal Details</div>')
-                        nj_name = gr.Textbox(label="Full Name *", placeholder="e.g. Priya Sharma")
-                        nj_email = gr.Textbox(label="Work Email *", placeholder="priya.sharma@nexoraglobal.com")
-                        nj_start = gr.Textbox(
-                            label="Start Date * (YYYY-MM-DD)",
-                            placeholder=str(date.today()),
-                            value=str(date.today()),
-                        )
-
-                    with gr.Column():
-                        gr.HTML('<div class="section-title">Role & Placement</div>')
-                        nj_title = gr.Textbox(label="Job Title *", placeholder="e.g. Senior Data Analyst")
-                        nj_seniority = gr.Dropdown(
-                            label="Seniority Level *", choices=SENIORITY_LEVELS, value=SENIORITY_LEVELS[0]
-                        )
-                        nj_dept = gr.Dropdown(
-                            label="Department *", choices=DEPARTMENTS, value=DEPARTMENTS[0]
-                        )
-
-                with gr.Row():
-                    with gr.Column():
-                        nj_bu = gr.Textbox(label="Business Unit", placeholder="e.g. Technology")
-                        nj_division = gr.Textbox(label="Division", placeholder="e.g. Digital Products")
-                        nj_team = gr.Textbox(label="Team", placeholder="e.g. Platform Engineering")
-                        nj_role_desc = gr.Textbox(
-                            label="Role Description",
-                            placeholder="Brief description of role responsibilities...",
-                            lines=3,
-                        )
-
-                    with gr.Column():
-                        gr.HTML('<div class="section-title">Manager & Buddy</div>')
-                        nj_mgr_name = gr.Textbox(label="Manager Name *", placeholder="e.g. David Chen")
-                        nj_mgr_email = gr.Textbox(label="Manager Email *", placeholder="d.chen@nexoraglobal.com")
-                        nj_buddy_name = gr.Textbox(label="Buddy Name *", placeholder="e.g. Sara Okonkwo")
-                        nj_buddy_email = gr.Textbox(label="Buddy Email *", placeholder="s.okonkwo@nexoraglobal.com")
-                        nj_buddy_cal = gr.Textbox(
-                            label="Buddy Calendar Link (optional)",
-                            placeholder="https://calendly.com/...",
-                        )
-
-                gr.HTML('<div class="section-title">Tool Access</div>')
-                gr.Markdown(
-                    "Enter one tool per line in the format: `Tool Name: Permission Level`  \n"
-                    "Example: `Salesforce: Full Access` or `Jira: Read Only`"
-                )
-                nj_tools = gr.Textbox(
-                    label="Tool Access List",
-                    placeholder="Salesforce: Full Access\nJira: Edit\nSlack: Standard\nGitHub: Contributor",
-                    lines=5,
-                )
-
-                with gr.Row():
-                    nj_submit = gr.Button("🚀 Create Joiner & Activate Onboarding", variant="primary", scale=2)
-                    nj_clear = gr.Button("Clear Form", variant="secondary", scale=1)
-
-                nj_result = gr.HTML(visible=False)
-
-                # ── Submit handler ─────────────────────
-
-                def submit_new_joiner(
-                    name, email, start, title, seniority, dept,
-                    bu, division, team, role_desc,
-                    mgr_name, mgr_email, buddy_name, buddy_email, buddy_cal,
-                    tools_text,
-                ):
-                    # Validation
-                    missing = []
-                    if not name.strip(): missing.append("Full Name")
-                    if not email.strip(): missing.append("Work Email")
-                    if not start.strip(): missing.append("Start Date")
-                    if not title.strip(): missing.append("Job Title")
-                    if not mgr_name.strip(): missing.append("Manager Name")
-                    if not mgr_email.strip(): missing.append("Manager Email")
-                    if not buddy_name.strip(): missing.append("Buddy Name")
-                    if not buddy_email.strip(): missing.append("Buddy Email")
-
-                    if missing:
-                        return gr.HTML(
-                            value=f'<div class="ob-error">⚠️ Please fill in required fields: {", ".join(missing)}</div>',
-                            visible=True,
-                        )
-
-                    try:
-                        start_date = date.fromisoformat(start.strip())
-                    except ValueError:
-                        return gr.HTML(
-                            value='<div class="ob-error">⚠️ Start date must be in YYYY-MM-DD format.</div>',
-                            visible=True,
-                        )
-
-                    # Parse tool access
-                    tool_access = {}
-                    for line in tools_text.strip().splitlines():
-                        if ":" in line:
-                            parts = line.split(":", 1)
-                            tool_access[parts[0].strip()] = parts[1].strip()
-
-                    profile = JoinerProfile(
-                        joiner_id=store.new_joiner_id(),
-                        full_name=name.strip(),
-                        email=email.strip(),
-                        start_date=start_date,
-                        job_title=title.strip(),
-                        seniority=seniority,
-                        business_unit=bu.strip(),
-                        division=division.strip(),
-                        department=dept,
-                        team=team.strip(),
-                        role_description=role_desc.strip(),
-                        manager_name=mgr_name.strip(),
-                        manager_email=mgr_email.strip(),
-                        buddy_name=buddy_name.strip(),
-                        buddy_email=buddy_email.strip(),
-                        buddy_calendar_link=buddy_cal.strip() or None,
-                        tool_access=tool_access,
-                        created_by=mgr_email.strip(),
-                    )
-
-                    state = orchestrator.activate_new_joiner(profile)
-
-                    tool_list = "".join(
-                        f"<li>{t} — {v}</li>" for t, v in tool_access.items()
-                    ) or "<li>No tools configured</li>"
-
-                    return gr.HTML(
-                        value=f"""
-                        <div class="success-banner">
-                            <h3 style="margin:0 0 8px">✅ Onboarding Activated for {name}!</h3>
-                            <p style="margin:4px 0"><strong>Joiner ID:</strong> {profile.joiner_id[:8]}...</p>
-                            <p style="margin:4px 0"><strong>Role:</strong> {title} · {dept}</p>
-                            <p style="margin:4px 0"><strong>Start Date:</strong> {start}</p>
-                            <p style="margin:4px 0"><strong>Phase 1</strong> (Welcome) is now active.</p>
-                            <p style="margin:8px 0 4px"><strong>Actions triggered in parallel:</strong></p>
-                            <ul style="margin:0;padding-left:20px">
-                                <li>🔐 IT access tickets raised: <ul style="margin:2px 0">{tool_list}</ul></li>
-                                <li>📚 Training plan built (Phase 3)</li>
-                                <li>👋 Buddy intro sent to {buddy_name}</li>
-                                <li>🏢 Org context brief prepared (Day 3)</li>
-                            </ul>
-                            <p style="margin:8px 0 0;font-size:0.85rem;opacity:0.8">
-                                Share the Joiner App link with {name} so they can start their journey.
-                            </p>
-                        </div>
-                        """,
-                        visible=True,
-                    )
-
-                nj_submit.click(
-                    fn=submit_new_joiner,
-                    inputs=[
-                        nj_name, nj_email, nj_start, nj_title, nj_seniority, nj_dept,
-                        nj_bu, nj_division, nj_team, nj_role_desc,
-                        nj_mgr_name, nj_mgr_email, nj_buddy_name, nj_buddy_email, nj_buddy_cal,
-                        nj_tools,
-                    ],
-                    outputs=[nj_result],
-                )
-
-                nj_clear.click(
-                    fn=lambda: [""] * 15 + [gr.HTML(visible=False)],
-                    outputs=[
-                        nj_name, nj_email, nj_start, nj_title, nj_seniority, nj_dept,
-                        nj_bu, nj_division, nj_team, nj_role_desc,
-                        nj_mgr_name, nj_mgr_email, nj_buddy_name, nj_buddy_email, nj_buddy_cal,
-                        nj_result,
-                    ],
-                )
-
-            # ══════════════════════════════════
-            # TAB 2 — Active Joiners Dashboard
-            # ══════════════════════════════════
-            with gr.Tab("📋 Active Joiners"):
-                gr.HTML('<div class="section-title">Joiner Progress Dashboard</div>')
-
-                with gr.Row():
-                    refresh_btn = gr.Button("🔄 Refresh", variant="secondary")
-                    lms_joiner_id = gr.Textbox(
-                        label="Confirm LMS completion (paste Joiner ID)",
-                        placeholder="joiner-uuid...",
-                        scale=2,
-                    )
-                    lms_confirm_btn = gr.Button("✅ Confirm LMS Complete", variant="primary")
-
-                lms_result = gr.HTML(visible=False)
-                dashboard_html = gr.HTML(value=_render_dashboard(store))
-
-                def refresh_dashboard():
-                    return _render_dashboard(store)
-
-                def confirm_lms(joiner_id):
-                    joiner_id = joiner_id.strip()
-                    if not joiner_id:
-                        return gr.HTML(
-                            value='<div class="ob-error">Please enter a Joiner ID.</div>',
-                            visible=True,
-                        )
-                    orchestrator.confirm_lms_complete(joiner_id)
-                    return gr.HTML(
-                        value=f'<div class="success-banner">✅ LMS completion confirmed for {joiner_id[:8]}... — Phase 3 gate is now open.</div>',
-                        visible=True,
-                    )
-
-                refresh_btn.click(fn=refresh_dashboard, outputs=[dashboard_html])
-                lms_confirm_btn.click(fn=confirm_lms, inputs=[lms_joiner_id], outputs=[lms_result])
-
-            # ══════════════════════════════════
-            # TAB 3 — Knowledge Gaps
-            # ══════════════════════════════════
-            with gr.Tab("🔍 Knowledge Gaps"):
-                gr.HTML('<div class="section-title">Unanswered Q&A Questions</div>')
-                gr.Markdown(
-                    "These questions were asked by joiners but could not be answered from the knowledge base. "
-                    "Review and add missing documentation to close each gap."
-                )
-
-                with gr.Row():
-                    gaps_refresh = gr.Button("🔄 Refresh Gaps", variant="secondary")
-                    gap_id_input = gr.Textbox(label="Gap ID to resolve", placeholder="gap-uuid...")
-                    gap_note = gr.Textbox(label="Resolution note", placeholder="Added to handbook section 4.2...")
-                    resolve_btn = gr.Button("✅ Mark Resolved", variant="primary")
-
-                gaps_result = gr.HTML(visible=False)
-                gaps_html = gr.HTML(value=_render_gaps(store))
-
-                def refresh_gaps():
-                    return _render_gaps(store)
-
-                def resolve_gap(gap_id, note):
-                    gap_id = gap_id.strip()
-                    if not gap_id:
-                        return gr.HTML(
-                            value='<div class="ob-error">Please enter a Gap ID.</div>',
-                            visible=True,
-                        )
-                    store.resolve_gap(gap_id, note)
-                    return gr.HTML(
-                        value=f'<div class="success-banner">✅ Gap {gap_id[:8]}... marked as resolved.</div>',
-                        visible=True,
-                    )
-
-                gaps_refresh.click(fn=refresh_gaps, outputs=[gaps_html])
-                resolve_btn.click(fn=resolve_gap, inputs=[gap_id_input, gap_note], outputs=[gaps_result])
-
-            # ══════════════════════════════════
-            # TAB 4 — Reports
-            # ══════════════════════════════════
-            with gr.Tab("📊 Reports"):
-                gr.HTML('<div class="section-title">Manager Weekly Summary</div>')
-
-                with gr.Row():
-                    mgr_email_input = gr.Textbox(
-                        label="Manager Email",
-                        placeholder="your.email@nexoraglobal.com",
-                    )
-                    generate_btn = gr.Button("Generate Summary", variant="primary")
-
-                report_output = gr.Textbox(
-                    label="Weekly Summary",
-                    lines=20,
-                    interactive=False,
-                )
-
-                def generate_summary(email):
-                    if not email.strip():
-                        return "Please enter a manager email address."
-                    return orchestrator.progress_tracker.build_manager_summary(email.strip())
-
-                generate_btn.click(fn=generate_summary, inputs=[mgr_email_input], outputs=[report_output])
-
-                gr.HTML('<div class="section-title">Sentiment Overview</div>')
-                sentiment_html = gr.HTML(value=_render_sentiment_overview(store))
-                sentiment_refresh = gr.Button("🔄 Refresh Sentiment", variant="secondary")
-                sentiment_refresh.click(fn=lambda: _render_sentiment_overview(store), outputs=[sentiment_html])
-
-    return admin_app
 
 
 # ─────────────────────────────────────────────
@@ -460,10 +139,13 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
 # ─────────────────────────────────────────────
 
 def _render_dashboard(store: StateStore) -> str:
-    """Build the active joiners dashboard HTML."""
+    """Render the active joiners progress dashboard as HTML cards."""
     profiles = store.list_profiles()
     if not profiles:
-        return '<p class="ob-muted" style="padding:20px">No joiners registered yet. Use the "Add New Joiner" tab to get started.</p>'
+        return (
+            '<p class="ob-muted" style="padding:20px;text-align:center">'
+            'No joiners registered yet. Use the <strong>Add New Joiner</strong> tab to get started.</p>'
+        )
 
     cards = []
     for profile in profiles:
@@ -471,55 +153,62 @@ def _render_dashboard(store: StateStore) -> str:
         if not state:
             continue
 
-        phase_def = PHASE_BY_ID.get(state.current_phase)
+        phase_def  = PHASE_BY_ID.get(state.current_phase)
         phase_name = phase_def.name if phase_def else "Unknown"
+        complete   = state.onboarding_complete
 
         # Checklist progress
         total = len(state.checklist_items)
-        done = sum(1 for c in state.checklist_items if c.completed)
-        pct = int(done / total * 100) if total else 0
+        done  = sum(1 for c in state.checklist_items if c.completed)
+        pct   = int(done / total * 100) if total else 0
 
         # Access summary
-        access_pending = sum(1 for r in state.access_requests if r.status.value == "pending")
-        access_provisioned = sum(1 for r in state.access_requests if r.status.value == "provisioned")
+        pending      = sum(1 for r in state.access_requests if r.status.value == "pending")
+        provisioned  = sum(1 for r in state.access_requests if r.status.value == "provisioned")
 
-        # Sentiment
-        recent_fb = state.feedback_responses[-1] if state.feedback_responses else None
-        sentiment_html = ""
-        if recent_fb and recent_fb.sentiment:
-            s = recent_fb.sentiment.value
-            cls = f"sentiment-{s}"
-            label = {"positive": "😊 Positive", "neutral": "😐 Neutral", "concerning": "⚠️ Needs attention"}.get(s, s)
-            sentiment_html = f'<span class="{cls}">{label}</span>'
-        else:
-            sentiment_html = '<span class="sentiment-neutral">No feedback yet</span>'
+        # Latest sentiment
+        sentiment_html = '<span class="sentiment-neutral">No feedback yet</span>'
+        if state.feedback_responses:
+            latest = state.feedback_responses[-1]
+            if latest.sentiment:
+                s   = latest.sentiment.value
+                cls = f"sentiment-{s}"
+                lbl = {"positive": "😊 Positive", "neutral": "😐 Neutral",
+                       "concerning": "⚠️ Needs attention"}.get(s, s)
+                sentiment_html = f'<span class="{cls}">{lbl}</span>'
+
+        badge_class = "phase-badge phase-complete" if complete else "phase-badge"
+        badge_text  = "✅ Complete" if complete else f"Phase {state.current_phase}: {phase_name}"
 
         cards.append(f"""
         <div class="joiner-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <div>
-                    <strong style="font-size:1.05rem">{profile.full_name}</strong>
-                    <span class="ob-muted" style="margin-left:8px">{profile.job_title}</span>
-                </div>
-                <span class="phase-badge">Phase {state.current_phase}: {phase_name}</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div>
+              <strong style="font-size:1.05rem;color:var(--ob-text)">{profile.full_name}</strong>
+              <span class="ob-muted" style="margin-left:8px;font-size:0.88rem">{profile.job_title}</span>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;font-size:0.88rem">
-                <div><strong>Dept:</strong> {profile.department}</div>
-                <div><strong>Manager:</strong> {profile.manager_name}</div>
-                <div><strong>Start:</strong> {profile.start_date}</div>
-                <div><strong>Sentiment:</strong> {sentiment_html}</div>
-                <div><strong>Access:</strong> ✅ {access_provisioned} ready · ⏳ {access_pending} pending</div>
-                <div><strong>ID:</strong> <code style="font-size:0.78rem">{profile.joiner_id}</code></div>
+            <span class="{badge_class}">{badge_text}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;font-size:0.86rem;margin-bottom:12px">
+            <div><strong>Dept:</strong> {profile.department}</div>
+            <div><strong>Team:</strong> {profile.team}</div>
+            <div><strong>Manager:</strong> {profile.manager_name}</div>
+            <div><strong>Start:</strong> {profile.start_date}</div>
+            <div><strong>Sentiment:</strong> {sentiment_html}</div>
+            <div><strong>Access:</strong> ✅ {provisioned} ready · ⏳ {pending} pending</div>
+            <div style="font-size:0.78rem;color:var(--ob-muted)">
+              ID: <code>{profile.joiner_id}</code>
             </div>
-            <div style="margin-top:12px">
-                <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px">
-                    <span>Overall checklist progress</span>
-                    <span>{done}/{total} items ({pct}%)</span>
-                </div>
-                <div style="background:var(--ob-progress-track);border-radius:4px;height:8px">
-                    <div style="background:var(--ob-primary);width:{pct}%;height:100%;border-radius:4px;transition:width 0.3s"></div>
-                </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px">
+              <span>Overall checklist progress</span>
+              <span style="font-weight:600">{done}/{total} ({pct}%)</span>
             </div>
+            <div style="background:var(--ob-progress-track);border-radius:6px;height:8px">
+              <div style="background:var(--ob-primary);width:{pct}%;height:100%;border-radius:6px;transition:width 0.4s"></div>
+            </div>
+          </div>
         </div>
         """)
 
@@ -527,30 +216,37 @@ def _render_dashboard(store: StateStore) -> str:
 
 
 def _render_gaps(store: StateStore) -> str:
-    """Build the knowledge gaps list HTML."""
+    """Render the knowledge gaps list as HTML."""
     gaps = store.list_knowledge_gaps(resolved=False)
     if not gaps:
-        return '<p style="color:var(--ob-success);padding:20px">✅ No open knowledge gaps — the KB is covering all questions!</p>'
+        return (
+            '<p style="color:var(--ob-success);padding:20px;text-align:center">'
+            '✅ No open knowledge gaps — the KB is covering all questions!</p>'
+        )
 
     items = []
-    for g in sorted(gaps, key=lambda x: x["asked_at"], reverse=True):
-        joiner_id_short = g["joiner_id"][:8] if g.get("joiner_id") else "?"
+    for g in sorted(gaps, key=lambda x: x.get("asked_at", ""), reverse=True):
+        jid_short = g.get("joiner_id", "")[:8]
         items.append(f"""
         <div class="gap-item">
-            <div style="font-weight:600;margin-bottom:2px">{g['question']}</div>
-            <div class="ob-muted" style="font-size:0.8rem">
-                Gap ID: <code>{g['gap_id'][:8]}...</code> ·
-                Joiner: {joiner_id_short}... ·
-                Asked: {g['asked_at'][:16]}
-            </div>
+          <div style="font-weight:600;margin-bottom:2px;color:var(--ob-text)">{g['question']}</div>
+          <div class="ob-muted" style="font-size:0.8rem">
+            Gap ID: <code>{g['gap_id'][:8]}…</code> ·
+            Joiner: {jid_short}… ·
+            Asked: {g.get('asked_at','')[:16]}
+          </div>
         </div>
         """)
 
-    return f"<p class='ob-muted' style='font-size:0.9rem'>{len(gaps)} open gap(s)</p>\n" + "\n".join(items)
+    return (
+        f'<p class="ob-muted" style="font-size:0.9rem;margin-bottom:12px">'
+        f'{len(gaps)} open gap(s) — review and add missing docs to the KB.</p>'
+        + "\n".join(items)
+    )
 
 
-def _render_sentiment_overview(store: StateStore) -> str:
-    """Build sentiment summary table for all joiners."""
+def _render_sentiment(store: StateStore) -> str:
+    """Render sentiment overview table for the Reports tab."""
     profiles = store.list_profiles()
     if not profiles:
         return "<p class='ob-muted'>No data yet.</p>"
@@ -561,18 +257,17 @@ def _render_sentiment_overview(store: StateStore) -> str:
         if not state or not state.feedback_responses:
             continue
         scores = [f.sentiment_score for f in state.feedback_responses if f.sentiment_score]
-        avg = round(sum(scores) / len(scores), 1) if scores else None
+        avg    = round(sum(scores) / len(scores), 1) if scores else None
         latest = state.feedback_responses[-1]
-        sentiment = latest.sentiment.value if latest.sentiment else "unknown"
-        sentiment_class = f"sentiment-{sentiment}"
-        avg_str = f"{avg}/5" if avg else "—"
+        s_val  = latest.sentiment.value if latest.sentiment else "unknown"
+        s_cls  = f"sentiment-{s_val}"
         rows.append(f"""
-        <tr>
-            <td style="padding:8px 12px">{p.full_name}</td>
-            <td style="padding:8px 12px">{p.department}</td>
-            <td style="padding:8px 12px">Phase {state.current_phase}</td>
-            <td style="padding:8px 12px"><span class="{sentiment_class}">{sentiment.title()}</span></td>
-            <td style="padding:8px 12px">{avg_str}</td>
+        <tr style="border-bottom:1px solid var(--ob-border)">
+          <td style="padding:8px 12px">{p.full_name}</td>
+          <td style="padding:8px 12px">{p.department}</td>
+          <td style="padding:8px 12px">Phase {state.current_phase}</td>
+          <td style="padding:8px 12px"><span class="{s_cls}">{s_val.title()}</span></td>
+          <td style="padding:8px 12px">{f"{avg}/5" if avg else "—"}</td>
         </tr>
         """)
 
@@ -581,15 +276,403 @@ def _render_sentiment_overview(store: StateStore) -> str:
 
     return f"""
     <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
-        <thead>
-            <tr style="background:var(--ob-surface);border-bottom:2px solid var(--ob-border)">
-                <th style="padding:8px 12px;text-align:left">Joiner</th>
-                <th style="padding:8px 12px;text-align:left">Dept</th>
-                <th style="padding:8px 12px;text-align:left">Phase</th>
-                <th style="padding:8px 12px;text-align:left">Sentiment</th>
-                <th style="padding:8px 12px;text-align:left">Avg Score</th>
-            </tr>
-        </thead>
-        <tbody>{''.join(rows)}</tbody>
+      <thead>
+        <tr style="background:var(--ob-surface);font-weight:700;text-align:left">
+          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Joiner</th>
+          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Dept</th>
+          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Phase</th>
+          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Sentiment</th>
+          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Avg Score</th>
+        </tr>
+      </thead>
+      <tbody>{''.join(rows)}</tbody>
     </table>
     """
+
+
+# ─────────────────────────────────────────────
+# Main build function
+# ─────────────────────────────────────────────
+
+def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
+    """
+    Build and return the Admin Gradio Blocks app.
+    Injected dependencies: orchestrator (shared), store (shared).
+    """
+
+    with gr.Blocks(title="OnboardingBuddy — Admin Portal") as admin_app:
+
+        # ── Header ────────────────────────────────────────────────────────────
+        gr.HTML("""
+        <div class="admin-header">
+          <div style="font-size:2.2rem">🧭</div>
+          <div>
+            <h1>OnboardingBuddy — Admin Portal</h1>
+            <p>Manager & HR view · Create joiners, track progress, review knowledge gaps</p>
+          </div>
+        </div>
+        """)
+
+        with gr.Tabs():
+
+            # ══════════════════════════════════════════════════════════════════
+            # TAB 1 — Add New Joiner
+            # ══════════════════════════════════════════════════════════════════
+            with gr.Tab("➕ Add New Joiner"):
+                gr.Markdown(
+                    "Fill in all details below. Submitting this form activates the full "
+                    "onboarding pipeline — org brief, access tickets, training plan, "
+                    "and buddy intro all fire in parallel."
+                )
+
+                # ── Row 1: Personal details ──────────────────────────────────
+                gr.HTML('<div class="section-title">Personal Details</div>')
+                with gr.Row():
+                    nj_name  = gr.Textbox(label="Full Name *", placeholder="e.g. Priya Sharma")
+                    nj_email = gr.Textbox(label="Work Email *", placeholder="priya.sharma@company.com")
+                    nj_start = gr.Textbox(
+                        label="Start Date * (YYYY-MM-DD)",
+                        value=str(date.today()),
+                    )
+
+                # ── Row 2: Role & placement ──────────────────────────────────
+                gr.HTML('<div class="section-title">Role & Placement</div>')
+                with gr.Row():
+                    nj_bu       = gr.Dropdown(label="Business Unit *", choices=BUSINESS_UNITS,
+                                              value=BUSINESS_UNITS[0])
+                    nj_division = gr.Dropdown(label="Division *", choices=DIVISIONS,
+                                              value=DIVISIONS[0])
+                    nj_dept     = gr.Dropdown(label="Department *", choices=DEPARTMENTS,
+                                              value=DEPARTMENTS[0])
+                    nj_team     = gr.Dropdown(label="Team *", choices=TEAMS,
+                                              value=TEAMS[0])
+
+                with gr.Row():
+                    nj_role      = gr.Dropdown(label="Role *", choices=ROLES, value=ROLES[0])
+                    nj_seniority = gr.Dropdown(label="Seniority *", choices=SENIORITY_LEVELS,
+                                               value=SENIORITY_LEVELS[0])
+                    nj_role_desc = gr.Textbox(
+                        label="Role Description (optional)",
+                        placeholder="Brief description of responsibilities…",
+                        lines=2,
+                    )
+
+                # ── Row 3: Manager & Buddy ───────────────────────────────────
+                gr.HTML('<div class="section-title">Manager & Buddy</div>')
+                with gr.Row():
+                    nj_mgr_name  = gr.Textbox(label="Manager Name *", placeholder="e.g. David Chen")
+                    nj_mgr_email = gr.Textbox(label="Manager Email *",
+                                              placeholder="d.chen@company.com")
+                with gr.Row():
+                    nj_buddy_name  = gr.Textbox(label="Buddy Name *", placeholder="e.g. Sara Okonkwo")
+                    nj_buddy_email = gr.Textbox(label="Buddy Email *",
+                                                placeholder="s.okonkwo@company.com")
+                    nj_buddy_cal   = gr.Textbox(
+                        label="Buddy Calendar Link (optional)",
+                        placeholder="https://calendly.com/sara-okonkwo",
+                    )
+
+                # ── Tool Access ──────────────────────────────────────────────
+                gr.HTML('<div class="section-title">Tool & System Access</div>')
+                gr.Markdown(
+                    "Select the tools this joiner needs. Then specify the permission level "
+                    "for each in the box below (one per line: `Tool Name: Permission Level`)."
+                )
+                with gr.Row():
+                    nj_tools_select = gr.Dropdown(
+                        label="Select Tools",
+                        choices=ALL_TOOLS,
+                        multiselect=True,
+                        value=[],
+                        scale=2,
+                    )
+                nj_tools_text = gr.Textbox(
+                    label="Tool Access List (auto-filled — edit permission levels as needed)",
+                    placeholder="Microsoft 365 (Outlook, Word, Excel, PowerPoint): Standard User\nJira: Standard User",
+                    lines=5,
+                )
+
+                # Auto-fill the text box when tools are selected from dropdown
+                def _fill_tool_text(selected_tools: list[str]) -> str:
+                    return "\n".join(f"{t}: Standard User" for t in selected_tools)
+
+                nj_tools_select.change(
+                    fn=_fill_tool_text,
+                    inputs=[nj_tools_select],
+                    outputs=[nj_tools_text],
+                )
+
+                # ── Phase customisations ─────────────────────────────────────
+                gr.HTML('<div class="section-title">Phase Customisations (optional)</div>')
+                nj_phase_ext = gr.Textbox(
+                    label="Phase extensions (format: phase_id:extra_days, comma-separated)",
+                    placeholder="e.g. 3:5  → extend Phase 3 by 5 days",
+                    lines=1,
+                )
+
+                # ── Submit ───────────────────────────────────────────────────
+                with gr.Row():
+                    nj_submit = gr.Button(
+                        "🚀 Create Joiner & Activate Onboarding",
+                        variant="primary", scale=2,
+                    )
+                    nj_clear = gr.Button("Clear Form", variant="secondary", scale=1)
+
+                nj_result = gr.HTML(visible=False)
+
+                # ── Submit handler ───────────────────────────────────────────
+                def submit_new_joiner(
+                    name, email, start,
+                    bu, division, dept, team, role, seniority, role_desc,
+                    mgr_name, mgr_email,
+                    buddy_name, buddy_email, buddy_cal,
+                    tools_text, phase_ext_text,
+                ):
+                    # Validate required fields
+                    required = {
+                        "Full Name": name, "Work Email": email, "Start Date": start,
+                        "Business Unit": bu, "Division": division, "Department": dept,
+                        "Team": team, "Role": role,
+                        "Manager Name": mgr_name, "Manager Email": mgr_email,
+                        "Buddy Name": buddy_name, "Buddy Email": buddy_email,
+                    }
+                    missing = [k for k, v in required.items() if not str(v).strip()]
+                    if missing:
+                        return gr.HTML(
+                            value=f'<div class="ob-error">⚠️ Missing required fields: {", ".join(missing)}</div>',
+                            visible=True,
+                        )
+
+                    # Parse start date
+                    try:
+                        start_date = date.fromisoformat(start.strip())
+                    except ValueError:
+                        return gr.HTML(
+                            value='<div class="ob-error">⚠️ Start date must be YYYY-MM-DD format.</div>',
+                            visible=True,
+                        )
+
+                    # Parse tool access (one per line: "Tool: Permission")
+                    tool_access: dict[str, str] = {}
+                    for line in tools_text.strip().splitlines():
+                        if ":" in line:
+                            parts = line.split(":", 1)
+                            tool_access[parts[0].strip()] = parts[1].strip()
+
+                    # Parse phase extensions (e.g. "3:5,4:3")
+                    phase_extensions: dict[int, int] = {}
+                    if phase_ext_text.strip():
+                        for part in phase_ext_text.split(","):
+                            part = part.strip()
+                            if ":" in part:
+                                try:
+                                    pid, days = part.split(":", 1)
+                                    phase_extensions[int(pid.strip())] = int(days.strip())
+                                except ValueError:
+                                    pass
+
+                    # Build the JoinerProfile
+                    profile = JoinerProfile(
+                        joiner_id         = store.new_joiner_id(),
+                        full_name         = name.strip(),
+                        email             = email.strip(),
+                        start_date        = start_date,
+                        job_title         = role.strip(),
+                        seniority         = seniority,
+                        business_unit     = bu,
+                        division          = division,
+                        department        = dept,
+                        team              = team,
+                        role_description  = role_desc.strip(),
+                        manager_name      = mgr_name.strip(),
+                        manager_email     = mgr_email.strip(),
+                        buddy_name        = buddy_name.strip(),
+                        buddy_email       = buddy_email.strip(),
+                        buddy_calendar_link = buddy_cal.strip() or None,
+                        tool_access       = tool_access,
+                        phase_extensions  = phase_extensions,
+                        created_by        = mgr_email.strip(),
+                    )
+
+                    # Activate — triggers all agents in parallel
+                    orchestrator.activate_new_joiner(profile)
+
+                    # Build success banner
+                    tool_lines = "".join(
+                        f"<li>{t} — {v}</li>" for t, v in tool_access.items()
+                    ) or "<li>No tools configured</li>"
+
+                    return gr.HTML(
+                        value=f"""
+                        <div class="ob-success">
+                          <h3 style="margin:0 0 10px;color:var(--ob-primary-darker)">
+                            ✅ Onboarding Activated for {name}!
+                          </h3>
+                          <p><strong>Joiner ID:</strong> <code>{profile.joiner_id}</code></p>
+                          <p><strong>Role:</strong> {role} · {dept} · {team}</p>
+                          <p><strong>Start Date:</strong> {start}</p>
+                          <p><strong>Phase 1: Welcome</strong> is now active.</p>
+                          <p style="margin-top:10px"><strong>Actions triggered in parallel:</strong></p>
+                          <ul>
+                            <li>🏢 Org & role context brief (for joiner's Day 1)</li>
+                            <li>🔐 IT access tickets raised: <ul>{tool_lines}</ul></li>
+                            <li>📚 Training plan built (Phase 3 ready)</li>
+                            <li>👋 Buddy intro message sent to {buddy_name}</li>
+                          </ul>
+                          <p style="margin-top:10px;font-size:0.88rem;opacity:0.85">
+                            Share the <strong>My Onboarding Journey</strong> tab with {name}
+                            and have them enter their Joiner ID to access their experience.
+                          </p>
+                        </div>
+                        """,
+                        visible=True,
+                    )
+
+                nj_submit.click(
+                    fn=submit_new_joiner,
+                    inputs=[
+                        nj_name, nj_email, nj_start,
+                        nj_bu, nj_division, nj_dept, nj_team, nj_role,
+                        nj_seniority, nj_role_desc,
+                        nj_mgr_name, nj_mgr_email,
+                        nj_buddy_name, nj_buddy_email, nj_buddy_cal,
+                        nj_tools_text, nj_phase_ext,
+                    ],
+                    outputs=[nj_result],
+                )
+
+                def clear_form():
+                    return (
+                        "", "", str(date.today()),           # name, email, start
+                        BUSINESS_UNITS[0], DIVISIONS[0],    # bu, division
+                        DEPARTMENTS[0], TEAMS[0], ROLES[0], # dept, team, role
+                        SENIORITY_LEVELS[0], "",             # seniority, role_desc
+                        "", "", "", "", "",                  # manager, buddy fields
+                        [], "",                              # tools select, tools text
+                        "",                                  # phase ext
+                        gr.HTML(visible=False),              # result
+                    )
+
+                nj_clear.click(
+                    fn=clear_form,
+                    outputs=[
+                        nj_name, nj_email, nj_start,
+                        nj_bu, nj_division, nj_dept, nj_team, nj_role,
+                        nj_seniority, nj_role_desc,
+                        nj_mgr_name, nj_mgr_email,
+                        nj_buddy_name, nj_buddy_email, nj_buddy_cal,
+                        nj_tools_select, nj_tools_text,
+                        nj_phase_ext,
+                        nj_result,
+                    ],
+                )
+
+            # ══════════════════════════════════════════════════════════════════
+            # TAB 2 — Active Joiners Dashboard
+            # ══════════════════════════════════════════════════════════════════
+            with gr.Tab("📋 Active Joiners"):
+                gr.HTML('<div class="section-title">Joiner Progress Dashboard</div>')
+
+                with gr.Row():
+                    dash_refresh = gr.Button("🔄 Refresh", variant="secondary", scale=1)
+                    lms_id_input = gr.Textbox(
+                        label="Confirm LMS completion — paste Joiner ID",
+                        placeholder="joiner-uuid…",
+                        scale=2,
+                    )
+                    lms_btn = gr.Button("✅ Confirm LMS Complete", variant="primary", scale=1)
+
+                lms_result   = gr.HTML(visible=False)
+                dashboard_html = gr.HTML(value=_render_dashboard(store))
+
+                def refresh_dash():
+                    return _render_dashboard(store)
+
+                def confirm_lms(jid: str):
+                    jid = jid.strip()
+                    if not jid:
+                        return gr.HTML(
+                            value='<div class="ob-error">Please enter a Joiner ID.</div>',
+                            visible=True,
+                        )
+                    orchestrator.confirm_lms_complete(jid)
+                    return gr.HTML(
+                        value=f'<div class="ob-success">✅ LMS confirmed for <code>{jid}</code> — Phase 3 gate unlocked.</div>',
+                        visible=True,
+                    )
+
+                dash_refresh.click(fn=refresh_dash, outputs=[dashboard_html])
+                lms_btn.click(fn=confirm_lms, inputs=[lms_id_input], outputs=[lms_result])
+
+            # ══════════════════════════════════════════════════════════════════
+            # TAB 3 — Knowledge Gaps
+            # ══════════════════════════════════════════════════════════════════
+            with gr.Tab("🔍 Knowledge Gaps"):
+                gr.HTML('<div class="section-title">Unanswered Joiner Questions</div>')
+                gr.Markdown(
+                    "These questions were asked in the chatbot but couldn't be answered from "
+                    "the knowledge base. Add the missing content to your Google Drive KB "
+                    "and sync — the next nightly ingest will close the gap."
+                )
+
+                with gr.Row():
+                    gaps_refresh = gr.Button("🔄 Refresh", variant="secondary", scale=1)
+                    gap_id_input = gr.Textbox(label="Gap ID to resolve", placeholder="gap-uuid…", scale=2)
+                    gap_note     = gr.Textbox(label="Resolution note", placeholder="Added to handbook section 4.2…", scale=2)
+                    resolve_btn  = gr.Button("✅ Mark Resolved", variant="primary", scale=1)
+
+                gaps_result = gr.HTML(visible=False)
+                gaps_html   = gr.HTML(value=_render_gaps(store))
+
+                def refresh_gaps():
+                    return _render_gaps(store)
+
+                def resolve_gap(gap_id: str, note: str):
+                    gap_id = gap_id.strip()
+                    if not gap_id:
+                        return gr.HTML(
+                            value='<div class="ob-error">Please enter a Gap ID.</div>',
+                            visible=True,
+                        )
+                    store.resolve_gap(gap_id, note)
+                    return gr.HTML(
+                        value=f'<div class="ob-success">✅ Gap <code>{gap_id[:8]}…</code> marked resolved.</div>',
+                        visible=True,
+                    )
+
+                gaps_refresh.click(fn=refresh_gaps, outputs=[gaps_html])
+                resolve_btn.click(fn=resolve_gap, inputs=[gap_id_input, gap_note], outputs=[gaps_result])
+
+            # ══════════════════════════════════════════════════════════════════
+            # TAB 4 — Reports
+            # ══════════════════════════════════════════════════════════════════
+            with gr.Tab("📊 Reports"):
+                gr.HTML('<div class="section-title">Manager Weekly Summary</div>')
+                with gr.Row():
+                    mgr_email_in = gr.Textbox(
+                        label="Manager Email",
+                        placeholder="your.email@company.com",
+                        scale=2,
+                    )
+                    report_btn = gr.Button("Generate Summary", variant="primary", scale=1)
+
+                report_out = gr.Textbox(
+                    label="Weekly Summary", lines=22, interactive=False,
+                )
+
+                def gen_summary(email: str):
+                    if not email.strip():
+                        return "Please enter a manager email address."
+                    return orchestrator.progress_tracker.build_manager_summary(email.strip())
+
+                report_btn.click(fn=gen_summary, inputs=[mgr_email_in], outputs=[report_out])
+
+                gr.HTML('<div class="section-title">Sentiment Overview</div>')
+                sentiment_html    = gr.HTML(value=_render_sentiment(store))
+                sentiment_refresh = gr.Button("🔄 Refresh Sentiment", variant="secondary")
+                sentiment_refresh.click(
+                    fn=lambda: _render_sentiment(store),
+                    outputs=[sentiment_html],
+                )
+
+    return admin_app
