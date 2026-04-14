@@ -38,17 +38,48 @@ from core.state_store import StateStore
 ADMIN_CSS = """
 /* OnboardingBuddy Admin Portal — shared styles */
 :root {
-    --ob-primary: #00897B;
-    --ob-accent: #FF7043;
-    --ob-surface: #F5F5F5;
-    --ob-card: #FFFFFF;
-    --ob-text: #212121;
-    --ob-muted: #757575;
-    --ob-border: #E0E0E0;
-    --ob-success: #43A047;
-    --ob-warning: #FB8C00;
-    --ob-danger: #E53935;
+    --ob-primary:      #00897B;
+    --ob-accent:       #FF7043;
+    --ob-surface:      #F5F5F5;
+    --ob-card:         #FFFFFF;
+    --ob-text:         #212121;
+    --ob-muted:        #757575;
+    --ob-border:       #E0E0E0;
+    --ob-success:      #43A047;
+    --ob-warning:      #FB8C00;
+    --ob-danger:       #E53935;
+    --ob-error-bg:     #FFEBEE;
+    --ob-error-text:   #E53935;
+    --ob-success-bg:   #E8F5E9;
+    --ob-success-text: #1B5E20;
+    --ob-warning-bg:   #FFF3E0;
+    --ob-warning-text: #E65100;
+    --ob-gap-bg:       #FFF8E1;
+    --ob-progress-track: #E0E0E0;
 }
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ob-surface:        #1E1E1E;
+        --ob-card:           #2D2D2D;
+        --ob-text:           #E0E0E0;
+        --ob-muted:          #9E9E9E;
+        --ob-border:         #424242;
+        --ob-error-bg:       #3B1212;
+        --ob-error-text:     #EF9A9A;
+        --ob-success-bg:     #1B3321;
+        --ob-success-text:   #A5D6A7;
+        --ob-warning-bg:     #3B2A00;
+        --ob-warning-text:   #FFCC80;
+        --ob-gap-bg:         #2A2618;
+        --ob-progress-track: #424242;
+    }
+}
+
+/* ── Utility classes ──────────── */
+.ob-error       { color: var(--ob-error-text);   background: var(--ob-error-bg);   padding: 10px; border-radius: 8px; }
+.ob-success-msg { color: var(--ob-success-text); background: var(--ob-success-bg); padding: 14px; border-radius: 8px; font-weight: 500; }
+.ob-muted       { color: var(--ob-muted); }
 
 .admin-header {
     background: linear-gradient(135deg, var(--ob-primary), #00695C);
@@ -79,12 +110,12 @@ ADMIN_CSS = """
     background: var(--ob-primary);
     color: white;
 }
-.sentiment-positive { color: var(--ob-success); font-weight: 600; }
+.sentiment-positive  { color: var(--ob-success); font-weight: 600; }
 .sentiment-neutral   { color: var(--ob-muted); }
 .sentiment-concerning { color: var(--ob-danger); font-weight: 600; }
 
 .gap-item {
-    background: #FFF8E1;
+    background: var(--ob-gap-bg);
     border-left: 4px solid var(--ob-warning);
     padding: 10px 14px;
     border-radius: 0 8px 8px 0;
@@ -92,11 +123,11 @@ ADMIN_CSS = """
     font-size: 0.9rem;
 }
 .success-banner {
-    background: #E8F5E9;
-    border: 1px solid #A5D6A7;
+    background: var(--ob-success-bg);
+    border: 1px solid var(--ob-success);
     border-radius: 8px;
     padding: 12px 16px;
-    color: #1B5E20;
+    color: var(--ob-success-text);
     font-weight: 500;
 }
 .section-title {
@@ -225,8 +256,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
 
                     if missing:
                         return gr.HTML(
-                            value=f'<div style="color:#E53935;padding:10px;background:#FFEBEE;border-radius:8px">'
-                                  f'⚠️ Please fill in required fields: {", ".join(missing)}</div>',
+                            value=f'<div class="ob-error">⚠️ Please fill in required fields: {", ".join(missing)}</div>',
                             visible=True,
                         )
 
@@ -234,8 +264,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                         start_date = date.fromisoformat(start.strip())
                     except ValueError:
                         return gr.HTML(
-                            value='<div style="color:#E53935;padding:10px;background:#FFEBEE;border-radius:8px">'
-                                  '⚠️ Start date must be in YYYY-MM-DD format.</div>',
+                            value='<div class="ob-error">⚠️ Start date must be in YYYY-MM-DD format.</div>',
                             visible=True,
                         )
 
@@ -342,7 +371,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     joiner_id = joiner_id.strip()
                     if not joiner_id:
                         return gr.HTML(
-                            value='<div style="color:red;padding:8px">Please enter a Joiner ID.</div>',
+                            value='<div class="ob-error">Please enter a Joiner ID.</div>',
                             visible=True,
                         )
                     orchestrator.confirm_lms_complete(joiner_id)
@@ -380,7 +409,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     gap_id = gap_id.strip()
                     if not gap_id:
                         return gr.HTML(
-                            value='<div style="color:red;padding:8px">Please enter a Gap ID.</div>',
+                            value='<div class="ob-error">Please enter a Gap ID.</div>',
                             visible=True,
                         )
                     store.resolve_gap(gap_id, note)
@@ -434,7 +463,7 @@ def _render_dashboard(store: StateStore) -> str:
     """Build the active joiners dashboard HTML."""
     profiles = store.list_profiles()
     if not profiles:
-        return '<p style="color:#757575;padding:20px">No joiners registered yet. Use the "Add New Joiner" tab to get started.</p>'
+        return '<p class="ob-muted" style="padding:20px">No joiners registered yet. Use the "Add New Joiner" tab to get started.</p>'
 
     cards = []
     for profile in profiles:
@@ -465,15 +494,12 @@ def _render_dashboard(store: StateStore) -> str:
         else:
             sentiment_html = '<span class="sentiment-neutral">No feedback yet</span>'
 
-        status_color = {"complete": "#43A047", "active": "#00897B", "locked": "#BDBDBD", "pending_lms": "#FB8C00"}
-        status = state.phase_statuses.get(state.current_phase, PhaseStatus.ACTIVE).value
-
         cards.append(f"""
         <div class="joiner-card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
                 <div>
                     <strong style="font-size:1.05rem">{profile.full_name}</strong>
-                    <span style="color:#757575;margin-left:8px">{profile.job_title}</span>
+                    <span class="ob-muted" style="margin-left:8px">{profile.job_title}</span>
                 </div>
                 <span class="phase-badge">Phase {state.current_phase}: {phase_name}</span>
             </div>
@@ -490,8 +516,8 @@ def _render_dashboard(store: StateStore) -> str:
                     <span>Overall checklist progress</span>
                     <span>{done}/{total} items ({pct}%)</span>
                 </div>
-                <div style="background:#E0E0E0;border-radius:4px;height:8px">
-                    <div style="background:#00897B;width:{pct}%;height:100%;border-radius:4px;transition:width 0.3s"></div>
+                <div style="background:var(--ob-progress-track);border-radius:4px;height:8px">
+                    <div style="background:var(--ob-primary);width:{pct}%;height:100%;border-radius:4px;transition:width 0.3s"></div>
                 </div>
             </div>
         </div>
@@ -504,7 +530,7 @@ def _render_gaps(store: StateStore) -> str:
     """Build the knowledge gaps list HTML."""
     gaps = store.list_knowledge_gaps(resolved=False)
     if not gaps:
-        return '<p style="color:#43A047;padding:20px">✅ No open knowledge gaps — the KB is covering all questions!</p>'
+        return '<p style="color:var(--ob-success);padding:20px">✅ No open knowledge gaps — the KB is covering all questions!</p>'
 
     items = []
     for g in sorted(gaps, key=lambda x: x["asked_at"], reverse=True):
@@ -512,7 +538,7 @@ def _render_gaps(store: StateStore) -> str:
         items.append(f"""
         <div class="gap-item">
             <div style="font-weight:600;margin-bottom:2px">{g['question']}</div>
-            <div style="font-size:0.8rem;color:#757575">
+            <div class="ob-muted" style="font-size:0.8rem">
                 Gap ID: <code>{g['gap_id'][:8]}...</code> ·
                 Joiner: {joiner_id_short}... ·
                 Asked: {g['asked_at'][:16]}
@@ -520,14 +546,14 @@ def _render_gaps(store: StateStore) -> str:
         </div>
         """)
 
-    return f"<p style='color:#757575;font-size:0.9rem'>{len(gaps)} open gap(s)</p>\n" + "\n".join(items)
+    return f"<p class='ob-muted' style='font-size:0.9rem'>{len(gaps)} open gap(s)</p>\n" + "\n".join(items)
 
 
 def _render_sentiment_overview(store: StateStore) -> str:
     """Build sentiment summary table for all joiners."""
     profiles = store.list_profiles()
     if not profiles:
-        return "<p style='color:#757575'>No data yet.</p>"
+        return "<p class='ob-muted'>No data yet.</p>"
 
     rows = []
     for p in profiles:
@@ -538,25 +564,25 @@ def _render_sentiment_overview(store: StateStore) -> str:
         avg = round(sum(scores) / len(scores), 1) if scores else None
         latest = state.feedback_responses[-1]
         sentiment = latest.sentiment.value if latest.sentiment else "unknown"
-        color = {"positive": "#43A047", "neutral": "#757575", "concerning": "#E53935"}.get(sentiment, "#757575")
+        sentiment_class = f"sentiment-{sentiment}"
         avg_str = f"{avg}/5" if avg else "—"
         rows.append(f"""
         <tr>
             <td style="padding:8px 12px">{p.full_name}</td>
             <td style="padding:8px 12px">{p.department}</td>
             <td style="padding:8px 12px">Phase {state.current_phase}</td>
-            <td style="padding:8px 12px"><span style="color:{color};font-weight:600">{sentiment.title()}</span></td>
+            <td style="padding:8px 12px"><span class="{sentiment_class}">{sentiment.title()}</span></td>
             <td style="padding:8px 12px">{avg_str}</td>
         </tr>
         """)
 
     if not rows:
-        return "<p style='color:#757575'>No feedback submitted yet.</p>"
+        return "<p class='ob-muted'>No feedback submitted yet.</p>"
 
     return f"""
     <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
         <thead>
-            <tr style="background:#F5F5F5;border-bottom:2px solid #E0E0E0">
+            <tr style="background:var(--ob-surface);border-bottom:2px solid var(--ob-border)">
                 <th style="padding:8px 12px;text-align:left">Joiner</th>
                 <th style="padding:8px 12px;text-align:left">Dept</th>
                 <th style="padding:8px 12px;text-align:left">Phase</th>

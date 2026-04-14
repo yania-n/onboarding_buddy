@@ -38,17 +38,48 @@ from core.state_store import StateStore
 JOINER_CSS = """
 /* OnboardingBuddy Joiner App — styles */
 :root {
-    --ob-primary: #00897B;
-    --ob-accent:  #FF7043;
-    --ob-surface: #F5F5F5;
-    --ob-card:    #FFFFFF;
-    --ob-text:    #212121;
-    --ob-muted:   #757575;
-    --ob-border:  #E0E0E0;
-    --ob-success: #43A047;
-    --ob-locked:  #BDBDBD;
-    --ob-pending: #FB8C00;
+    --ob-primary:      #00897B;
+    --ob-accent:       #FF7043;
+    --ob-surface:      #F5F5F5;
+    --ob-card:         #FFFFFF;
+    --ob-text:         #212121;
+    --ob-muted:        #757575;
+    --ob-border:       #E0E0E0;
+    --ob-success:      #43A047;
+    --ob-locked:       #BDBDBD;
+    --ob-pending:      #FB8C00;
+    --ob-danger:       #E53935;
+    --ob-error-bg:     #FFEBEE;
+    --ob-error-text:   #E53935;
+    --ob-success-bg:   #E8F5E9;
+    --ob-success-text: #1B5E20;
+    --ob-warning-bg:   #FFF3E0;
+    --ob-warning-text: #E65100;
+    --ob-progress-track: #E0E0E0;
 }
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ob-surface:        #1E1E1E;
+        --ob-card:           #2D2D2D;
+        --ob-text:           #E0E0E0;
+        --ob-muted:          #9E9E9E;
+        --ob-border:         #424242;
+        --ob-locked:         #616161;
+        --ob-error-bg:       #3B1212;
+        --ob-error-text:     #EF9A9A;
+        --ob-success-bg:     #1B3321;
+        --ob-success-text:   #A5D6A7;
+        --ob-warning-bg:     #3B2A00;
+        --ob-warning-text:   #FFCC80;
+        --ob-progress-track: #424242;
+    }
+}
+
+/* ── Utility classes ──────────── */
+.ob-error       { color: var(--ob-error-text);   background: var(--ob-error-bg);   padding: 8px;  border-radius: 8px; }
+.ob-success-msg { color: var(--ob-success-text); background: var(--ob-success-bg); padding: 14px; border-radius: 8px; font-weight: 500; }
+.ob-muted       { color: var(--ob-muted); }
 
 /* ── Journey timeline ─────────── */
 .journey-header {
@@ -84,15 +115,15 @@ JOINER_CSS = """
     color: white;
 }
 .phase-node.complete {
-    background: #E8F5E9;
+    background: var(--ob-success-bg);
     color: var(--ob-success);
 }
 .phase-node.locked {
-    background: #F5F5F5;
+    background: var(--ob-surface);
     color: var(--ob-locked);
 }
 .phase-node.pending_lms {
-    background: #FFF3E0;
+    background: var(--ob-warning-bg);
     color: var(--ob-pending);
 }
 
@@ -146,7 +177,7 @@ JOINER_CSS = """
     font-size: 0.9rem;
     transition: background 0.15s;
 }
-.checklist-item.done { background: #E8F5E9; }
+.checklist-item.done { background: var(--ob-success-bg); }
 .checklist-item .check-icon { font-size: 1.1rem; }
 
 /* ── Notifications ────────────── */
@@ -173,7 +204,7 @@ JOINER_CSS = """
     background: var(--ob-surface);
     font-size: 0.9rem;
 }
-.course-item.done { background: #E8F5E9; }
+.course-item.done { background: var(--ob-success-bg); }
 .course-badge {
     font-size: 0.75rem;
     padding: 2px 8px;
@@ -201,13 +232,14 @@ JOINER_CSS = """
     border-radius: 12px;
     font-weight: 600;
 }
-.status-pill.pending { background: #FFF3E0; color: var(--ob-pending); }
-.status-pill.provisioned { background: #E8F5E9; color: var(--ob-success); }
-.status-pill.blocked { background: #FFEBEE; color: #E53935; }
+.status-pill.pending     { background: var(--ob-warning-bg); color: var(--ob-pending); }
+.status-pill.provisioned { background: var(--ob-success-bg); color: var(--ob-success); }
+.status-pill.blocked     { background: var(--ob-error-bg);   color: var(--ob-error-text); }
 
 /* ── Chat ─────────────────────── */
 .buddy-intro {
-    background: linear-gradient(135deg, #E0F2F1, #E8F5E9);
+    background: var(--ob-surface);
+    border-left: 4px solid var(--ob-primary);
     border-radius: 12px;
     padding: 18px 22px;
     margin-bottom: 16px;
@@ -225,23 +257,29 @@ JOINER_CSS = """
     border-bottom: 2px solid var(--ob-primary);
 }
 .gate-warning {
-    background: #FFF3E0;
-    border: 1px solid #FFB74D;
+    background: var(--ob-warning-bg);
+    border: 1px solid var(--ob-pending);
     border-radius: 8px;
     padding: 14px 18px;
     font-size: 0.92rem;
-    color: #E65100;
+    color: var(--ob-warning-text);
     margin-top: 12px;
 }
 .complete-banner {
-    background: linear-gradient(135deg, #E8F5E9, #F1F8E9);
-    border: 2px solid #43A047;
+    background: var(--ob-success-bg);
+    border: 2px solid var(--ob-success);
     border-radius: 14px;
     padding: 24px;
     text-align: center;
     font-size: 1.1rem;
-    color: #1B5E20;
+    color: var(--ob-success-text);
     margin-top: 16px;
+}
+.connection-card {
+    padding: 10px 14px;
+    background: var(--ob-surface);
+    border-radius: 8px;
+    margin-bottom: 6px;
 }
 """
 
@@ -273,12 +311,15 @@ def _progress_ring_svg(done: int, total: int) -> str:
     dash = circumference * pct
     return f"""
     <svg width="80" height="80" viewBox="0 0 80 80" style="transform:rotate(-90deg)">
-      <circle cx="40" cy="40" r="{r}" fill="none" stroke="#E0E0E0" stroke-width="8"/>
-      <circle cx="40" cy="40" r="{r}" fill="none" stroke="#00897B" stroke-width="8"
+      <circle cx="40" cy="40" r="{r}" fill="none"
+              style="stroke:var(--ob-progress-track)" stroke-width="8"/>
+      <circle cx="40" cy="40" r="{r}" fill="none"
+              style="stroke:var(--ob-primary)" stroke-width="8"
               stroke-dasharray="{dash:.1f} {circumference:.1f}"
               stroke-linecap="round"/>
-      <text x="40" y="47" text-anchor="middle" fill="#00897B" font-size="16"
-            font-weight="bold" style="transform:rotate(90deg) translate(0,-80px)">
+      <text x="40" y="47" text-anchor="middle"
+            style="fill:var(--ob-primary);transform:rotate(90deg) translate(0,-80px)"
+            font-size="16" font-weight="bold">
         {int(pct*100)}%
       </text>
     </svg>
@@ -336,7 +377,7 @@ def _render_notifications(state) -> str:
     """Render all in-app notifications, newest first."""
     notifs = state.app_notifications
     if not notifs:
-        return '<p style="color:#757575;padding:16px">No notifications yet — they\'ll appear here as your onboarding progresses.</p>'
+        return '<p class="ob-muted" style="padding:16px">No notifications yet — they\'ll appear here as your onboarding progresses.</p>'
 
     items = []
     for msg in reversed(notifs):
@@ -356,20 +397,19 @@ def _render_training(store: StateStore, joiner_id: str, training_agent) -> str:
         return (
             f'<div class="course-item {"done" if done else ""}">'
             f'<span>{"✅" if done else "📖"} [{c["id"]}] {c["title"]} '
-            f'<span style="color:#757575;font-size:0.82rem">({c.get("duration_mins", 0)} min)</span></span>'
+            f'<span class="ob-muted" style="font-size:0.82rem">({c.get("duration_mins", 0)} min)</span></span>'
             f'<span class="course-badge {badge_class}">{"Complete" if done else ("Mandatory" if badge_class == "mandatory" else "Optional")}</span>'
             f'</div>'
         )
 
     mandatory_html = "".join(course_row(c, "mandatory") for c in plan["mandatory"])
     role_html = "".join(course_row(c) for c in plan["role_specific"] + plan["tools"]) or \
-                '<p style="color:#757575;font-size:0.9rem">No role-specific courses configured yet.</p>'
+                '<p class="ob-muted" style="font-size:0.9rem">No role-specific courses configured yet.</p>'
 
-    gate_status = (
-        '<span style="color:#43A047;font-weight:600">✅ LMS confirmed — Phase 3 gate is open</span>'
-        if plan["lms_gate_confirmed"] else
-        '<span style="color:#FB8C00;font-weight:600">⏳ Awaiting LMS confirmation</span>'
-    )
+    if plan["lms_gate_confirmed"]:
+        gate_status = '<span style="color:var(--ob-success);font-weight:600">✅ LMS confirmed — Phase 3 gate is open</span>'
+    else:
+        gate_status = '<span style="color:var(--ob-pending);font-weight:600">⏳ Awaiting LMS confirmation</span>'
 
     return f"""
     <div style="margin-bottom:8px">{gate_status}</div>
@@ -377,7 +417,7 @@ def _render_training(store: StateStore, joiner_id: str, training_agent) -> str:
     {mandatory_html}
     <div class="section-label">Role-Specific & Tool Courses</div>
     {role_html}
-    <p style="color:#757575;font-size:0.82rem;margin-top:12px">
+    <p class="ob-muted" style="font-size:0.82rem;margin-top:12px">
         Access your courses via the LMS dashboard link in your welcome email.
         Completions sync automatically.
     </p>
@@ -388,7 +428,7 @@ def _render_access(store: StateStore, joiner_id: str, access_agent) -> str:
     """Render the IT access status panel."""
     requests = access_agent.get_access_summary(joiner_id)
     if not requests:
-        return '<p style="color:#757575;padding:16px">No access requests found. Your manager may not have configured tool access yet.</p>'
+        return '<p class="ob-muted" style="padding:16px">No access requests found. Your manager may not have configured tool access yet.</p>'
 
     rows = []
     for r in requests:
@@ -396,8 +436,8 @@ def _render_access(store: StateStore, joiner_id: str, access_agent) -> str:
         icon = {"pending": "⏳", "provisioned": "✅", "blocked": "❌"}.get(status_cls, "❓")
         rows.append(
             f'<div class="access-item">'
-            f'<div><strong>{r["tool"]}</strong> <span style="color:#757575;font-size:0.85rem">({r["level"]})</span>'
-            f'<br><span style="font-size:0.78rem;color:#9E9E9E">Ticket: {r["ticket"]}</span></div>'
+            f'<div><strong>{r["tool"]}</strong> <span class="ob-muted" style="font-size:0.85rem">({r["level"]})</span>'
+            f'<br><span style="font-size:0.78rem;color:var(--ob-muted)">Ticket: {r["ticket"]}</span></div>'
             f'<span class="status-pill {status_cls}">{icon} {status_cls.title()}</span>'
             f'</div>'
         )
@@ -498,12 +538,12 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                         return (
                             """<div class="journey-header"><h2>👋 Select your profile above</h2>
                             <p>Your manager should have created your record — refresh the list if you don't see your name.</p></div>""",
-                            "", "", gr.HTML(visible=False),
+                            "", "", gr.update(visible=False),
                         )
                     state = store.get_state(jid)
                     profile = store.get_profile(jid)
                     if not state or not profile:
-                        return "Error loading profile.", "", "", gr.HTML(visible=False)
+                        return "Error loading profile.", "", "", gr.update(visible=False)
 
                     first_name = profile.full_name.split()[0]
                     phase_def = PHASE_BY_ID.get(state.current_phase)
@@ -520,7 +560,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
                     timeline = _phase_timeline_html(state)
                     card = _render_phase_card(state, state.current_phase)
-                    return header, timeline, card, gr.HTML(visible=False)
+                    return header, timeline, card, gr.update(visible=False)
 
                 joiner_dropdown.change(
                     fn=load_journey,
@@ -531,22 +571,24 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 def toggle_item(choice, item_id, completed: bool):
                     jid = parse_joiner_id(choice)
                     if not jid or not item_id.strip():
-                        return gr.HTML(
-                            value='<div style="color:#E53935;padding:8px;background:#FFEBEE;border-radius:8px">Please select a joiner and enter an item ID.</div>',
-                            visible=True,
-                        ), "", ""
+                        return (
+                            gr.update(value='<div class="ob-error">Please select a joiner and enter an item ID.</div>', visible=True),
+                            gr.update(),
+                            gr.update(),
+                        )
                     success = orchestrator.toggle_checklist_item(jid, item_id.strip(), completed)
                     state = store.get_state(jid)
                     if success and state:
                         return (
-                            gr.HTML(visible=False),
-                            _phase_timeline_html(state),
-                            _render_phase_card(state, state.current_phase),
+                            gr.update(visible=False),
+                            gr.update(value=_phase_timeline_html(state)),
+                            gr.update(value=_render_phase_card(state, state.current_phase)),
                         )
-                    return gr.HTML(
-                        value='<div style="color:#E53935;padding:8px;background:#FFEBEE;border-radius:8px">Item ID not found.</div>',
-                        visible=True,
-                    ), "", ""
+                    return (
+                        gr.update(value='<div class="ob-error">Item ID not found.</div>', visible=True),
+                        gr.update(),
+                        gr.update(),
+                    )
 
                 mark_done_btn.click(
                     fn=lambda c, i: toggle_item(c, i, True),
@@ -563,29 +605,25 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     jid = parse_joiner_id(choice)
                     if not jid:
                         return (
-                            gr.HTML(
-                                value='<div style="color:#E53935;padding:8px;background:#FFEBEE;border-radius:8px">Please select your profile first.</div>',
-                                visible=True,
-                            ), "", "",
+                            gr.update(value='<div class="ob-error">Please select your profile first.</div>', visible=True),
+                            gr.update(),
+                            gr.update(),
+                            gr.update(),
                         )
                     success, msg = orchestrator.advance_phase(jid)
                     state = store.get_state(jid)
-                    result_color = "#E8F5E9" if success else "#FFEBEE"
-                    text_color = "#1B5E20" if success else "#E53935"
+                    css_class = "ob-success-msg" if success else "ob-error"
+                    icon = "✅" if success else "⚠️"
+                    connections = load_connections(choice) if success and state else gr.update()
                     return (
-                        gr.HTML(
-                            value=f'<div style="padding:12px;background:{result_color};border-radius:8px;color:{text_color};font-weight:500">{"✅" if success else "⚠️"} {msg}</div>',
+                        gr.update(
+                            value=f'<div class="{css_class}">{icon} {msg}</div>',
                             visible=True,
                         ),
-                        _phase_timeline_html(state) if state else "",
-                        _render_phase_card(state, state.current_phase) if state else "",
+                        gr.update(value=_phase_timeline_html(state)) if state else gr.update(),
+                        gr.update(value=_render_phase_card(state, state.current_phase)) if state else gr.update(),
+                        connections,
                     )
-
-                complete_phase_btn.click(
-                    fn=advance_phase,
-                    inputs=[joiner_dropdown],
-                    outputs=[action_result, timeline_html, phase_card_html],
-                )
 
             # ══════════════════════════════════
             # TAB 2 — Q&A Chatbot
@@ -643,14 +681,14 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             # ══════════════════════════════════
             with gr.Tab("📚 My Training"):
                 training_html = gr.HTML(
-                    value='<p style="color:#757575">Select your profile to see your training plan.</p>'
+                    value='<p class="ob-muted">Select your profile to see your training plan.</p>'
                 )
                 training_refresh = gr.Button("🔄 Refresh Training Status", variant="secondary")
 
                 def load_training(choice):
                     jid = parse_joiner_id(choice)
                     if not jid:
-                        return '<p style="color:#757575">Select your profile first.</p>'
+                        return '<p class="ob-muted">Select your profile first.</p>'
                     return _render_training(store, jid, orchestrator.training_agent)
 
                 joiner_dropdown.change(fn=load_training, inputs=[joiner_dropdown], outputs=[training_html])
@@ -661,20 +699,20 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             # ══════════════════════════════════
             with gr.Tab("🔐 My Access"):
                 gr.HTML("""
-                <p style="color:#757575;font-size:0.9rem">
+                <p class="ob-muted" style="font-size:0.9rem">
                 Your IT access requests were raised on Day 1. Provisioning typically takes 1–2 business days.
                 Contact IT Support if any access is blocked.
                 </p>
                 """)
                 access_html = gr.HTML(
-                    value='<p style="color:#757575">Select your profile to see access status.</p>'
+                    value='<p class="ob-muted">Select your profile to see access status.</p>'
                 )
                 access_refresh = gr.Button("🔄 Refresh Access Status", variant="secondary")
 
                 def load_access(choice):
                     jid = parse_joiner_id(choice)
                     if not jid:
-                        return '<p style="color:#757575">Select your profile first.</p>'
+                        return '<p class="ob-muted">Select your profile first.</p>'
                     return _render_access(store, jid, orchestrator.access_agent)
 
                 joiner_dropdown.change(fn=load_access, inputs=[joiner_dropdown], outputs=[access_html])
@@ -694,7 +732,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 """)
 
                 fb_phase_display = gr.HTML(
-                    value='<p style="color:#757575">Select your profile and submit a phase to see feedback questions.</p>'
+                    value='<p class="ob-muted">Select your profile and submit a phase to see feedback questions.</p>'
                 )
 
                 with gr.Row():
@@ -716,20 +754,20 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
                 def load_feedback_questions(phase_choice):
                     if not phase_choice:
-                        return [gr.HTML(visible=False)] + [gr.update(visible=False)] * 7
+                        return [gr.update(visible=False)] + [gr.update(visible=False)] * 7
                     phase_id = int(phase_choice.split(" ")[1])
                     phase_def = PHASE_BY_ID.get(phase_id)
                     if not phase_def:
-                        return [gr.HTML(visible=False)] + [gr.update(visible=False)] * 7
+                        return [gr.update(visible=False)] + [gr.update(visible=False)] * 7
                     qs = phase_def.feedback_questions
                     q_updates = []
                     for i in range(3):
                         if i < len(qs):
-                            q_updates.extend([gr.Textbox(label=f"Q{i+1}", value=qs[i], visible=True, interactive=False),
-                                              gr.Textbox(visible=True)])
+                            q_updates.extend([gr.update(label=f"Q{i+1}", value=qs[i], visible=True),
+                                              gr.update(visible=True)])
                         else:
-                            q_updates.extend([gr.Textbox(visible=False), gr.Textbox(visible=False)])
-                    return [gr.HTML(visible=False)] + q_updates + [gr.Button(visible=True)]
+                            q_updates.extend([gr.update(visible=False), gr.update(visible=False)])
+                    return [gr.update(visible=False)] + q_updates + [gr.update(visible=True)]
 
                 fb_phase_select.change(
                     fn=load_feedback_questions,
@@ -740,13 +778,13 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 def submit_feedback(choice, phase_choice, a1, a2, a3):
                     jid = parse_joiner_id(choice)
                     if not jid:
-                        return gr.HTML(
-                            value='<div style="color:#E53935;padding:8px;background:#FFEBEE;border-radius:8px">Please select your profile first.</div>',
+                        return gr.update(
+                            value='<div class="ob-error">Please select your profile first.</div>',
                             visible=True,
                         )
                     if not phase_choice:
-                        return gr.HTML(
-                            value='<div style="color:#E53935;padding:8px">Please select a phase.</div>',
+                        return gr.update(
+                            value='<div class="ob-error">Please select a phase.</div>',
                             visible=True,
                         )
                     phase_id = int(phase_choice.split(" ")[1])
@@ -758,14 +796,14 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                             answers[q] = a.strip()
 
                     if not answers:
-                        return gr.HTML(
-                            value='<div style="color:#E53935;padding:8px">Please answer at least one question.</div>',
+                        return gr.update(
+                            value='<div class="ob-error">Please answer at least one question.</div>',
                             visible=True,
                         )
 
                     orchestrator.feedback_agent.record_feedback(jid, phase_id, answers)
-                    return gr.HTML(
-                        value='<div style="padding:14px;background:#E8F5E9;border-radius:8px;color:#1B5E20;font-weight:500">✅ Thank you for your feedback! Your responses have been recorded.</div>',
+                    return gr.update(
+                        value='<div class="ob-success-msg">✅ Thank you for your feedback! Your responses have been recorded.</div>',
                         visible=True,
                     )
 
@@ -780,17 +818,17 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             # ══════════════════════════════════
             with gr.Tab("🔔 Notifications"):
                 notif_html = gr.HTML(
-                    value='<p style="color:#757575">Select your profile to see your notifications.</p>'
+                    value='<p class="ob-muted">Select your profile to see your notifications.</p>'
                 )
                 notif_refresh = gr.Button("🔄 Refresh", variant="secondary")
 
                 def load_notifs(choice):
                     jid = parse_joiner_id(choice)
                     if not jid:
-                        return '<p style="color:#757575">Select your profile first.</p>'
+                        return '<p class="ob-muted">Select your profile first.</p>'
                     state = store.get_state(jid)
                     if not state:
-                        return '<p style="color:#757575">Profile state not found.</p>'
+                        return '<p class="ob-muted">Profile state not found.</p>'
                     return _render_notifications(state)
 
                 joiner_dropdown.change(fn=load_notifs, inputs=[joiner_dropdown], outputs=[notif_html])
@@ -799,26 +837,33 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # ── Peer connections sidebar ───────────
         with gr.Accordion("👥 Recommended Connections for This Phase", open=False):
             connections_html = gr.HTML(
-                value='<p style="color:#757575">Select your profile to see recommendations.</p>'
+                value='<p class="ob-muted">Select your profile to see recommendations.</p>'
             )
 
             def load_connections(choice):
                 jid = parse_joiner_id(choice)
                 if not jid:
-                    return '<p style="color:#757575">Select your profile first.</p>'
+                    return '<p class="ob-muted">Select your profile first.</p>'
                 state = store.get_state(jid)
                 if not state:
                     return ""
                 recs = orchestrator.buddy_agent.recommend_connections(jid, state.current_phase)
                 rows = "".join(
-                    f'<div style="padding:10px 14px;background:#F5F5F5;border-radius:8px;margin-bottom:6px">'
+                    f'<div class="connection-card">'
                     f'<strong>{r["name"]}</strong><br>'
-                    f'<span style="color:#757575;font-size:0.88rem">{r["reason"]}</span>'
+                    f'<span class="ob-muted" style="font-size:0.88rem">{r["reason"]}</span>'
                     f'</div>'
                     for r in recs
                 )
-                return rows or '<p style="color:#757575">No specific recommendations for this phase.</p>'
+                return rows or '<p class="ob-muted">No specific recommendations for this phase.</p>'
 
             joiner_dropdown.change(fn=load_connections, inputs=[joiner_dropdown], outputs=[connections_html])
+
+        # Wire phase completion to also refresh connections (now that connections_html is defined)
+        complete_phase_btn.click(
+            fn=advance_phase,
+            inputs=[joiner_dropdown],
+            outputs=[action_result, timeline_html, phase_card_html, connections_html],
+        )
 
     return joiner_app
