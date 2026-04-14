@@ -156,18 +156,6 @@ def build_app() -> gr.Blocks:
         interface_list=[admin_app, joiner_app],
         tab_names=["🧭 Admin Portal", "🌱 My Onboarding Journey"],
         title=f"{APP_TITLE} — Nexora Global Corporation",
-        css=ADMIN_CSS + JOINER_CSS + """
-        /* Global tab bar styling */
-        .tab-nav button {
-            font-weight: 600;
-            font-size: 0.95rem;
-            padding: 10px 20px;
-        }
-        .tab-nav button.selected {
-            border-bottom: 3px solid #00897B;
-            color: #00897B;
-        }
-        """,
     )
 
     print("[App] ✅ OnboardingBuddy is ready!")
@@ -187,4 +175,16 @@ if __name__ == "__main__":
         share=False,              # Set True for local share link
         show_error=True,
         theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
+        css=ADMIN_CSS + JOINER_CSS + """
+        /* Global tab bar styling */
+        .tab-nav button {
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 10px 20px;
+        }
+        .tab-nav button.selected {
+            border-bottom: 3px solid #00897B;
+            color: #00897B;
+        }
+        """,
     )
