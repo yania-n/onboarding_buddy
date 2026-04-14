@@ -118,8 +118,6 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
 
     with gr.Blocks(
         title="OnboardingBuddy — Admin Portal",
-        css=ADMIN_CSS,
-        theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
     ) as admin_app:
 
         # ── Header ────────────────────────────
