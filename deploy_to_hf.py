@@ -53,7 +53,10 @@ def collect_files() -> list[tuple[Path, str]]:
             for f in sorted(p.rglob("*")):
                 if not f.is_file():
                     continue
-                if any(skip in f.parts for skip in SKIP_DIRS):
+                # Check relative path parts only — the project folder itself is
+                # named 'onboarding_buddy' so we must NOT check absolute parts
+                rel_parts = f.relative_to(BASE).parts
+                if any(skip in rel_parts for skip in SKIP_DIRS):
                     continue
                 if f.suffix in SKIP_EXTS:
                     continue
