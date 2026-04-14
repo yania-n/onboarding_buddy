@@ -432,8 +432,6 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
     with gr.Blocks(
         title="OnboardingBuddy — Your Journey",
-        css=JOINER_CSS,
-        theme=gr.themes.Soft(primary_hue="teal", secondary_hue="orange"),
     ) as joiner_app:
 
         # ── Joiner selector ────────────────────
@@ -607,7 +605,6 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 chatbot = gr.Chatbot(
                     label="Chat with OnboardingBuddy",
                     height=450,
-                    bubble_full_width=False,
                     show_label=False,
                 )
                 with gr.Row():
