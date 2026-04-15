@@ -42,6 +42,10 @@ def collect_files() -> list[tuple[Path, str]]:
     """
     Walk the INCLUDE list and return (local_path, path_in_repo) pairs.
     README_HF.md is remapped to README.md for Hugging Face Spaces.
+
+    IMPORTANT: always use .as_posix() for path_in_repo so that Windows
+    backslashes never appear in the HF repo path — Linux containers require
+    forward slashes for subdirectory structure to be recognised.
     """
     pairs = []
     for inc in INCLUDE:
@@ -60,7 +64,8 @@ def collect_files() -> list[tuple[Path, str]]:
                     continue
                 if f.suffix in SKIP_EXTS:
                     continue
-                pairs.append((f, str(f.relative_to(BASE))))
+                # .as_posix() ensures forward slashes on Windows
+                pairs.append((f, f.relative_to(BASE).as_posix()))
     return pairs
 
 
