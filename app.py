@@ -200,6 +200,6 @@ app = build_app()
 app.launch(
     server_name="0.0.0.0",  # bind to all interfaces — required for HF Spaces
     server_port=7860,        # HF Spaces default port
-    share=False,             # HF Spaces handles the public URL — no tunnel needed
+    share=True,             # HF Spaces handles the public URL — no tunnel needed
     show_error=True,
 )
