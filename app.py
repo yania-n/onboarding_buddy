@@ -24,21 +24,26 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import gradio as gr
 
-# ── Monkey-patch for Gradio 4.44.0 + Python 3.13 compatibility ──────────────
-# Bug: gradio_client.utils.get_type() crashes with "argument of type 'bool'
-# is not iterable" when a Pydantic model produces additionalProperties:true/false
-# in its JSON Schema (valid per JSON Schema spec, but unhandled in Gradio 4.44).
-# Fix: guard get_type() so non-dict schemas return "any" instead of crashing.
+# ── Monkey-patch for Gradio 4.44.x + Python 3.13 compatibility ───────────────
+# Bug: gradio_client.utils._json_schema_to_python_type() raises
+#   APIInfoParseError: Cannot parse schema True
+# when a Pydantic model emits additionalProperties: true (a bool, not a dict)
+# in its JSON Schema.  This is valid JSON Schema but Gradio 4.44 doesn't handle
+# it — the function assumes every schema it receives is a dict and passes the
+# bool straight through until it hits the final `raise`.
+#
+# Fix: wrap _json_schema_to_python_type so any non-dict schema short-circuits
+# to "any" before the function body runs.  Minimal, surgical, no side effects.
 import gradio_client.utils as _gc_utils
 
-_original_get_type = _gc_utils.get_type
+_orig_j2p = _gc_utils._json_schema_to_python_type
 
-def _safe_get_type(schema):
+def _safe_j2p(schema, defs=None):
     if not isinstance(schema, dict):
         return "any"
-    return _original_get_type(schema)
+    return _orig_j2p(schema, defs)
 
-_gc_utils.get_type = _safe_get_type
+_gc_utils._json_schema_to_python_type = _safe_j2p
 # ─────────────────────────────────────────────────────────────────────────────
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -200,6 +205,7 @@ app = build_app()
 app.launch(
     server_name="0.0.0.0",  # bind to all interfaces — required for HF Spaces
     server_port=7860,        # HF Spaces default port
-    share=True,             # HF Spaces handles the public URL — no tunnel needed
+    share=False,            # HF Spaces handles the public URL — no tunnel needed
     show_error=True,
 )
+ 
