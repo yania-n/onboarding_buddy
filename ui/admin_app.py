@@ -39,98 +39,113 @@ from core.state_store import StateStore
 
 ADMIN_CSS = GLOBAL_CSS_VARS + """
 /* ── Layout & typography ─────────────────── */
-body, .gradio-container { background: var(--ob-surface) !important; }
+body, .gradio-container { background: #F1F8E9 !important; color: #000000 !important; }
 
-/* ── Admin header ────────────────────────── */
+/* ── Admin header — green gradient, white text ── */
 .admin-header {
-    background: linear-gradient(135deg, var(--ob-primary-darker) 0%, var(--ob-primary) 100%);
-    color: var(--ob-card);
+    background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
+    color: #FFFFFF !important;
     padding: 24px 32px;
     border-radius: 12px;
     margin-bottom: 20px;
+    border: none !important;
 }
-.admin-header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; }
-.admin-header p  { margin: 4px 0 0; opacity: 0.85; font-size: 0.95rem; }
+.admin-header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; color: #FFFFFF !important; }
+.admin-header p  { margin: 4px 0 0; opacity: 0.9; font-size: 0.95rem; color: #FFFFFF !important; }
 
 /* ── Section titles ──────────────────────── */
 .section-title {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--ob-primary-darker);
+    color: #2E7D32 !important;
     margin: 16px 0 8px;
     padding-bottom: 4px;
-    border-bottom: 2px solid var(--ob-primary);
+    border-bottom: 2px solid #4CAF50;
 }
 
 /* ── Joiner cards ────────────────────────── */
 .joiner-card {
-    background: var(--ob-card);
-    border: 1px solid var(--ob-border);
-    border-left: 4px solid var(--ob-primary);
+    background: #FFFFFF !important;
+    border: 1px solid #A5D6A7 !important;
+    border-left: 4px solid #4CAF50 !important;
     border-radius: 10px;
     padding: 16px 20px;
     margin-bottom: 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    color: #000000 !important;
 }
+.joiner-card * { color: #000000 !important; }
 .phase-badge {
     display: inline-block;
     padding: 3px 12px;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
-    background: var(--ob-primary);
-    color: var(--ob-card);
+    background: #4CAF50 !important;
+    color: #FFFFFF !important;
 }
-.phase-complete { background: var(--ob-primary-darker) !important; }
+.phase-complete { background: #2E7D32 !important; color: #FFFFFF !important; }
 
 /* ── Sentiment ───────────────────────────── */
-.sentiment-positive  { color: var(--ob-success); font-weight: 600; }
-.sentiment-neutral   { color: var(--ob-muted); }
-.sentiment-concerning { color: var(--ob-danger); font-weight: 600; }
+.sentiment-positive   { color: #2E7D32 !important; font-weight: 600; }
+.sentiment-neutral    { color: #616161 !important; }
+.sentiment-concerning { color: #C62828 !important; font-weight: 600; }
 
 /* ── Status messages ─────────────────────── */
 .ob-success {
-    background: var(--ob-success-bg);
-    border: 1px solid var(--ob-primary);
+    background: #E8F5E9 !important;
+    border: 1px solid #4CAF50 !important;
     border-radius: 8px;
     padding: 14px 18px;
-    color: var(--ob-success-text);
+    color: #1B5E20 !important;
     font-weight: 500;
 }
 .ob-error {
-    background: var(--ob-error-bg);
-    border: 1px solid var(--ob-danger);
+    background: #FFEBEE !important;
+    border: 1px solid #C62828 !important;
     border-radius: 8px;
     padding: 10px 14px;
-    color: var(--ob-error-text);
+    color: #B71C1C !important;
 }
-.ob-muted { color: var(--ob-muted); }
+.ob-muted { color: #616161 !important; }
 
 /* ── Knowledge gap items ─────────────────── */
 .gap-item {
-    background: var(--ob-gap-bg);
-    border-left: 4px solid var(--ob-warning);
+    background: #F9FBE7 !important;
+    border-left: 4px solid #F57F17 !important;
     padding: 10px 14px;
     border-radius: 0 8px 8px 0;
+    color: #000000 !important;
     margin-bottom: 8px;
     font-size: 0.9rem;
 }
 
-/* ── Tool checklist ──────────────────────── */
+/* ── Tool tags ───────────────────────────── */
 .tool-tag {
     display: inline-block;
-    background: var(--ob-primary-light);
-    color: var(--ob-primary-darker);
+    background: #81C784 !important;
+    color: #1B5E20 !important;
     border-radius: 4px;
     padding: 2px 8px;
     font-size: 0.8rem;
     margin: 2px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* ── Buttons ─────────────────────────────── */
-.gr-button-primary { background: var(--ob-primary) !important; color: white !important; }
-.gr-button-primary:hover { background: var(--ob-primary-dark) !important; }
+.gr-button-primary { background: #4CAF50 !important; color: #FFFFFF !important; }
+.gr-button-primary:hover { background: #388E3C !important; }
+
+/* ── Report / summary blocks ─────────────── */
+.report-block {
+    background: #FFFFFF !important;
+    border: 1px solid #A5D6A7 !important;
+    border-radius: 10px;
+    padding: 20px 24px;
+    color: #000000 !important;
+}
+.report-block * { color: #000000 !important; }
+.report-block h2, .report-block h3 { color: #2E7D32 !important; }
 """
 
 

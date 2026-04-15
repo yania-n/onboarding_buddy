@@ -451,8 +451,8 @@ html, body, .gradio-container, .main, .contain {{
 }}
 
 /* ── 3. All blocks / panels ──────────────────────────── */
-.block, .form, .box, .panel,
-[class*="block"], [class*="wrap"] {{
+/* Target only Gradio's known wrapper classes, NOT our custom header classes */
+.block, .form, .box, .panel {{
     background-color: #FFFFFF !important;
     border-color: {COLOR_BORDER} !important;
     color: {COLOR_TEXT} !important;

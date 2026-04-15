@@ -29,18 +29,19 @@ from core.state_store import StateStore
 
 JOINER_CSS = GLOBAL_CSS_VARS + """
 /* ── Base ─────────────────────────────────── */
-body, .gradio-container { background: var(--ob-surface) !important; }
+body, .gradio-container { background: #F1F8E9 !important; color: #000000 !important; }
 
-/* ── Joiner header ───────────────────────── */
+/* ── Joiner header — green gradient, white text ── */
 .joiner-header {
-    background: linear-gradient(135deg, var(--ob-primary-darker) 0%, var(--ob-primary) 100%);
-    color: var(--ob-card);
+    background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
+    color: #FFFFFF !important;
     padding: 20px 28px;
     border-radius: 12px;
     margin-bottom: 20px;
+    border: none !important;
 }
-.joiner-header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
-.joiner-header p  { margin: 4px 0 0; opacity: 0.85; font-size: 0.9rem; }
+.joiner-header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: #FFFFFF !important; }
+.joiner-header p  { margin: 4px 0 0; opacity: 0.9; font-size: 0.9rem; color: #FFFFFF !important; }
 
 /* ── Phase timeline ──────────────────────── */
 .phase-row {
@@ -48,6 +49,7 @@ body, .gradio-container { background: var(--ob-surface) !important; }
     align-items: flex-start;
     margin-bottom: 10px;
     gap: 14px;
+    color: #000000 !important;
 }
 .phase-dot {
     width: 18px; height: 18px;
@@ -55,26 +57,29 @@ body, .gradio-container { background: var(--ob-surface) !important; }
     flex-shrink: 0;
     margin-top: 3px;
 }
-.phase-dot.complete { background: var(--ob-primary); }
-.phase-dot.active   { background: var(--ob-primary); box-shadow: 0 0 0 3px rgba(76,175,80,0.3); }
-.phase-dot.locked   { background: var(--ob-border); }
+.phase-dot.complete { background: #4CAF50 !important; }
+.phase-dot.active   { background: #4CAF50 !important; box-shadow: 0 0 0 3px rgba(76,175,80,0.3); }
+.phase-dot.locked   { background: #A5D6A7 !important; }
 
 /* ── Current phase card ──────────────────── */
 .current-phase-card {
-    background: var(--ob-card);
-    border: 1px solid var(--ob-border);
-    border-left: 5px solid var(--ob-primary);
+    background: #FFFFFF !important;
+    border: 1px solid #A5D6A7 !important;
+    border-left: 5px solid #4CAF50 !important;
     border-radius: 10px;
     padding: 18px 22px;
     margin-bottom: 16px;
+    color: #000000 !important;
 }
+.current-phase-card * { color: #000000 !important; }
 .current-phase-card h3 {
     margin: 0 0 4px;
-    color: var(--ob-primary-darker);
+    color: #2E7D32 !important;
     font-size: 1.1rem;
+    font-weight: 700;
 }
 .current-phase-card .objective {
-    color: var(--ob-text-muted);
+    color: #616161 !important;
     font-size: 0.9rem;
     margin: 0 0 12px;
 }
@@ -87,16 +92,17 @@ body, .gradio-container { background: var(--ob-surface) !important; }
     padding: 8px 12px;
     border-radius: 6px;
     margin-bottom: 6px;
-    background: var(--ob-surface);
-    border: 1px solid var(--ob-border);
+    background: #F1F8E9 !important;
+    border: 1px solid #A5D6A7 !important;
+    color: #000000 !important;
 }
-.checklist-item.done { border-color: var(--ob-primary); }
-.checklist-tick.done { color: var(--ob-primary); font-weight: 700; }
-.checklist-tick.todo { color: var(--ob-border); }
+.checklist-item.done { border-color: #4CAF50 !important; background: #E8F5E9 !important; }
+.checklist-tick.done { color: #4CAF50 !important; font-weight: 700; }
+.checklist-tick.todo { color: #A5D6A7 !important; }
 
 /* ── Progress bar ────────────────────────── */
 .progress-bar-wrap {
-    background: var(--ob-border);
+    background: #E0E0E0 !important;
     border-radius: 6px;
     height: 10px;
     width: 100%;
@@ -104,39 +110,43 @@ body, .gradio-container { background: var(--ob-surface) !important; }
     overflow: hidden;
 }
 .progress-bar-fill {
-    background: var(--ob-primary);
+    background: #4CAF50 !important;
     height: 100%;
     border-radius: 6px;
     transition: width 0.4s ease;
 }
 
 /* ── Access status badges ────────────────── */
-.badge-pending      { background: #FFF3E0; color: #E65100; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
-.badge-provisioned  { background: #E8F5E9; color: var(--ob-primary-darker); padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
-.badge-blocked      { background: #FFEBEE; color: #C62828; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
+.badge-pending     { background: #FFF3E0 !important; color: #E65100 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
+.badge-provisioned { background: #E8F5E9 !important; color: #2E7D32 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
+.badge-blocked     { background: #FFEBEE !important; color: #C62828 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
 
 /* ── Notification cards ──────────────────── */
 .notif-card {
-    background: var(--ob-card);
-    border: 1px solid var(--ob-border);
+    background: #FFFFFF !important;
+    border: 1px solid #A5D6A7 !important;
     border-radius: 8px;
     padding: 14px 18px;
     margin-bottom: 10px;
     line-height: 1.6;
+    color: #000000 !important;
 }
+.notif-card * { color: #000000 !important; }
 
 /* ── Section title ───────────────────────── */
 .section-title {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--ob-primary-darker);
+    color: #2E7D32 !important;
     margin: 16px 0 8px;
     padding-bottom: 4px;
-    border-bottom: 2px solid var(--ob-primary);
+    border-bottom: 2px solid #4CAF50;
+    background: transparent !important;
 }
 
 /* ── Chatbot tweaks ──────────────────────── */
-.chatbot-wrap .message.bot { background: #E8F5E9 !important; }
+.chatbot-wrap .message.bot     { background: #E8F5E9 !important; color: #000000 !important; }
+.chatbot-wrap .message.user    { background: #C8E6C9 !important; color: #000000 !important; }
 """
 
 
