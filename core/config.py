@@ -475,28 +475,84 @@ GLOBAL_CSS_VARS = f"""
     --shadow-drop:                     0 1px 3px rgba(0,0,0,0.08);
 }}
 
-/* Gradio scopes styles so also add direct element overrides */
-.gradio-container, .gradio-container * {{
+/* Force light text everywhere — override Gradio dark theme inheritance */
+body, .gradio-container {{
+    background: {COLOR_SURFACE} !important;
+    color: {COLOR_TEXT} !important;
+}}
+/* General text inside all Gradio blocks */
+.block, .block *, .wrap, .wrap *,
+p, span, div, li, td, th, h1, h2, h3, h4, h5 {{
     color: {COLOR_TEXT};
 }}
-/* Restore white text on coloured buttons/badges */
-button.primary, .btn-primary, .svelte-1gfkn6j,
-[data-testid="primary-btn"] {{
-    color: #FFFFFF !important;
-}}
-/* Labels */
-label, .label-wrap span, .block-label span {{
-    color: {COLOR_TEXT_SECONDARY} !important;
+/* Explicit !important for elements most likely to go white */
+.svelte-1f354aw, .svelte-s1r2yt, .svelte-phx28s,
+.label-wrap span, .block-label span,
+.form, .form label,
+textarea, input[type="text"], input[type="email"] {{
+    color: {COLOR_TEXT} !important;
+    background-color: #FFFFFF !important;
 }}
 /* Markdown prose */
-.prose, .prose p, .prose li, .prose h1, .prose h2, .prose h3 {{
+.prose, .prose p, .prose li,
+.prose h1, .prose h2, .prose h3 {{
     color: {COLOR_TEXT} !important;
 }}
 /* Tabs */
 .tab-nav button {{
     color: {COLOR_MUTED} !important;
+    background: transparent !important;
 }}
 .tab-nav button.selected {{
     color: {COLOR_PRIMARY_DARKER} !important;
+    border-bottom: 3px solid {COLOR_PRIMARY} !important;
+}}
+/* Primary buttons — keep white text */
+button[variant="primary"], .primary {{
+    background: {COLOR_PRIMARY} !important;
+    color: #FFFFFF !important;
+}}
+/* Secondary buttons */
+button[variant="secondary"], .secondary {{
+    color: {COLOR_TEXT} !important;
+}}
+
+/* ── Dropdown popup fix ────────────────────────────────────
+   Gradio 4.44 renders the dropdown list in a floating ul.options
+   element that inherits the dark Gradio theme. Force it light. */
+ul.options {{
+    background: #FFFFFF !important;
+    border: 1px solid {COLOR_BORDER} !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+}}
+ul.options li,
+ul.options li.item {{
+    background: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+}}
+ul.options li:hover {{
+    background: #E8F5E9 !important;
+    color: {COLOR_PRIMARY_DARKER} !important;
+}}
+ul.options li.selected,
+ul.options li[aria-selected="true"] {{
+    background: {COLOR_PRIMARY} !important;
+    color: #FFFFFF !important;
+}}
+/* Also target the wrapping container and any dark overrides */
+.choices__list--dropdown,
+.choices__list--dropdown .choices__item {{
+    background: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+}}
+.choices__list--dropdown .choices__item--highlighted {{
+    background: #E8F5E9 !important;
+    color: {COLOR_PRIMARY_DARKER} !important;
+}}
+/* Gradio uses --dropdown-background-fill on newer builds */
+:root {{
+    --dropdown-background-fill: #FFFFFF;
+    --dropdown-text-color:      {COLOR_TEXT};
+    --dropdown-border-color:    {COLOR_BORDER};
 }}
 """

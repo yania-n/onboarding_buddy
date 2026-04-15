@@ -300,7 +300,8 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
     Injected dependencies: orchestrator (shared), store (shared).
     """
 
-    with gr.Blocks(title="OnboardingBuddy — Admin Portal") as admin_app:
+    light_theme = gr.themes.Default(primary_hue="green", secondary_hue="green")
+    with gr.Blocks(css=ADMIN_CSS, title="OnboardingBuddy — Admin Portal", theme=light_theme) as admin_app:
 
         # ── Header ────────────────────────────────────────────────────────────
         gr.HTML("""

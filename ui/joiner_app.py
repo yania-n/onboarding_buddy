@@ -354,7 +354,8 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
     # Gradio Blocks UI
     # ────────────────────────────────────────────────────────────────────────
 
-    with gr.Blocks(css=JOINER_CSS, title="OnboardingBuddy — My Journey") as joiner_ui:
+    light_theme = gr.themes.Default(primary_hue="green", secondary_hue="green")
+    with gr.Blocks(css=JOINER_CSS, title="OnboardingBuddy — My Journey", theme=light_theme) as joiner_ui:
 
         # ── Header ──────────────────────────────────────────────────────────
         gr.HTML(
