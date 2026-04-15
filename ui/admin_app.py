@@ -315,16 +315,22 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
     Injected dependencies: orchestrator (shared), store (shared).
     """
 
-    light_theme = gr.themes.Default(primary_hue="green", secondary_hue="green")
+    light_theme = gr.themes.Soft(primary_hue="green", secondary_hue="green", neutral_hue="gray")
     with gr.Blocks(css=ADMIN_CSS, title="OnboardingBuddy — Admin Portal", theme=light_theme) as admin_app:
 
         # ── Header ────────────────────────────────────────────────────────────
         gr.HTML("""
-        <div class="admin-header">
-          <div style="font-size:2.2rem">🧭</div>
+        <div style="background:linear-gradient(135deg,#2E7D32 0%,#4CAF50 100%);
+                    color:#FFFFFF;padding:22px 28px;border-radius:10px;
+                    margin-bottom:16px;display:flex;align-items:center;gap:16px;">
+          <div style="font-size:2.4rem;line-height:1">🧭</div>
           <div>
-            <h1>OnboardingBuddy — Admin Portal</h1>
-            <p>Manager & HR view · Create joiners, track progress, review knowledge gaps</p>
+            <div style="font-size:1.5rem;font-weight:700;color:#FFFFFF;margin:0 0 4px">
+              OnboardingBuddy &mdash; Admin Portal
+            </div>
+            <div style="font-size:0.9rem;color:#C8E6C9;margin:0">
+              Manager &amp; HR view &middot; Create joiners, track progress, review knowledge gaps
+            </div>
           </div>
         </div>
         """)

@@ -518,22 +518,34 @@ ul.options li[aria-selected="true"] {{
 }}
 
 /* ── 9. Buttons ──────────────────────────────────────── */
+/* Default all buttons to white/outlined */
 button {{
     color: {COLOR_TEXT} !important;
     background-color: #FFFFFF !important;
     border: 1px solid {COLOR_BORDER} !important;
     border-radius: 6px !important;
 }}
-button.primary, button[variant="primary"],
-.gr-button-primary {{
+/* Primary buttons — every selector Gradio 4.44 might use */
+button.primary,
+button[variant="primary"],
+.primary > button,
+div.primary,
+.gr-button-primary,
+button.svelte-cmf5ev.primary,
+button[data-testid="primary-btn"] {{
     background-color: {COLOR_PRIMARY} !important;
+    background: {COLOR_PRIMARY} !important;
     color: #FFFFFF !important;
     border-color: {COLOR_PRIMARY_DARK} !important;
 }}
-button.primary:hover, button[variant="primary"]:hover {{
+button.primary:hover,
+button[variant="primary"]:hover {{
     background-color: {COLOR_PRIMARY_DARK} !important;
+    background: {COLOR_PRIMARY_DARK} !important;
 }}
-button.secondary, button[variant="secondary"] {{
+/* Secondary buttons */
+button.secondary,
+button[variant="secondary"] {{
     background-color: #FFFFFF !important;
     color: {COLOR_TEXT} !important;
     border-color: {COLOR_BORDER} !important;
