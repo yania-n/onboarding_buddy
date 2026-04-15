@@ -23,6 +23,24 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 import gradio as gr
+
+# ── Monkey-patch for Gradio 4.44.0 + Python 3.13 compatibility ──────────────
+# Bug: gradio_client.utils.get_type() crashes with "argument of type 'bool'
+# is not iterable" when a Pydantic model produces additionalProperties:true/false
+# in its JSON Schema (valid per JSON Schema spec, but unhandled in Gradio 4.44).
+# Fix: guard get_type() so non-dict schemas return "any" instead of crashing.
+import gradio_client.utils as _gc_utils
+
+_original_get_type = _gc_utils.get_type
+
+def _safe_get_type(schema):
+    if not isinstance(schema, dict):
+        return "any"
+    return _original_get_type(schema)
+
+_gc_utils.get_type = _safe_get_type
+# ─────────────────────────────────────────────────────────────────────────────
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from core.config import (
@@ -175,11 +193,13 @@ def build_app() -> gr.Blocks:
 # Entry point
 # ─────────────────────────────────────────────
 
-if __name__ == "__main__":
-    app = build_app()
-    app.launch(
-        server_name="0.0.0.0",  # bind to all interfaces — required for HF Spaces
-        server_port=7860,        # HF Spaces default port
-        share=True,              # required when localhost isn't directly accessible
-        show_error=True,
-    )
+# HF Spaces runs this file directly with `python app.py`.
+# We call launch() at module level (not inside __main__) so HF Spaces
+# can also import and mount the app object if needed.
+app = build_app()
+app.launch(
+    server_name="0.0.0.0",  # bind to all interfaces — required for HF Spaces
+    server_port=7860,        # HF Spaces default port
+    share=False,             # HF Spaces handles the public URL — no tunnel needed
+    show_error=True,
+)
