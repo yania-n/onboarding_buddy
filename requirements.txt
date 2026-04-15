@@ -1,50 +1,47 @@
 # ============================================================
-# OnboardingBuddy — Python Dependencies
+# OnboardingBuddy -- Python Dependencies
 # ============================================================
 
-# ── Core AI ──────────────────────────────────────────────────
-# Claude Haiku  → fast/cheap: KB Q&A, nudge generation, routing
-# Claude Sonnet → quality:    buddy messages, sentiment analysis
+# -- Core AI --------------------------------------------------
 anthropic>=0.40.0
 
-# ── Embeddings & Vector Search ───────────────────────────────
-# voyage-3-lite: 1024-dim embeddings, free tier, fast
+# -- Embeddings & Vector Search -------------------------------
 voyageai>=0.2.3
-# FAISS: in-memory flat cosine-similarity index (no server needed)
 faiss-cpu>=1.7.4
 
-# ── UI Framework ─────────────────────────────────────────────
+# -- UI Framework ---------------------------------------------
 # Gradio is pre-installed by HF Spaces (sdk_version in README.md).
-# Do NOT re-pin gradio here — it conflicts with the Space SDK.
+# Do NOT re-pin gradio here -- it conflicts with the Space SDK.
 #
 # Python 3.13 compatibility patches for Gradio 4.44:
-#   audioop-lts   → restores the audioop stdlib module removed in Python 3.13
-#   huggingface_hub pin → keeps HfFolder available (removed in hf_hub >=0.26)
+#   audioop-lts   -> restores audioop stdlib module removed in Python 3.13
+#   huggingface_hub pin -> keeps HfFolder available (removed in hf_hub >=0.26)
 audioop-lts>=0.2.1
 huggingface_hub>=0.19.0,<0.26.0
+#
+# Starlette pin: Starlette 0.29+ changed TemplateResponse signature in a way
+# that breaks Gradio 4.44's routes.py (passes template name where request is
+# now expected). Pinning to <0.29 restores the old positional API.
+starlette>=0.27.0,<0.29.0
 
-# ── Google Drive Integration ──────────────────────────────────
-# Used to sync KB documents from the organisation's Drive folder
+# -- Google Drive Integration ---------------------------------
 google-api-python-client>=2.100.0
 google-auth>=2.23.0
-# gdown: fallback for downloading individual shared Drive files
 gdown>=5.1.0
 
-# ── Document Processing ───────────────────────────────────────
-# PDF text extraction from Drive-sourced PDFs
+# -- Document Processing --------------------------------------
 pdfplumber>=0.10.3
-# DOCX text extraction
 python-docx>=1.1.0
 
-# ── Data & Scheduling ─────────────────────────────────────────
-pydantic>=2.0.0           # Data validation for all models
-python-dotenv>=1.0.0      # .env file loading
-apscheduler>=3.10.0       # Background scheduler for KB sync and nudges
+# -- Data & Scheduling ----------------------------------------
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+apscheduler>=3.10.0
 
-# ── HTTP & Networking ─────────────────────────────────────────
-requests>=2.31.0          # Google Drive API calls, MS Teams webhooks
-tenacity>=8.2.0           # Retry logic for all external LLM/API calls
+# -- HTTP & Networking ----------------------------------------
+requests>=2.31.0
+tenacity>=8.2.0
 
-# ── Utilities ─────────────────────────────────────────────────
-numpy>=1.26.0             # FAISS vector operations
-rich>=13.0.0              # Pretty CLI output for dev/debug logging
+# -- Utilities ------------------------------------------------
+numpy>=1.26.0
+rich>=13.0.0
