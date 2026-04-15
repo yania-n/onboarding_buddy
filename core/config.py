@@ -411,148 +411,190 @@ COLOR_BLACK:          str = "#000000"
 
 # Shared CSS variables block — injected once via app.py
 GLOBAL_CSS_VARS = f"""
+/* ════════════════════════════════════════════════════════
+   OnboardingBuddy global styles
+   Design: white cards, light-green page bg, black text,
+           grass-green accent (#4CAF50).
+   ════════════════════════════════════════════════════════ */
+
+/* ── 1. Brand tokens ─────────────────────────────────── */
 :root {{
-    /* ── Our brand tokens ─────────────────────────────── */
-    --ob-primary:         {COLOR_PRIMARY};
-    --ob-primary-dark:    {COLOR_PRIMARY_DARK};
-    --ob-primary-darker:  {COLOR_PRIMARY_DARKER};
-    --ob-primary-light:   {COLOR_PRIMARY_LIGHT};
-    --ob-surface:         {COLOR_SURFACE};
-    --ob-card:            {COLOR_CARD};
-    --ob-text:            {COLOR_TEXT};
-    --ob-text-sec:        {COLOR_TEXT_SECONDARY};
-    --ob-muted:           {COLOR_MUTED};
-    --ob-text-muted:      {COLOR_MUTED};
-    --ob-border:          {COLOR_BORDER};
-    --ob-success:         {COLOR_SUCCESS};
-    --ob-success-bg:      #E8F5E9;
-    --ob-success-text:    #1B5E20;
-    --ob-warning:         {COLOR_WARNING};
-    --ob-warning-bg:      #FFF8E1;
-    --ob-warning-text:    #E65100;
-    --ob-danger:          {COLOR_DANGER};
-    --ob-error-bg:        #FFEBEE;
-    --ob-error-text:      #B71C1C;
-    --ob-gap-bg:          #F9FBE7;
-    --ob-locked:          #BDBDBD;
-    --ob-progress-track:  #E0E0E0;
-
-    /* ── Override Gradio 4.44 internal theme variables ── */
-    /* Forces light mode regardless of system/browser preference */
-    --body-background-fill:            {COLOR_SURFACE};
-    --body-text-color:                 {COLOR_TEXT};
-    --body-text-color-subdued:         {COLOR_MUTED};
-    --block-background-fill:           {COLOR_CARD};
-    --block-border-color:              {COLOR_BORDER};
-    --block-label-background-fill:     {COLOR_CARD};
-    --block-label-text-color:          {COLOR_TEXT_SECONDARY};
-    --block-title-text-color:          {COLOR_TEXT};
-    --input-background-fill:           {COLOR_CARD};
-    --input-border-color:              {COLOR_BORDER};
-    --input-text-color:                {COLOR_TEXT};
-    --input-placeholder-color:         {COLOR_MUTED};
-    --prose-text-color:                {COLOR_TEXT};
-    --prose-header-text-color:         {COLOR_TEXT};
-    --checkbox-label-text-color:       {COLOR_TEXT};
-    --radio-circle-color:              {COLOR_PRIMARY};
-    --button-primary-background-fill:  {COLOR_PRIMARY};
-    --button-primary-text-color:       #FFFFFF;
-    --button-secondary-background-fill: {COLOR_CARD};
-    --button-secondary-text-color:     {COLOR_TEXT};
-    --table-text-color:                {COLOR_TEXT};
-    --table-even-background-fill:      {COLOR_SURFACE};
-    --table-odd-background-fill:       {COLOR_CARD};
-    --panel-background-fill:           {COLOR_SURFACE};
-    --tab-nav-background-fill:         {COLOR_SURFACE};
-    --tab-nav-text-color:              {COLOR_MUTED};
-    --tab-nav-selected-text-color:     {COLOR_PRIMARY_DARKER};
-    --border-color-primary:            {COLOR_BORDER};
-    --color-accent:                    {COLOR_PRIMARY};
-    --color-accent-soft:               {COLOR_PRIMARY_LIGHT};
-    --link-text-color:                 {COLOR_PRIMARY_DARK};
-    --link-text-color-hover:           {COLOR_PRIMARY_DARKER};
-    --link-text-color-visited:         {COLOR_PRIMARY_DARK};
-    --shadow-drop:                     0 1px 3px rgba(0,0,0,0.08);
+    --ob-primary:        {COLOR_PRIMARY};
+    --ob-primary-dark:   {COLOR_PRIMARY_DARK};
+    --ob-primary-darker: {COLOR_PRIMARY_DARKER};
+    --ob-primary-light:  {COLOR_PRIMARY_LIGHT};
+    --ob-surface:        {COLOR_SURFACE};
+    --ob-card:           {COLOR_CARD};
+    --ob-text:           {COLOR_TEXT};
+    --ob-text-sec:       {COLOR_TEXT_SECONDARY};
+    --ob-muted:          {COLOR_MUTED};
+    --ob-text-muted:     {COLOR_MUTED};
+    --ob-border:         {COLOR_BORDER};
+    --ob-success:        {COLOR_SUCCESS};
+    --ob-success-bg:     #E8F5E9;
+    --ob-success-text:   #1B5E20;
+    --ob-warning:        {COLOR_WARNING};
+    --ob-warning-bg:     #FFF8E1;
+    --ob-warning-text:   #E65100;
+    --ob-danger:         {COLOR_DANGER};
+    --ob-error-bg:       #FFEBEE;
+    --ob-error-text:     #B71C1C;
+    --ob-gap-bg:         #F9FBE7;
+    --ob-locked:         #BDBDBD;
+    --ob-progress-track: #E0E0E0;
 }}
 
-/* Force light text everywhere — override Gradio dark theme inheritance */
-body, .gradio-container {{
-    background: {COLOR_SURFACE} !important;
+/* ── 2. Page & container ─────────────────────────────── */
+html, body, .gradio-container, .main, .contain {{
+    background-color: {COLOR_SURFACE} !important;
     color: {COLOR_TEXT} !important;
 }}
-/* General text inside all Gradio blocks */
-.block, .block *, .wrap, .wrap *,
-p, span, div, li, td, th, h1, h2, h3, h4, h5 {{
-    color: {COLOR_TEXT};
-}}
-/* Explicit !important for elements most likely to go white */
-.svelte-1f354aw, .svelte-s1r2yt, .svelte-phx28s,
-.label-wrap span, .block-label span,
-.form, .form label,
-textarea, input[type="text"], input[type="email"] {{
-    color: {COLOR_TEXT} !important;
+
+/* ── 3. All blocks / panels ──────────────────────────── */
+.block, .form, .box, .panel,
+[class*="block"], [class*="wrap"] {{
     background-color: #FFFFFF !important;
-}}
-/* Markdown prose */
-.prose, .prose p, .prose li,
-.prose h1, .prose h2, .prose h3 {{
-    color: {COLOR_TEXT} !important;
-}}
-/* Tabs */
-.tab-nav button {{
-    color: {COLOR_MUTED} !important;
-    background: transparent !important;
-}}
-.tab-nav button.selected {{
-    color: {COLOR_PRIMARY_DARKER} !important;
-    border-bottom: 3px solid {COLOR_PRIMARY} !important;
-}}
-/* Primary buttons — keep white text */
-button[variant="primary"], .primary {{
-    background: {COLOR_PRIMARY} !important;
-    color: #FFFFFF !important;
-}}
-/* Secondary buttons */
-button[variant="secondary"], .secondary {{
+    border-color: {COLOR_BORDER} !important;
     color: {COLOR_TEXT} !important;
 }}
 
-/* ── Dropdown popup fix ────────────────────────────────────
-   Gradio 4.44 renders the dropdown list in a floating ul.options
-   element that inherits the dark Gradio theme. Force it light. */
+/* ── 4. Labels ───────────────────────────────────────── */
+label, .label-wrap, .label-wrap *,
+.block-label, .block-label *,
+.block > label, span.name {{
+    color: {COLOR_TEXT_SECONDARY} !important;
+    background: transparent !important;
+    font-weight: 600;
+}}
+
+/* ── 5. Text inputs & textareas ──────────────────────── */
+input, input[type="text"], input[type="email"],
+input[type="number"], input[type="search"],
+textarea {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+    border: 1px solid {COLOR_BORDER} !important;
+    border-radius: 6px !important;
+}}
+input::placeholder, textarea::placeholder {{
+    color: {COLOR_MUTED} !important;
+}}
+
+/* ── 6. Dropdowns (closed state) ─────────────────────── */
+.wrap-inner, .secondary-wrap,
+[class*="dropdown"] > .wrap {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+    border: 1px solid {COLOR_BORDER} !important;
+}}
+
+/* ── 7. Dropdown popup list ──────────────────────────── */
 ul.options {{
-    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     border: 1px solid {COLOR_BORDER} !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
 }}
-ul.options li,
-ul.options li.item {{
-    background: #FFFFFF !important;
+ul.options li, ul.options li.item {{
+    background-color: #FFFFFF !important;
     color: {COLOR_TEXT} !important;
 }}
 ul.options li:hover {{
-    background: #E8F5E9 !important;
+    background-color: #E8F5E9 !important;
     color: {COLOR_PRIMARY_DARKER} !important;
 }}
 ul.options li.selected,
 ul.options li[aria-selected="true"] {{
-    background: {COLOR_PRIMARY} !important;
+    background-color: {COLOR_PRIMARY} !important;
     color: #FFFFFF !important;
 }}
-/* Also target the wrapping container and any dark overrides */
-.choices__list--dropdown,
-.choices__list--dropdown .choices__item {{
-    background: #FFFFFF !important;
+
+/* ── 8. Prose / Markdown ─────────────────────────────── */
+.prose, .prose *, .markdown, .markdown * {{
     color: {COLOR_TEXT} !important;
+    background: transparent !important;
 }}
-.choices__list--dropdown .choices__item--highlighted {{
-    background: #E8F5E9 !important;
+.prose a, .markdown a {{
+    color: {COLOR_PRIMARY_DARK} !important;
+}}
+
+/* ── 9. Buttons ──────────────────────────────────────── */
+button {{
+    color: {COLOR_TEXT} !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid {COLOR_BORDER} !important;
+    border-radius: 6px !important;
+}}
+button.primary, button[variant="primary"],
+.gr-button-primary {{
+    background-color: {COLOR_PRIMARY} !important;
+    color: #FFFFFF !important;
+    border-color: {COLOR_PRIMARY_DARK} !important;
+}}
+button.primary:hover, button[variant="primary"]:hover {{
+    background-color: {COLOR_PRIMARY_DARK} !important;
+}}
+button.secondary, button[variant="secondary"] {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+    border-color: {COLOR_BORDER} !important;
+}}
+
+/* ── 10. Tabs ────────────────────────────────────────── */
+.tab-nav {{
+    background: {COLOR_SURFACE} !important;
+    border-bottom: 1px solid {COLOR_BORDER} !important;
+}}
+.tab-nav button {{
+    background: transparent !important;
+    color: {COLOR_MUTED} !important;
+    border: none !important;
+    font-weight: 600;
+    padding: 10px 20px;
+}}
+.tab-nav button.selected {{
+    color: {COLOR_PRIMARY_DARKER} !important;
+    border-bottom: 3px solid {COLOR_PRIMARY} !important;
+    background: transparent !important;
+}}
+.tab-nav button:hover {{
+    color: {COLOR_PRIMARY} !important;
+}}
+
+/* ── 11. Tables ──────────────────────────────────────── */
+table, th, td {{
+    color: {COLOR_TEXT} !important;
+    background-color: #FFFFFF !important;
+    border-color: {COLOR_BORDER} !important;
+}}
+tr:nth-child(even) td {{
+    background-color: {COLOR_SURFACE} !important;
+}}
+th {{
+    background-color: {COLOR_SURFACE} !important;
+    font-weight: 700;
     color: {COLOR_PRIMARY_DARKER} !important;
 }}
-/* Gradio uses --dropdown-background-fill on newer builds */
-:root {{
-    --dropdown-background-fill: #FFFFFF;
-    --dropdown-text-color:      {COLOR_TEXT};
-    --dropdown-border-color:    {COLOR_BORDER};
+
+/* ── 12. Checkboxes & radios ─────────────────────────── */
+.checkbox-wrap label, .radio-wrap label {{
+    color: {COLOR_TEXT} !important;
+}}
+
+/* ── 13. Chatbot messages ────────────────────────────── */
+.message.user {{
+    background-color: {COLOR_PRIMARY_LIGHT} !important;
+    color: #000000 !important;
+}}
+.message.bot, .message.assistant {{
+    background-color: #F1F8E9 !important;
+    color: {COLOR_TEXT} !important;
+}}
+
+/* ── 14. Preserve white text inside coloured elements ── */
+/* Headers, badges, primary buttons must keep white text */
+.admin-header *, .joiner-header *,
+.phase-badge,
+button.primary *, button[variant="primary"] * {{
+    color: #FFFFFF !important;
 }}
 """
