@@ -412,6 +412,7 @@ COLOR_BLACK:          str = "#000000"
 # Shared CSS variables block — injected once via app.py
 GLOBAL_CSS_VARS = f"""
 :root {{
+    /* ── Our brand tokens ─────────────────────────────── */
     --ob-primary:         {COLOR_PRIMARY};
     --ob-primary-dark:    {COLOR_PRIMARY_DARK};
     --ob-primary-darker:  {COLOR_PRIMARY_DARKER};
@@ -421,6 +422,7 @@ GLOBAL_CSS_VARS = f"""
     --ob-text:            {COLOR_TEXT};
     --ob-text-sec:        {COLOR_TEXT_SECONDARY};
     --ob-muted:           {COLOR_MUTED};
+    --ob-text-muted:      {COLOR_MUTED};
     --ob-border:          {COLOR_BORDER};
     --ob-success:         {COLOR_SUCCESS};
     --ob-success-bg:      #E8F5E9;
@@ -434,5 +436,67 @@ GLOBAL_CSS_VARS = f"""
     --ob-gap-bg:          #F9FBE7;
     --ob-locked:          #BDBDBD;
     --ob-progress-track:  #E0E0E0;
+
+    /* ── Override Gradio 4.44 internal theme variables ── */
+    /* Forces light mode regardless of system/browser preference */
+    --body-background-fill:            {COLOR_SURFACE};
+    --body-text-color:                 {COLOR_TEXT};
+    --body-text-color-subdued:         {COLOR_MUTED};
+    --block-background-fill:           {COLOR_CARD};
+    --block-border-color:              {COLOR_BORDER};
+    --block-label-background-fill:     {COLOR_CARD};
+    --block-label-text-color:          {COLOR_TEXT_SECONDARY};
+    --block-title-text-color:          {COLOR_TEXT};
+    --input-background-fill:           {COLOR_CARD};
+    --input-border-color:              {COLOR_BORDER};
+    --input-text-color:                {COLOR_TEXT};
+    --input-placeholder-color:         {COLOR_MUTED};
+    --prose-text-color:                {COLOR_TEXT};
+    --prose-header-text-color:         {COLOR_TEXT};
+    --checkbox-label-text-color:       {COLOR_TEXT};
+    --radio-circle-color:              {COLOR_PRIMARY};
+    --button-primary-background-fill:  {COLOR_PRIMARY};
+    --button-primary-text-color:       #FFFFFF;
+    --button-secondary-background-fill: {COLOR_CARD};
+    --button-secondary-text-color:     {COLOR_TEXT};
+    --table-text-color:                {COLOR_TEXT};
+    --table-even-background-fill:      {COLOR_SURFACE};
+    --table-odd-background-fill:       {COLOR_CARD};
+    --panel-background-fill:           {COLOR_SURFACE};
+    --tab-nav-background-fill:         {COLOR_SURFACE};
+    --tab-nav-text-color:              {COLOR_MUTED};
+    --tab-nav-selected-text-color:     {COLOR_PRIMARY_DARKER};
+    --border-color-primary:            {COLOR_BORDER};
+    --color-accent:                    {COLOR_PRIMARY};
+    --color-accent-soft:               {COLOR_PRIMARY_LIGHT};
+    --link-text-color:                 {COLOR_PRIMARY_DARK};
+    --link-text-color-hover:           {COLOR_PRIMARY_DARKER};
+    --link-text-color-visited:         {COLOR_PRIMARY_DARK};
+    --shadow-drop:                     0 1px 3px rgba(0,0,0,0.08);
+}}
+
+/* Gradio scopes styles so also add direct element overrides */
+.gradio-container, .gradio-container * {{
+    color: {COLOR_TEXT};
+}}
+/* Restore white text on coloured buttons/badges */
+button.primary, .btn-primary, .svelte-1gfkn6j,
+[data-testid="primary-btn"] {{
+    color: #FFFFFF !important;
+}}
+/* Labels */
+label, .label-wrap span, .block-label span {{
+    color: {COLOR_TEXT_SECONDARY} !important;
+}}
+/* Markdown prose */
+.prose, .prose p, .prose li, .prose h1, .prose h2, .prose h3 {{
+    color: {COLOR_TEXT} !important;
+}}
+/* Tabs */
+.tab-nav button {{
+    color: {COLOR_MUTED} !important;
+}}
+.tab-nav button.selected {{
+    color: {COLOR_PRIMARY_DARKER} !important;
 }}
 """
