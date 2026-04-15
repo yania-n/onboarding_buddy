@@ -14,7 +14,10 @@ voyageai>=0.2.3
 faiss-cpu>=1.7.4
 
 # ── UI Framework ─────────────────────────────────────────────
-gradio>=4.44.0
+# Pin to Gradio 4.x — Gradio 5 has breaking API changes we haven't migrated to yet.
+# Upper-bound huggingface_hub to keep HfFolder available (removed in >=0.26).
+gradio>=4.44.0,<5.0.0
+huggingface_hub>=0.20.0,<0.26.0
 # audioop-lts: backport of the audioop stdlib module removed in Python 3.13.
 # Required because gradio → pydub → audioop, and HF Spaces runs Python 3.13.
 audioop-lts>=0.2.1
