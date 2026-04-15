@@ -180,5 +180,6 @@ if __name__ == "__main__":
     app.launch(
         server_name="0.0.0.0",  # bind to all interfaces — required for HF Spaces
         server_port=7860,        # HF Spaces default port
-        show_error=True,         # surface Python tracebacks in the UI during dev
+        share=True,              # required when localhost isn't directly accessible
+        show_error=True,
     )
