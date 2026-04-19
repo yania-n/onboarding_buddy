@@ -460,6 +460,10 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     "Ask any question about the company, your role, tools, processes, or anything "
                     "else you'd like to know. I'll search the knowledge base to help you."
                 )
+                # Gradio 4.44: explicit type="messages" opts in to the
+                # OpenAI-style dict format (list of {"role", "content"}) instead
+                # of the legacy tuple format. The send_question handler below
+                # emits dict-style messages, so this matches.
                 chatbot = gr.Chatbot(
                     label="OnboardingBuddy Chat",
                     elem_classes=["chatbot-wrap"],
