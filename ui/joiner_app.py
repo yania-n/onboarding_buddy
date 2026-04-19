@@ -10,12 +10,18 @@ Tab structure:
   ├── 🎓 My Training     (course plan from training agent)
   ├── 🔑 My Access       (IT ticket status table)
   ├── 📝 Feedback        (pulse survey — phases 3 & 6)
-  └── 🔔 Notifications   (all agent messages)
+  └── 🔔 Notifications   (all agent messages — titles only, click to expand)
+
+Notification UX:
+  - Newest agent messages fire a transient toast (gr.Info) with a close
+    button. The full content is ALWAYS logged to the Notifications tab
+    as a collapsible row (title visible, body hidden until clicked).
 
 Access model: joiner enters their Joiner ID (UUID) to load their record.
 The orchestrator handles all reads/writes — no direct store access from UI.
 """
 
+import re
 import gradio as gr
 
 from core.config import PHASE_BY_ID, PHASES, GLOBAL_CSS_VARS
@@ -28,9 +34,6 @@ from core.state_store import StateStore
 # ─────────────────────────────────────────────
 
 JOINER_CSS = GLOBAL_CSS_VARS + """
-/* ── Base ─────────────────────────────────── */
-body, .gradio-container { background: #F1F8E9 !important; color: #000000 !important; }
-
 /* ── Joiner header — green gradient, white text ── */
 .joiner-header {
     background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
@@ -120,29 +123,6 @@ body, .gradio-container { background: #F1F8E9 !important; color: #000000 !import
 .badge-pending     { background: #FFF3E0 !important; color: #E65100 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
 .badge-provisioned { background: #E8F5E9 !important; color: #2E7D32 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
 .badge-blocked     { background: #FFEBEE !important; color: #C62828 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
-
-/* ── Notification cards ──────────────────── */
-.notif-card {
-    background: #FFFFFF !important;
-    border: 1px solid #A5D6A7 !important;
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin-bottom: 10px;
-    line-height: 1.6;
-    color: #000000 !important;
-}
-.notif-card * { color: #000000 !important; }
-
-/* ── Section title ───────────────────────── */
-.section-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #2E7D32 !important;
-    margin: 16px 0 8px;
-    padding-bottom: 4px;
-    border-bottom: 2px solid #4CAF50;
-    background: transparent !important;
-}
 
 /* ── Chatbot tweaks ──────────────────────── */
 .chatbot-wrap .message.bot     { background: #E8F5E9 !important; color: #000000 !important; }
@@ -339,26 +319,73 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         html = html.replace("\n\n", "<br><br>").replace("\n", "<br>")
         return f'<div style="line-height:1.7">{html}</div>'
 
+    # ── Helper: extract a short title from a notification string ─────────────
+
+    def _extract_title(notif: str) -> str:
+        """Return a short one-line title suitable for a collapsed list row.
+
+        Strategy (in order):
+          1. First **bold** phrase (agents usually lead with one).
+          2. First non-empty line, truncated to 70 chars.
+          3. Fallback: "Notification".
+        """
+        m = re.search(r"\*\*([^*]+)\*\*", notif)
+        if m:
+            t = m.group(1).strip()
+            return t[:90] + ("…" if len(t) > 90 else "")
+        first = next((ln for ln in notif.splitlines() if ln.strip()), "").strip()
+        if first:
+            return first[:70] + ("…" if len(first) > 70 else "")
+        return "Notification"
+
+    def _markdown_to_html(txt: str) -> str:
+        """Minimal safe conversion: escape HTML, then convert **bold** and newlines."""
+        txt = txt.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        parts = txt.split("**")
+        out = ""
+        for i, part in enumerate(parts):
+            out += ("<strong>" if i % 2 == 1 else "") + part
+            if i % 2 == 1:
+                out += "</strong>"
+        return out.replace("\n\n", "<br><br>").replace("\n", "<br>")
+
     # ── Helper: build notifications list ─────────────────────────────────────
 
     def _build_notifications_html(state) -> str:
-        """Render all in-app notifications as stacked cards."""
+        """Render notifications as a collapsible list.
+
+        Each row shows only a short title; clicking expands to reveal the
+        full body. This matches the "event list shouldn't display the
+        entire content, only on clicking the event" requirement.
+        """
         if not state.app_notifications:
-            return "<p style='color:#888'>No notifications yet.</p>"
+            return (
+                "<p class='ob-muted' style='padding:20px;text-align:center'>"
+                "No notifications yet. Agent messages (org brief, training plan, "
+                "buddy intro, access updates) will appear here as they arrive.</p>"
+            )
 
-        cards = []
-        for notif in state.app_notifications:
-            txt = notif.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            parts = txt.split("**")
-            converted = ""
-            for i, part in enumerate(parts):
-                converted += ("<strong>" if i % 2 == 1 else "") + part
-                if i % 2 == 1:
-                    converted += "</strong>"
-            converted = converted.replace("\n\n", "<br><br>").replace("\n", "<br>")
-            cards.append(f'<div class="notif-card">{converted}</div>')
+        items = []
+        # Newest first — most recent agent messages are at the end of the list,
+        # so reverse for display.
+        for notif in reversed(state.app_notifications):
+            title = _extract_title(notif).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            body  = _markdown_to_html(notif)
+            items.append(
+                f'<details class="notif-item">'
+                f'  <summary>'
+                f'    <span class="notif-title-text">{title}</span>'
+                f'  </summary>'
+                f'  <div class="notif-body">{body}</div>'
+                f'</details>'
+            )
+        return "\n".join(items)
 
-        return "\n".join(cards)
+    def _latest_notification_title(state) -> str | None:
+        """Return the short title of the most recent notification, if any."""
+        if not state or not state.app_notifications:
+            return None
+        return _extract_title(state.app_notifications[-1])
 
     # ────────────────────────────────────────────────────────────────────────
     # Gradio Blocks UI
@@ -498,9 +525,12 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             # ── TAB 6: Notifications ─────────────────────────────────────────
             with gr.TabItem("🔔 Notifications"):
                 gr.Markdown(
-                    "### All Notifications\n"
+                    "### Your Notifications\n"
                     "Messages from OnboardingBuddy agents — org brief, training plan, "
-                    "buddy intro, access updates, and progress nudges."
+                    "buddy intro, access updates, and progress nudges. "
+                    "**Click any row to expand its full content.** "
+                    "New events also appear briefly as a popup in the top-right "
+                    "corner of the screen — close the popup to dismiss it."
                 )
                 notifications_html = gr.HTML("")
                 refresh_notif_btn  = gr.Button("🔄 Refresh", size="sm")
@@ -517,12 +547,17 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             """
             Validate joiner ID, load state, and populate all tab content.
             Returns updates for every dependent component.
+
+            Also fires a toast popup (gr.Info) with the latest notification
+            title — the popup has a built-in close button; full detail is
+            available in the 🔔 Notifications tab.
             """
             joiner_id = joiner_id_raw.strip()
             state     = store.get_state(joiner_id)
             profile   = store.get_profile(joiner_id)
 
             if not state or not profile:
+                gr.Warning("Joiner ID not found. Please check your welcome email.")
                 return (
                     gr.update(value=(
                         '<p style="color:#C62828">❌ Joiner ID not found. '
@@ -539,6 +574,15 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 f'<strong>{profile.full_name}</strong>! '
                 f'Currently on Phase {state.current_phase}: {ph_name}</p>'
             )
+
+            # Pop a toast for the most recent notification (if any)
+            latest = _latest_notification_title(state)
+            if latest:
+                count = len(state.app_notifications)
+                plural = "notification" if count == 1 else "notifications"
+                gr.Info(
+                    f"{latest}  ·  ({count} {plural} — see the 🔔 Notifications tab for details)"
+                )
 
             return (
                 gr.update(value=status_html),
@@ -598,6 +642,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         def mark_phase_complete(joiner_id: str):
             """Ask the orchestrator to advance the phase; refresh all journey components."""
             if not joiner_id:
+                gr.Warning("Please load your dashboard first.")
                 return "Please load your dashboard first.", "", "", ""
 
             success, msg = orchestrator.advance_phase(joiner_id)
@@ -609,6 +654,13 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 card      = _build_phase_card(state, profile)
                 timeline  = _build_timeline_html(state)
                 checklist = _build_checklist_html(state)
+
+            # Fire a popup toast — success or warning — so the joiner sees
+            # the outcome without a full page-filling banner.
+            if success:
+                gr.Info(msg)
+            else:
+                gr.Warning(msg)
 
             prefix = "✅ " if success else "⚠️ "
             return prefix + msg, card, timeline, checklist
@@ -714,7 +766,12 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             if not joiner_id:
                 return ""
             state = store.get_state(joiner_id)
-            return _build_notifications_html(state) if state else ""
+            if not state:
+                return ""
+            latest = _latest_notification_title(state)
+            if latest:
+                gr.Info(latest)
+            return _build_notifications_html(state)
 
         refresh_training_btn.click(
             fn=refresh_training,
@@ -790,6 +847,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         ):
             """Pair answers with question labels and route to the feedback agent."""
             if not joiner_id:
+                gr.Warning("Please load your dashboard first.")
                 return "Please load your dashboard first."
 
             answers_raw = [a1, a2, a3]
@@ -800,13 +858,16 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             }
 
             if not answers:
+                gr.Warning("Please fill in at least one answer before submitting.")
                 return "⚠️ Please fill in at least one answer before submitting."
 
-            return orchestrator.store_feedback(
+            result = orchestrator.store_feedback(
                 joiner_id=joiner_id,
                 phase_id=int(phase_id),
                 answers=answers,
             )
+            gr.Info("Feedback submitted — thank you! See the 🔔 Notifications tab.")
+            return result
 
         submit_feedback_btn.click(
             fn=submit_feedback,

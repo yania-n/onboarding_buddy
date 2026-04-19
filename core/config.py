@@ -413,8 +413,13 @@ COLOR_BLACK:          str = "#000000"
 GLOBAL_CSS_VARS = f"""
 /* ════════════════════════════════════════════════════════
    OnboardingBuddy global styles
-   Design: white cards, light-green page bg, black text,
-           grass-green accent (#4CAF50).
+   Design principles:
+     - Page bg: soft light-green surface (#F1F8E9)
+     - Content sits inside explicit white cards (.form-section etc.)
+     - Generic Gradio wrappers (.block, .form, rows) are TRANSPARENT
+       so we never get double-white bands behind section titles/rows
+     - Field labels: dark + bold + opacity:1 (no faded look)
+     - Placeholders: soft grey, clearly the "example" not the label
    ════════════════════════════════════════════════════════ */
 
 /* ── 1. Brand tokens ─────────────────────────────────── */
@@ -429,7 +434,9 @@ GLOBAL_CSS_VARS = f"""
     --ob-text-sec:       {COLOR_TEXT_SECONDARY};
     --ob-muted:          {COLOR_MUTED};
     --ob-text-muted:     {COLOR_MUTED};
+    --ob-placeholder:    #9E9E9E;
     --ob-border:         {COLOR_BORDER};
+    --ob-border-soft:    #E0E0E0;
     --ob-success:        {COLOR_SUCCESS};
     --ob-success-bg:     #E8F5E9;
     --ob-success-text:   #1B5E20;
@@ -450,34 +457,75 @@ html, body, .gradio-container, .main, .contain {{
     color: {COLOR_TEXT} !important;
 }}
 
-/* ── 3. All blocks / panels ──────────────────────────── */
-/* Target only Gradio's known wrapper classes, NOT our custom header classes */
-.block, .form, .box, .panel {{
-    background-color: #FFFFFF !important;
-    border-color: {COLOR_BORDER} !important;
+/* ── 3. Default Gradio wrappers → TRANSPARENT ────────── */
+/* This kills the "white band behind every row / HTML block" look. */
+/* Explicit cards below add white back where it's wanted.           */
+.block, .form, .box, .panel, .gr-group, .gr-row, .gr-column,
+.gr-box, .gr-form, .gr-html, .gr-markdown, .gr-prose,
+div[class*="svelte-"] > .block {{
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     color: {COLOR_TEXT} !important;
 }}
 
-/* ── 4. Labels ───────────────────────────────────────── */
+/* ── 3a. Explicit content cards ──────────────────────── */
+/* Wrap groups of related fields in gr.Group(elem_classes=['form-section']) */
+.form-section {{
+    background: #FFFFFF !important;
+    border: 1px solid var(--ob-border-soft) !important;
+    border-radius: 10px !important;
+    padding: 18px 22px !important;
+    margin-bottom: 14px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}}
+.form-section .block,
+.form-section .form,
+.form-section .gr-group,
+.form-section .gr-row,
+.form-section .gr-column {{
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}}
+
+/* ── 4. Labels: dark, bold, no opacity fade ─────────── */
 label, .label-wrap, .label-wrap *,
 .block-label, .block-label *,
-.block > label, span.name {{
-    color: {COLOR_TEXT_SECONDARY} !important;
+.block > label, span.name, label > span,
+.gr-form label, .gr-block label {{
+    color: {COLOR_TEXT} !important;
     background: transparent !important;
-    font-weight: 600;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    filter: none !important;
 }}
 
 /* ── 5. Text inputs & textareas ──────────────────────── */
-input, input[type="text"], input[type="email"],
+input[type="text"], input[type="email"],
 input[type="number"], input[type="search"],
-textarea {{
+input[type="url"], input[type="date"],
+textarea, select {{
     background-color: #FFFFFF !important;
     color: {COLOR_TEXT} !important;
-    border: 1px solid {COLOR_BORDER} !important;
+    border: 1px solid var(--ob-border-soft) !important;
     border-radius: 6px !important;
+    font-weight: 400 !important;
+}}
+input[type="text"]:focus, input[type="email"]:focus,
+input[type="number"]:focus, input[type="search"]:focus,
+input[type="url"]:focus, input[type="date"]:focus,
+textarea:focus, select:focus {{
+    border-color: {COLOR_PRIMARY} !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.12) !important;
 }}
 input::placeholder, textarea::placeholder {{
-    color: {COLOR_MUTED} !important;
+    color: var(--ob-placeholder) !important;
+    opacity: 1 !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
 }}
 
 /* ── 6. Dropdowns (closed state) ─────────────────────── */
@@ -485,13 +533,14 @@ input::placeholder, textarea::placeholder {{
 [class*="dropdown"] > .wrap {{
     background-color: #FFFFFF !important;
     color: {COLOR_TEXT} !important;
-    border: 1px solid {COLOR_BORDER} !important;
+    border: 1px solid var(--ob-border-soft) !important;
+    border-radius: 6px !important;
 }}
 
 /* ── 7. Dropdown popup list ──────────────────────────── */
 ul.options {{
     background-color: #FFFFFF !important;
-    border: 1px solid {COLOR_BORDER} !important;
+    border: 1px solid var(--ob-border-soft) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
 }}
 ul.options li, ul.options li.item {{
@@ -518,14 +567,12 @@ ul.options li[aria-selected="true"] {{
 }}
 
 /* ── 9. Buttons ──────────────────────────────────────── */
-/* Default all buttons to white/outlined */
 button {{
     color: {COLOR_TEXT} !important;
     background-color: #FFFFFF !important;
-    border: 1px solid {COLOR_BORDER} !important;
+    border: 1px solid var(--ob-border-soft) !important;
     border-radius: 6px !important;
 }}
-/* Primary buttons — every selector Gradio 4.44 might use */
 button.primary,
 button[variant="primary"],
 .primary > button,
@@ -543,18 +590,17 @@ button[variant="primary"]:hover {{
     background-color: {COLOR_PRIMARY_DARK} !important;
     background: {COLOR_PRIMARY_DARK} !important;
 }}
-/* Secondary buttons */
 button.secondary,
 button[variant="secondary"] {{
     background-color: #FFFFFF !important;
     color: {COLOR_TEXT} !important;
-    border-color: {COLOR_BORDER} !important;
+    border-color: var(--ob-border-soft) !important;
 }}
 
 /* ── 10. Tabs ────────────────────────────────────────── */
 .tab-nav {{
-    background: {COLOR_SURFACE} !important;
-    border-bottom: 1px solid {COLOR_BORDER} !important;
+    background: transparent !important;
+    border-bottom: 1px solid var(--ob-border-soft) !important;
 }}
 .tab-nav button {{
     background: transparent !important;
@@ -576,7 +622,7 @@ button[variant="secondary"] {{
 table, th, td {{
     color: {COLOR_TEXT} !important;
     background-color: #FFFFFF !important;
-    border-color: {COLOR_BORDER} !important;
+    border-color: var(--ob-border-soft) !important;
 }}
 tr:nth-child(even) td {{
     background-color: {COLOR_SURFACE} !important;
@@ -602,11 +648,106 @@ th {{
     color: {COLOR_TEXT} !important;
 }}
 
-/* ── 14. Preserve white text inside coloured elements ── */
-/* Headers, badges, primary buttons must keep white text */
+/* ── 14. Section titles — inline, no white card behind ─ */
+.section-title {{
+    font-size: 1rem;
+    font-weight: 700;
+    color: {COLOR_PRIMARY_DARKER} !important;
+    margin: 0 0 12px;
+    padding: 0 0 6px;
+    border-bottom: 2px solid {COLOR_PRIMARY};
+    background: transparent !important;
+}}
+
+/* ── 15. Collapsible notification list  ──────────────── */
+/* Used by the Notifications tab. The <summary> shows a title only;
+   clicking expands to reveal the full body text.                    */
+details.notif-item {{
+    background: #FFFFFF !important;
+    border: 1px solid var(--ob-border-soft) !important;
+    border-left: 3px solid {COLOR_PRIMARY_LIGHT} !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    margin-bottom: 8px !important;
+    color: {COLOR_TEXT} !important;
+    transition: border-color 0.2s ease;
+}}
+details.notif-item[open] {{
+    border-left: 3px solid {COLOR_PRIMARY} !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+}}
+details.notif-item > summary {{
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    color: {COLOR_TEXT} !important;
+    padding: 2px 0;
+    outline: none;
+}}
+details.notif-item > summary::-webkit-details-marker {{ display: none; }}
+details.notif-item > summary::after {{
+    content: "▸";
+    font-size: 0.85rem;
+    color: {COLOR_PRIMARY_DARK};
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}}
+details.notif-item[open] > summary::after {{
+    transform: rotate(90deg);
+}}
+details.notif-item .notif-title-text {{
+    flex-grow: 1;
+    font-size: 0.95rem;
+}}
+details.notif-item .notif-time {{
+    font-size: 0.78rem;
+    color: {COLOR_MUTED};
+    font-weight: 400;
+    margin-left: 8px;
+    white-space: nowrap;
+}}
+details.notif-item .notif-body {{
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--ob-border-soft);
+    line-height: 1.6;
+    color: {COLOR_TEXT} !important;
+    font-weight: 400;
+    font-size: 0.9rem;
+}}
+
+/* ── 16. Preserve white text inside coloured elements ── */
 .admin-header *, .joiner-header *,
 .phase-badge,
 button.primary *, button[variant="primary"] * {{
     color: #FFFFFF !important;
+}}
+
+/* ── 17. Gradio toast (popup notifications) ──────────── */
+/* Make gr.Info / gr.Warning / gr.Error toasts on-brand.  */
+.toast-wrap, .toast-body {{
+    border-radius: 10px !important;
+    border: 1px solid var(--ob-border-soft) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.14) !important;
+    font-size: 0.92rem !important;
+}}
+.toast-body.info {{
+    background: #E8F5E9 !important;
+    color: {COLOR_PRIMARY_DARKER} !important;
+    border-left: 4px solid {COLOR_PRIMARY} !important;
+}}
+.toast-body.warning {{
+    background: #FFF8E1 !important;
+    color: #E65100 !important;
+    border-left: 4px solid {COLOR_WARNING} !important;
+}}
+.toast-body.error {{
+    background: #FFEBEE !important;
+    color: #B71C1C !important;
+    border-left: 4px solid {COLOR_DANGER} !important;
 }}
 """

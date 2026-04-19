@@ -20,7 +20,7 @@ the store directly.
 """
 
 import uuid
-from datetime import date
+from datetime import date, datetime
 
 import gradio as gr
 
@@ -34,13 +34,49 @@ from core.state_store import StateStore
 
 
 # ─────────────────────────────────────────────
+# Admin activity log (in-memory, session-scoped)
+# ─────────────────────────────────────────────
+# Each entry: dict with keys: ts (ISO), title (short), body (full html/text).
+# Rendered in the 🔔 Notifications tab as a click-to-expand list.
+_ADMIN_NOTIFICATIONS: list[dict] = []
+
+
+def _push_admin_notification(title: str, body: str) -> None:
+    """Append an admin activity record to the session log."""
+    _ADMIN_NOTIFICATIONS.insert(0, {
+        "ts":    datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "title": title,
+        "body":  body,
+    })
+
+
+def _render_admin_notifications() -> str:
+    """Render the admin notification log as collapsible <details> items."""
+    if not _ADMIN_NOTIFICATIONS:
+        return (
+            '<p class="ob-muted" style="padding:20px;text-align:center">'
+            'No activity yet. Notifications will appear here as you create joiners, '
+            'resolve knowledge gaps, and confirm LMS completions.</p>'
+        )
+    items = []
+    for n in _ADMIN_NOTIFICATIONS:
+        items.append(
+            f'<details class="notif-item">'
+            f'  <summary>'
+            f'    <span class="notif-title-text">{n["title"]}</span>'
+            f'    <span class="notif-time">{n["ts"]}</span>'
+            f'  </summary>'
+            f'  <div class="notif-body">{n["body"]}</div>'
+            f'</details>'
+        )
+    return "\n".join(items)
+
+
+# ─────────────────────────────────────────────
 # Shared CSS — Grass Green + Black + White theme
 # ─────────────────────────────────────────────
 
 ADMIN_CSS = GLOBAL_CSS_VARS + """
-/* ── Layout & typography ─────────────────── */
-body, .gradio-container { background: #F1F8E9 !important; color: #000000 !important; }
-
 /* ── Admin header — green gradient, white text ── */
 .admin-header {
     background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
@@ -53,15 +89,8 @@ body, .gradio-container { background: #F1F8E9 !important; color: #000000 !import
 .admin-header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; color: #FFFFFF !important; }
 .admin-header p  { margin: 4px 0 0; opacity: 0.9; font-size: 0.95rem; color: #FFFFFF !important; }
 
-/* ── Section titles ──────────────────────── */
-.section-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #2E7D32 !important;
-    margin: 16px 0 8px;
-    padding-bottom: 4px;
-    border-bottom: 2px solid #4CAF50;
-}
+/* Admin-only utility rows — transparent so they don't show as white bands */
+.admin-util-row { background: transparent !important; padding: 0 !important; }
 
 /* ── Joiner cards ────────────────────────── */
 .joiner-card {
@@ -347,100 +376,107 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     "and buddy intro all fire in parallel."
                 )
 
-                # ── Row 1: Personal details ──────────────────────────────────
-                gr.HTML('<div class="section-title">Personal Details</div>')
-                with gr.Row():
-                    nj_name  = gr.Textbox(label="Full Name *", placeholder="e.g. Priya Sharma")
-                    nj_email = gr.Textbox(label="Work Email *", placeholder="priya.sharma@company.com")
-                    nj_start = gr.Textbox(
-                        label="Start Date * (YYYY-MM-DD)",
-                        value=str(date.today()),
+                # ── Section: Personal details ────────────────────────────────
+                with gr.Group(elem_classes=["form-section"]):
+                    gr.HTML('<div class="section-title">Personal Details</div>')
+                    with gr.Row():
+                        nj_name  = gr.Textbox(label="Full Name *", placeholder="e.g. Priya Sharma")
+                        nj_email = gr.Textbox(label="Work Email *", placeholder="priya.sharma@company.com")
+                        nj_start = gr.Textbox(
+                            label="Start Date * (YYYY-MM-DD)",
+                            value=str(date.today()),
+                        )
+
+                # ── Section: Role & placement ────────────────────────────────
+                with gr.Group(elem_classes=["form-section"]):
+                    gr.HTML('<div class="section-title">Role & Placement</div>')
+                    with gr.Row():
+                        nj_bu       = gr.Dropdown(label="Business Unit *", choices=BUSINESS_UNITS,
+                                                  value=BUSINESS_UNITS[0])
+                        nj_division = gr.Dropdown(label="Division *", choices=DIVISIONS,
+                                                  value=DIVISIONS[0])
+                        nj_dept     = gr.Dropdown(label="Department *", choices=DEPARTMENTS,
+                                                  value=DEPARTMENTS[0])
+                        nj_team     = gr.Dropdown(label="Team *", choices=TEAMS,
+                                                  value=TEAMS[0])
+
+                    with gr.Row():
+                        nj_role      = gr.Dropdown(label="Role *", choices=ROLES, value=ROLES[0])
+                        nj_seniority = gr.Dropdown(label="Seniority *", choices=SENIORITY_LEVELS,
+                                                   value=SENIORITY_LEVELS[0])
+                        nj_role_desc = gr.Textbox(
+                            label="Role Description (optional)",
+                            placeholder="Brief description of responsibilities…",
+                            lines=2,
+                        )
+
+                # ── Section: Manager & Buddy ─────────────────────────────────
+                with gr.Group(elem_classes=["form-section"]):
+                    gr.HTML('<div class="section-title">Manager & Buddy</div>')
+                    with gr.Row():
+                        nj_mgr_name  = gr.Textbox(label="Manager Name *", placeholder="e.g. David Chen")
+                        nj_mgr_email = gr.Textbox(label="Manager Email *",
+                                                  placeholder="d.chen@company.com")
+                    with gr.Row():
+                        nj_buddy_name  = gr.Textbox(label="Buddy Name *", placeholder="e.g. Sara Okonkwo")
+                        nj_buddy_email = gr.Textbox(label="Buddy Email *",
+                                                    placeholder="s.okonkwo@company.com")
+                        nj_buddy_cal   = gr.Textbox(
+                            label="Buddy Calendar Link (optional)",
+                            placeholder="https://calendly.com/sara-okonkwo",
+                        )
+
+                # ── Section: Tool Access ─────────────────────────────────────
+                with gr.Group(elem_classes=["form-section"]):
+                    gr.HTML('<div class="section-title">Tool & System Access</div>')
+                    gr.Markdown(
+                        "Select the tools this joiner needs. Then specify the permission level "
+                        "for each in the box below (one per line: `Tool Name: Permission Level`)."
+                    )
+                    with gr.Row():
+                        nj_tools_select = gr.Dropdown(
+                            label="Select Tools",
+                            choices=ALL_TOOLS,
+                            multiselect=True,
+                            value=[],
+                            scale=2,
+                        )
+                    nj_tools_text = gr.Textbox(
+                        label="Tool Access List (auto-filled — edit permission levels as needed)",
+                        placeholder="Microsoft 365 (Outlook, Word, Excel, PowerPoint): Standard User\nJira: Standard User",
+                        lines=5,
                     )
 
-                # ── Row 2: Role & placement ──────────────────────────────────
-                gr.HTML('<div class="section-title">Role & Placement</div>')
-                with gr.Row():
-                    nj_bu       = gr.Dropdown(label="Business Unit *", choices=BUSINESS_UNITS,
-                                              value=BUSINESS_UNITS[0])
-                    nj_division = gr.Dropdown(label="Division *", choices=DIVISIONS,
-                                              value=DIVISIONS[0])
-                    nj_dept     = gr.Dropdown(label="Department *", choices=DEPARTMENTS,
-                                              value=DEPARTMENTS[0])
-                    nj_team     = gr.Dropdown(label="Team *", choices=TEAMS,
-                                              value=TEAMS[0])
+                    # Auto-fill the text box when tools are selected from dropdown
+                    def _fill_tool_text(selected_tools: list[str]) -> str:
+                        return "\n".join(f"{t}: Standard User" for t in selected_tools)
 
-                with gr.Row():
-                    nj_role      = gr.Dropdown(label="Role *", choices=ROLES, value=ROLES[0])
-                    nj_seniority = gr.Dropdown(label="Seniority *", choices=SENIORITY_LEVELS,
-                                               value=SENIORITY_LEVELS[0])
-                    nj_role_desc = gr.Textbox(
-                        label="Role Description (optional)",
-                        placeholder="Brief description of responsibilities…",
-                        lines=2,
+                    nj_tools_select.change(
+                        fn=_fill_tool_text,
+                        inputs=[nj_tools_select],
+                        outputs=[nj_tools_text],
                     )
 
-                # ── Row 3: Manager & Buddy ───────────────────────────────────
-                gr.HTML('<div class="section-title">Manager & Buddy</div>')
-                with gr.Row():
-                    nj_mgr_name  = gr.Textbox(label="Manager Name *", placeholder="e.g. David Chen")
-                    nj_mgr_email = gr.Textbox(label="Manager Email *",
-                                              placeholder="d.chen@company.com")
-                with gr.Row():
-                    nj_buddy_name  = gr.Textbox(label="Buddy Name *", placeholder="e.g. Sara Okonkwo")
-                    nj_buddy_email = gr.Textbox(label="Buddy Email *",
-                                                placeholder="s.okonkwo@company.com")
-                    nj_buddy_cal   = gr.Textbox(
-                        label="Buddy Calendar Link (optional)",
-                        placeholder="https://calendly.com/sara-okonkwo",
+                # ── Section: Phase customisations ────────────────────────────
+                with gr.Group(elem_classes=["form-section"]):
+                    gr.HTML('<div class="section-title">Phase Customisations (optional)</div>')
+                    nj_phase_ext = gr.Textbox(
+                        label="Phase extensions (format: phase_id:extra_days, comma-separated)",
+                        placeholder="e.g. 3:5  → extend Phase 3 by 5 days",
+                        lines=1,
                     )
 
-                # ── Tool Access ──────────────────────────────────────────────
-                gr.HTML('<div class="section-title">Tool & System Access</div>')
-                gr.Markdown(
-                    "Select the tools this joiner needs. Then specify the permission level "
-                    "for each in the box below (one per line: `Tool Name: Permission Level`)."
-                )
-                with gr.Row():
-                    nj_tools_select = gr.Dropdown(
-                        label="Select Tools",
-                        choices=ALL_TOOLS,
-                        multiselect=True,
-                        value=[],
-                        scale=2,
-                    )
-                nj_tools_text = gr.Textbox(
-                    label="Tool Access List (auto-filled — edit permission levels as needed)",
-                    placeholder="Microsoft 365 (Outlook, Word, Excel, PowerPoint): Standard User\nJira: Standard User",
-                    lines=5,
-                )
-
-                # Auto-fill the text box when tools are selected from dropdown
-                def _fill_tool_text(selected_tools: list[str]) -> str:
-                    return "\n".join(f"{t}: Standard User" for t in selected_tools)
-
-                nj_tools_select.change(
-                    fn=_fill_tool_text,
-                    inputs=[nj_tools_select],
-                    outputs=[nj_tools_text],
-                )
-
-                # ── Phase customisations ─────────────────────────────────────
-                gr.HTML('<div class="section-title">Phase Customisations (optional)</div>')
-                nj_phase_ext = gr.Textbox(
-                    label="Phase extensions (format: phase_id:extra_days, comma-separated)",
-                    placeholder="e.g. 3:5  → extend Phase 3 by 5 days",
-                    lines=1,
-                )
-
-                # ── Submit ───────────────────────────────────────────────────
-                with gr.Row():
+                # ── Submit row ───────────────────────────────────────────────
+                with gr.Row(elem_classes=["admin-util-row"]):
                     nj_submit = gr.Button(
                         "🚀 Create Joiner & Activate Onboarding",
                         variant="primary", scale=2,
                     )
                     nj_clear = gr.Button("Clear Form", variant="secondary", scale=1)
 
-                nj_result = gr.HTML(visible=False)
+                # Inline status line (just one line of confirmation — the rich
+                # detail now goes into a toast popup AND the Notifications tab).
+                nj_status = gr.Markdown("")
 
                 # ── Submit handler ───────────────────────────────────────────
                 def submit_new_joiner(
@@ -460,19 +496,15 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     }
                     missing = [k for k, v in required.items() if not str(v).strip()]
                     if missing:
-                        return gr.HTML(
-                            value=f'<div class="ob-error">⚠️ Missing required fields: {", ".join(missing)}</div>',
-                            visible=True,
-                        )
+                        gr.Warning("Missing required fields: " + ", ".join(missing))
+                        return "", _render_admin_notifications()
 
                     # Parse start date
                     try:
                         start_date = date.fromisoformat(start.strip())
                     except ValueError:
-                        return gr.HTML(
-                            value='<div class="ob-error">⚠️ Start date must be YYYY-MM-DD format.</div>',
-                            visible=True,
-                        )
+                        gr.Warning("Start date must be in YYYY-MM-DD format.")
+                        return "", _render_admin_notifications()
 
                     # Parse tool access (one per line: "Tool: Permission")
                     tool_access: dict[str, str] = {}
@@ -519,49 +551,49 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     # Activate — triggers all agents in parallel
                     orchestrator.activate_new_joiner(profile)
 
-                    # Build success banner
+                    # Build the long-form body (goes into the Notification tab only)
                     tool_lines = "".join(
                         f"<li>{t} — {v}</li>" for t, v in tool_access.items()
                     ) or "<li>No tools configured</li>"
 
-                    return gr.HTML(
-                        value=f"""
-                        <div class="ob-success">
-                          <h3 style="margin:0 0 10px;color:var(--ob-primary-darker)">
-                            ✅ Onboarding Activated for {name}!
-                          </h3>
-                          <p><strong>Joiner ID:</strong> <code>{profile.joiner_id}</code></p>
-                          <p><strong>Role:</strong> {role} · {dept} · {team}</p>
-                          <p><strong>Start Date:</strong> {start}</p>
-                          <p><strong>Phase 1: Welcome</strong> is now active.</p>
-                          <p style="margin-top:10px"><strong>Actions triggered in parallel:</strong></p>
-                          <ul>
-                            <li>🏢 Org & role context brief (for joiner's Day 1)</li>
-                            <li>🔐 IT access tickets raised: <ul>{tool_lines}</ul></li>
-                            <li>📚 Training plan built (Phase 3 ready)</li>
-                            <li>👋 Buddy intro message sent to {buddy_name}</li>
-                          </ul>
-                          <p style="margin-top:10px;font-size:0.88rem;opacity:0.85">
-                            Share the <strong>My Onboarding Journey</strong> tab with {name}
-                            and have them enter their Joiner ID to access their experience.
-                          </p>
-                        </div>
-                        """,
-                        visible=True,
+                    body = f"""
+                        <p><strong>Joiner ID:</strong> <code>{profile.joiner_id}</code></p>
+                        <p><strong>Role:</strong> {role} · {dept} · {team}</p>
+                        <p><strong>Start Date:</strong> {start}</p>
+                        <p><strong>Phase 1: Welcome</strong> is now active.</p>
+                        <p style="margin-top:10px"><strong>Actions triggered in parallel:</strong></p>
+                        <ul>
+                          <li>🏢 Org &amp; role context brief (for joiner's Day 1)</li>
+                          <li>🔐 IT access tickets raised: <ul>{tool_lines}</ul></li>
+                          <li>📚 Training plan built (Phase 3 ready)</li>
+                          <li>👋 Buddy intro message sent to {buddy_name}</li>
+                        </ul>
+                        <p style="margin-top:10px;font-size:0.88rem;opacity:0.85">
+                          Share the <strong>My Onboarding Journey</strong> tab with {name}
+                          and have them enter their Joiner ID to access their experience.
+                        </p>
+                    """
+
+                    # Log to Notifications tab (short title + full body)
+                    _push_admin_notification(
+                        title=f"✅ Onboarding activated for {name} ({role})",
+                        body=body,
                     )
 
-                nj_submit.click(
-                    fn=submit_new_joiner,
-                    inputs=[
-                        nj_name, nj_email, nj_start,
-                        nj_bu, nj_division, nj_dept, nj_team, nj_role,
-                        nj_seniority, nj_role_desc,
-                        nj_mgr_name, nj_mgr_email,
-                        nj_buddy_name, nj_buddy_email, nj_buddy_cal,
-                        nj_tools_text, nj_phase_ext,
-                    ],
-                    outputs=[nj_result],
-                )
+                    # Fire the popup (toast) with a message + built-in close
+                    gr.Info(
+                        f"Onboarding activated for {name}. "
+                        f"Joiner ID: {profile.joiner_id}. "
+                        f"See the Notifications tab for full details."
+                    )
+
+                    # Inline one-liner on the form itself
+                    inline_status = (
+                        f"✅ **{name}** is now onboarding. "
+                        f"Joiner ID: `{profile.joiner_id}` — full details in the "
+                        "🔔 Notifications tab."
+                    )
+                    return inline_status, _render_admin_notifications()
 
                 def clear_form():
                     return (
@@ -572,7 +604,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                         "", "", "", "", "",                  # manager, buddy fields
                         [], "",                              # tools select, tools text
                         "",                                  # phase ext
-                        gr.HTML(visible=False),              # result
+                        "",                                  # status markdown
                     )
 
                 nj_clear.click(
@@ -585,7 +617,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                         nj_buddy_name, nj_buddy_email, nj_buddy_cal,
                         nj_tools_select, nj_tools_text,
                         nj_phase_ext,
-                        nj_result,
+                        nj_status,
                     ],
                 )
 
@@ -604,7 +636,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     )
                     lms_btn = gr.Button("✅ Confirm LMS Complete", variant="primary", scale=1)
 
-                lms_result   = gr.HTML(visible=False)
+                lms_status     = gr.Markdown("")
                 dashboard_html = gr.HTML(value=_render_dashboard(store))
 
                 def refresh_dash():
@@ -613,18 +645,24 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                 def confirm_lms(jid: str):
                     jid = jid.strip()
                     if not jid:
-                        return gr.HTML(
-                            value='<div class="ob-error">Please enter a Joiner ID.</div>',
-                            visible=True,
-                        )
+                        gr.Warning("Please enter a Joiner ID.")
+                        return "", _render_admin_notifications()
                     orchestrator.confirm_lms_complete(jid)
-                    return gr.HTML(
-                        value=f'<div class="ob-success">✅ LMS confirmed for <code>{jid}</code> — Phase 3 gate unlocked.</div>',
-                        visible=True,
+                    _push_admin_notification(
+                        title=f"✅ LMS confirmed — Phase 3 gate unlocked",
+                        body=(
+                            f"<p><strong>Joiner ID:</strong> <code>{jid}</code></p>"
+                            f"<p>The joiner can now advance past Phase 3.</p>"
+                        ),
+                    )
+                    gr.Info(f"LMS confirmed for {jid[:8]}… — Phase 3 gate unlocked.")
+                    return (
+                        f"✅ LMS confirmed for `{jid}` — Phase 3 gate unlocked.",
+                        _render_admin_notifications(),
                     )
 
                 dash_refresh.click(fn=refresh_dash, outputs=[dashboard_html])
-                lms_btn.click(fn=confirm_lms, inputs=[lms_id_input], outputs=[lms_result])
+                # lms_btn wiring happens after notifications_html is declared
 
             # ══════════════════════════════════════════════════════════════════
             # TAB 3 — Knowledge Gaps
@@ -643,7 +681,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     gap_note     = gr.Textbox(label="Resolution note", placeholder="Added to handbook section 4.2…", scale=2)
                     resolve_btn  = gr.Button("✅ Mark Resolved", variant="primary", scale=1)
 
-                gaps_result = gr.HTML(visible=False)
+                gaps_status = gr.Markdown("")
                 gaps_html   = gr.HTML(value=_render_gaps(store))
 
                 def refresh_gaps():
@@ -652,18 +690,26 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                 def resolve_gap(gap_id: str, note: str):
                     gap_id = gap_id.strip()
                     if not gap_id:
-                        return gr.HTML(
-                            value='<div class="ob-error">Please enter a Gap ID.</div>',
-                            visible=True,
-                        )
+                        gr.Warning("Please enter a Gap ID.")
+                        return "", _render_gaps(store), _render_admin_notifications()
                     store.resolve_gap(gap_id, note)
-                    return gr.HTML(
-                        value=f'<div class="ob-success">✅ Gap <code>{gap_id[:8]}…</code> marked resolved.</div>',
-                        visible=True,
+                    _push_admin_notification(
+                        title=f"✅ Knowledge gap resolved — {gap_id[:8]}…",
+                        body=(
+                            f"<p><strong>Gap ID:</strong> <code>{gap_id}</code></p>"
+                            f"<p><strong>Resolution note:</strong> "
+                            f"{note.strip() or '<em>(no note)</em>'}</p>"
+                        ),
+                    )
+                    gr.Info(f"Gap {gap_id[:8]}… marked resolved.")
+                    return (
+                        f"✅ Gap `{gap_id[:8]}…` marked resolved.",
+                        _render_gaps(store),
+                        _render_admin_notifications(),
                     )
 
                 gaps_refresh.click(fn=refresh_gaps, outputs=[gaps_html])
-                resolve_btn.click(fn=resolve_gap, inputs=[gap_id_input, gap_note], outputs=[gaps_result])
+                # resolve_btn wiring happens after notifications_html is declared
 
             # ══════════════════════════════════════════════════════════════════
             # TAB 4 — Reports
@@ -696,5 +742,59 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                     fn=lambda: _render_sentiment(store),
                     outputs=[sentiment_html],
                 )
+
+            # ══════════════════════════════════════════════════════════════════
+            # TAB 5 — Notifications (activity log)
+            # ══════════════════════════════════════════════════════════════════
+            # Events (joiner created, LMS confirmed, gap resolved) also pop a
+            # transient toast via gr.Info; the full detail is stored here as
+            # a click-to-expand list — titles only by default.
+            with gr.Tab("🔔 Notifications"):
+                gr.HTML('<div class="section-title">Activity &amp; Notifications</div>')
+                gr.Markdown(
+                    "Click any entry to expand its full details. "
+                    "New events also appear briefly as a toast popup in the top-right "
+                    "corner — close the toast to dismiss it."
+                )
+                with gr.Row(elem_classes=["admin-util-row"]):
+                    notif_refresh_btn = gr.Button("🔄 Refresh", variant="secondary", scale=1)
+                    notif_clear_btn   = gr.Button("🗑️ Clear All", variant="secondary", scale=1)
+
+                notifications_html = gr.HTML(value=_render_admin_notifications())
+
+                def refresh_notifications():
+                    return _render_admin_notifications()
+
+                def clear_notifications():
+                    _ADMIN_NOTIFICATIONS.clear()
+                    gr.Info("Notifications cleared.")
+                    return _render_admin_notifications()
+
+                notif_refresh_btn.click(fn=refresh_notifications, outputs=[notifications_html])
+                notif_clear_btn.click(fn=clear_notifications,   outputs=[notifications_html])
+
+        # ── Deferred wiring (handlers that update notifications_html) ─────────
+        nj_submit.click(
+            fn=submit_new_joiner,
+            inputs=[
+                nj_name, nj_email, nj_start,
+                nj_bu, nj_division, nj_dept, nj_team, nj_role,
+                nj_seniority, nj_role_desc,
+                nj_mgr_name, nj_mgr_email,
+                nj_buddy_name, nj_buddy_email, nj_buddy_cal,
+                nj_tools_text, nj_phase_ext,
+            ],
+            outputs=[nj_status, notifications_html],
+        )
+        lms_btn.click(
+            fn=confirm_lms,
+            inputs=[lms_id_input],
+            outputs=[lms_status, notifications_html],
+        )
+        resolve_btn.click(
+            fn=resolve_gap,
+            inputs=[gap_id_input, gap_note],
+            outputs=[gaps_status, gaps_html, notifications_html],
+        )
 
     return admin_app
