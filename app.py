@@ -101,11 +101,12 @@ def build_app():
     print("[App] Building Joiner Journey UI...")
     joiner_ui = build_joiner_app(orchestrator=orchestrator, store=store)
 
+    # Gradio 6.x: css removed from TabbedInterface — each sub-Blocks
+    # already carries its own CSS (ADMIN_CSS / JOINER_CSS include GLOBAL_CSS_VARS)
     combined = gr.TabbedInterface(
         interface_list=[admin_ui, joiner_ui],
         tab_names=["Admin Portal", "My Onboarding Journey"],
         title=APP_TITLE,
-        css=GLOBAL_CSS_VARS,
     )
 
     print("[App] {} is ready -- visit http://0.0.0.0:7860".format(APP_TITLE))
