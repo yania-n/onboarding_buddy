@@ -423,7 +423,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         with gr.Tabs(visible=False) as main_tabs:
 
             # ── TAB 1: My Journey ────────────────────────────────────────────
-            with gr.TabItem("🗺️ My Journey"):
+            with gr.Tab("🗺️ My Journey"):
                 phase_card_html   = gr.HTML("")
                 timeline_html     = gr.HTML("")
 
@@ -454,21 +454,17 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 tick_msg = gr.Markdown("")
 
             # ── TAB 2: Ask Anything ──────────────────────────────────────────
-            with gr.TabItem("💬 Ask Anything"):
+            with gr.Tab("💬 Ask Anything"):
                 gr.Markdown(
                     "### Ask Me Anything\n"
                     "Ask any question about the company, your role, tools, processes, or anything "
                     "else you'd like to know. I'll search the knowledge base to help you."
                 )
-                # Gradio 4.44: explicit type="messages" opts in to the
-                # OpenAI-style dict format (list of {"role", "content"}) instead
-                # of the legacy tuple format. The send_question handler below
-                # emits dict-style messages, so this matches.
+                # Gradio 6.x uses (user_msg, bot_msg) tuple pairs by default
                 chatbot = gr.Chatbot(
                     label="OnboardingBuddy Chat",
                     elem_classes=["chatbot-wrap"],
                     height=400,
-                    type="messages",
                 )
                 with gr.Row():
                     chat_input = gr.Textbox(
@@ -481,7 +477,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 chat_clear_btn = gr.Button("🗑️ Clear Chat", size="sm")
 
             # ── TAB 3: My Training ───────────────────────────────────────────
-            with gr.TabItem("🎓 My Training"):
+            with gr.Tab("🎓 My Training"):
                 gr.Markdown(
                     "### Your Learning Plan\n"
                     "Here is the personalised course plan prepared for your role. "
@@ -491,7 +487,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 refresh_training_btn = gr.Button("🔄 Refresh", size="sm")
 
             # ── TAB 4: My Access ─────────────────────────────────────────────
-            with gr.TabItem("🔑 My Access"):
+            with gr.Tab("🔑 My Access"):
                 gr.Markdown(
                     "### IT Access Requests\n"
                     "Access requests were raised on your first day. "
@@ -502,7 +498,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 refresh_access_btn = gr.Button("🔄 Refresh", size="sm")
 
             # ── TAB 5: Feedback ──────────────────────────────────────────────
-            with gr.TabItem("📝 Feedback"):
+            with gr.Tab("📝 Feedback"):
                 gr.Markdown(
                     "### Pulse Survey\n"
                     "Please share your honest feedback at two key milestones: "
@@ -527,7 +523,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 feedback_result_msg = gr.Markdown("")
 
             # ── TAB 6: Notifications ─────────────────────────────────────────
-            with gr.TabItem("🔔 Notifications"):
+            with gr.Tab("🔔 Notifications"):
                 gr.Markdown(
                     "### Your Notifications\n"
                     "Messages from OnboardingBuddy agents — org brief, training plan, "
@@ -724,18 +720,14 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             history = history or []
 
             if not joiner_id:
-                history.append({
-                    "role": "assistant",
-                    "content": "Please load your dashboard first by entering your Joiner ID above.",
-                })
+                history.append((None, "Please load your dashboard first by entering your Joiner ID above."))
                 return history, ""
 
             if not question.strip():
                 return history, ""
 
-            history.append({"role": "user", "content": question.strip()})
             answer = orchestrator.answer_question(joiner_id, question.strip())
-            history.append({"role": "assistant", "content": answer})
+            history.append((question.strip(), answer))
             return history, ""
 
         chat_send_btn.click(
