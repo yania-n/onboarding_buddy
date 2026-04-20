@@ -46,6 +46,36 @@ JOINER_CSS = GLOBAL_CSS_VARS + """
 /* ── Chatbot tweaks ──────────────────────────────── */
 .chatbot-wrap .message.bot  { background: #E8F5E9 !important; color: #000000 !important; }
 .chatbot-wrap .message.user { background: #C8E6C9 !important; color: #000000 !important; }
+
+/* ── Phase checklist CheckboxGroup ──────────────── */
+/* Give the group a card-like appearance matching the phase card */
+.phase-checklist > .wrap,
+.phase-checklist > div {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+/* Each individual checkbox label row */
+.phase-checklist .label-wrap { display: none !important; }  /* hide "label" header */
+.phase-checklist span.svelte-1p9xokt,
+.phase-checklist .checkbox-group label,
+.phase-checklist label {
+    font-size: 0.93rem !important;
+    color: #000000 !important;
+    font-weight: 400 !important;
+}
+/* Checked item — use green accent + strikethrough text */
+.phase-checklist input[type="checkbox"] {
+    accent-color: #4CAF50 !important;
+    width: 16px !important;
+    height: 16px !important;
+    cursor: pointer !important;
+}
+/* Row hover */
+.phase-checklist .checkbox-group label:hover {
+    background: #F1F8E9 !important;
+    border-radius: 6px !important;
+}
 """
 
 
@@ -94,55 +124,34 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 done  = sum(1 for c in items if c.completed)
                 pct   = int(done / total * 100) if total else 0
 
-                # Checklist rows
-                rows_html = ""
-                for item in items:
-                    if item.completed:
-                        rows_html += (
-                            f'<div style="display:flex;align-items:center;gap:10px;'
-                            f'padding:8px 12px;margin-bottom:6px;border-radius:6px;'
-                            f'background:#E8F5E9;border:1px solid #A5D6A7">'
-                            f'  <span style="color:#4CAF50;font-weight:700">✔</span>'
-                            f'  <span style="color:#2E7D32;text-decoration:line-through">{item.label}</span>'
-                            f'</div>'
-                        )
-                    else:
-                        rows_html += (
-                            f'<div style="display:flex;align-items:center;gap:10px;'
-                            f'padding:8px 12px;margin-bottom:6px;border-radius:6px;'
-                            f'background:#F1F8E9;border:1px solid #C8E6C9">'
-                            f'  <span style="color:#A5D6A7">○</span>'
-                            f'  <span style="color:#000">{item.label}</span>'
-                            f'</div>'
-                        )
-
-                # LMS gate notice (green tint instead of orange)
+                # LMS gate notice
                 lms_note = ""
                 if ph.system_gated and not state.lms_mandatory_confirmed:
                     lms_note = (
                         '<div style="background:#E8F5E9;border-radius:6px;padding:10px 14px;'
-                        'margin-top:10px;font-size:0.88rem;color:#2E7D32;border:1px solid #A5D6A7">'
+                        'margin-top:4px;font-size:0.88rem;color:#2E7D32;border:1px solid #A5D6A7">'
                         '⏳ <strong>Phase gate:</strong> Your admin must confirm LMS course completion '
                         'before you can mark this phase done. Reach out to your manager if needed.'
                         '</div>'
                     )
 
+                # Current phase card — header + progress bar only.
+                # The actual checklist items are rendered in the CheckboxGroup below.
                 cards.append(
                     f'<div style="background:#FFFFFF;border:1px solid #A5D6A7;'
-                    f'border-left:5px solid #4CAF50;border-radius:10px;padding:18px 22px;margin-bottom:16px">'
+                    f'border-left:5px solid #4CAF50;border-radius:10px;padding:18px 22px;margin-bottom:8px">'
                     f'  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
                     f'    <h3 style="margin:0;color:#2E7D32;font-size:1.1rem;font-weight:700">'
                     f'      🟢 Phase {ph_id}: {ph.name}'
                     f'      <span style="font-size:0.82rem;color:#777;font-weight:400;margin-left:6px">'
                     f'        Days {ph.day_start}–{ph.day_end}</span></h3>'
-                    f'    <span style="font-size:0.88rem;font-weight:600;color:#4CAF50">{done}/{total} done</span>'
+                    f'    <span style="font-size:0.88rem;font-weight:600;color:#4CAF50">{done}/{total} items done</span>'
                     f'  </div>'
                     f'  <p style="color:#555;font-size:0.9rem;margin:0 0 10px">🎯 {ph.objective}</p>'
-                    f'  <div style="background:#E0E0E0;border-radius:6px;height:8px;margin-bottom:14px">'
+                    f'  <div style="background:#E0E0E0;border-radius:6px;height:8px">'
                     f'    <div style="background:#4CAF50;width:{pct}%;height:100%;border-radius:6px;'
                     f'         transition:width 0.4s"></div>'
                     f'  </div>'
-                    f'  {rows_html}'
                     f'  {lms_note}'
                     f'</div>'
                 )
@@ -176,12 +185,14 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
         return "\n".join(cards)
 
-    # ── Helper: checklist dropdown choices for current phase ─────────────────
+    # ── Helper: checklist CheckboxGroup choices + currently-ticked values ───
 
-    def _get_checklist_dropdown_choices(state) -> list[str]:
-        """Return all checklist item labels for the current phase (for dropdown)."""
+    def _get_checklist_choices_and_values(state) -> tuple[list[str], list[str]]:
+        """Return (all item labels, completed item labels) for current phase."""
         items = [c for c in state.checklist_items if c.phase_id == state.current_phase]
-        return [item.label for item in items]
+        choices = [item.label for item in items]
+        values  = [item.label for item in items if item.completed]
+        return choices, values
 
     # ── Helper: build access table HTML ─────────────────────────────────────
 
@@ -447,28 +458,22 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             # ── TAB 1: My Journey ────────────────────────────────────────────
             with gr.Tab("🗺️ My Journey"):
                 gr.Markdown(
-                    "Your 6-phase onboarding journey. Your **current phase** is expanded "
-                    "with an interactive checklist — tick items off as you complete them. "
+                    "Your 6-phase onboarding journey. Your **current phase** is shown "
+                    "with a progress bar — tick the checklist items below to mark them done. "
                     "Completed and upcoming phases are shown as summary cards."
                 )
 
-                # Unified phase cards (current expanded, others compact)
+                # Phase cards (current shows header + progress bar, others compact)
                 phase_cards_html = gr.HTML("")
 
-                # Tick off a checklist item
-                gr.HTML(
-                    '<div style="font-size:1rem;font-weight:700;color:#2E7D32;'
-                    'margin:20px 0 12px;padding:0 0 6px;border-bottom:2px solid #4CAF50;'
-                    'background:transparent">Tick Off a Checklist Item</div>'
+                # Interactive checklist — CheckboxGroup ticks each item directly
+                checklist_checkboxes = gr.CheckboxGroup(
+                    label="Current Phase Checklist — click to tick items off",
+                    choices=[],
+                    value=[],
+                    interactive=True,
+                    elem_classes=["phase-checklist"],
                 )
-                with gr.Row():
-                    tick_item_dropdown = gr.Dropdown(
-                        label="Select item",
-                        choices=[],
-                        scale=4,
-                    )
-                    tick_done_input = gr.Checkbox(label="Mark as complete", value=True, scale=1)
-                    tick_btn = gr.Button("Update", size="sm", scale=1)
                 tick_msg = gr.Markdown("")
 
                 with gr.Row():
@@ -580,9 +585,9 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     )),
                     gr.update(visible=False),
                     "",
-                    "",              # phase_cards_html
-                    gr.update(),     # tick_item_dropdown
-                    "", "", "",      # training, access, notifications
+                    "",           # phase_cards_html
+                    gr.update(),  # checklist_checkboxes
+                    "", "", "",   # training, access, notifications
                 )
 
             ph_name = PHASE_BY_ID[state.current_phase].name
@@ -600,13 +605,13 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     f"{latest}  ·  ({count} {plural} — see the 🔔 Notifications tab)"
                 )
 
-            choices = _get_checklist_dropdown_choices(state)
+            choices, values = _get_checklist_choices_and_values(state)
             return (
                 gr.update(value=status_html),
                 gr.update(visible=True),
                 joiner_id,
                 _build_phase_cards_html(state, profile),
-                gr.update(choices=choices, value=choices[0] if choices else None),
+                gr.update(choices=choices, value=values),
                 _build_training_html(state),
                 _build_access_html(state),
                 _build_notifications_html(state),
@@ -620,7 +625,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 main_tabs,
                 active_joiner_id,
                 phase_cards_html,
-                tick_item_dropdown,
+                checklist_checkboxes,
                 training_html,
                 access_html,
                 notifications_html,
@@ -638,16 +643,16 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             profile = store.get_profile(joiner_id)
             if not state or not profile:
                 return "", gr.update()
-            choices = _get_checklist_dropdown_choices(state)
+            choices, values = _get_checklist_choices_and_values(state)
             return (
                 _build_phase_cards_html(state, profile),
-                gr.update(choices=choices, value=choices[0] if choices else None),
+                gr.update(choices=choices, value=values),
             )
 
         refresh_journey_btn.click(
             fn=refresh_journey,
             inputs=[active_joiner_id],
-            outputs=[phase_cards_html, tick_item_dropdown],
+            outputs=[phase_cards_html, checklist_checkboxes],
         )
 
         # ────────────────────────────────────────────────────────────────────
@@ -664,10 +669,10 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             state   = store.get_state(joiner_id)
             profile = store.get_profile(joiner_id)
             cards   = ""
-            choices = []
+            choices, values = [], []
             if state and profile:
-                cards   = _build_phase_cards_html(state, profile)
-                choices = _get_checklist_dropdown_choices(state)
+                cards          = _build_phase_cards_html(state, profile)
+                choices, values = _get_checklist_choices_and_values(state)
 
             if success:
                 gr.Info(msg)
@@ -678,58 +683,58 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             return (
                 prefix + msg,
                 cards,
-                gr.update(choices=choices, value=choices[0] if choices else None),
+                gr.update(choices=choices, value=values),
             )
 
         mark_complete_btn.click(
             fn=mark_phase_complete,
             inputs=[active_joiner_id],
-            outputs=[advance_msg, phase_cards_html, tick_item_dropdown],
+            outputs=[advance_msg, phase_cards_html, checklist_checkboxes],
         )
 
         # ────────────────────────────────────────────────────────────────────
-        # Event: Tick Checklist Item
+        # Event: Checklist CheckboxGroup — tick / untick items instantly
         # ────────────────────────────────────────────────────────────────────
 
-        def tick_item(joiner_id: str, label: str, completed: bool):
-            if not joiner_id or not label:
-                return "Please load your dashboard and select a checklist item.", "", gr.update()
-
+        def on_checklist_change(joiner_id: str, checked_labels: list):
+            """
+            Called every time the user ticks or unticks a checklist item.
+            Syncs the new checked-state to the state store and refreshes
+            the phase card's progress bar.
+            """
+            if not joiner_id:
+                return "", gr.update(), ""
             state   = store.get_state(joiner_id)
             profile = store.get_profile(joiner_id)
             if not state:
-                return "Could not load your record. Try refreshing.", "", gr.update()
+                return "", gr.update(), ""
 
-            # Exact match from dropdown
-            matched = next(
-                (item for item in state.checklist_items if item.label == label),
-                None,
-            )
-            if not matched:
-                return (
-                    f"⚠️ Item not found. Please refresh and try again.",
-                    _build_phase_cards_html(state, profile),
-                    gr.update(),
-                )
+            # Update each current-phase item to match the checkbox selection
+            phase_items = [c for c in state.checklist_items if c.phase_id == state.current_phase]
+            changed = False
+            for item in phase_items:
+                should_be_done = item.label in checked_labels
+                if item.completed != should_be_done:
+                    orchestrator.toggle_checklist_item(joiner_id, item.item_id, should_be_done)
+                    changed = True
 
-            updated = orchestrator.toggle_checklist_item(joiner_id, matched.item_id, completed)
-            if not updated:
-                return "❌ Could not update. Please try again.", _build_phase_cards_html(state, profile), gr.update()
-
+            # Re-read state so progress bar reflects the latest counts
             state   = store.get_state(joiner_id)
             profile = store.get_profile(joiner_id)
-            action  = "marked complete ✅" if completed else "marked incomplete"
-            choices = _get_checklist_dropdown_choices(state)
-            return (
-                f"'{matched.label}' {action}.",
-                _build_phase_cards_html(state, profile),
-                gr.update(choices=choices, value=choices[0] if choices else None),
-            )
+            choices, values = _get_checklist_choices_and_values(state)
 
-        tick_btn.click(
-            fn=tick_item,
-            inputs=[active_joiner_id, tick_item_dropdown, tick_done_input],
-            outputs=[tick_msg, phase_cards_html, tick_item_dropdown],
+            done_count  = len(values)
+            total_count = len(choices)
+            msg = (
+                f"✅ {done_count}/{total_count} items complete"
+                if changed else ""
+            )
+            return _build_phase_cards_html(state, profile), gr.update(choices=choices, value=values), msg
+
+        checklist_checkboxes.change(
+            fn=on_checklist_change,
+            inputs=[active_joiner_id, checklist_checkboxes],
+            outputs=[phase_cards_html, checklist_checkboxes, tick_msg],
         )
 
         # ────────────────────────────────────────────────────────────────────
