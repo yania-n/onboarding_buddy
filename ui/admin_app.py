@@ -365,23 +365,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
         table_odd_background_fill="#F1F8E9",
         table_odd_background_fill_dark="#F1F8E9",
     )
-    # JavaScript that immediately removes Gradio's .dark class from <html>
-    # and uses a MutationObserver to prevent it from being re-applied.
-    _FORCE_LIGHT_JS = """
-() => {
-    var h = document.documentElement;
-    h.classList.remove('dark');
-    h.style.colorScheme = 'light';
-    new MutationObserver(function() {
-        if (h.classList.contains('dark')) {
-            h.classList.remove('dark');
-            h.style.colorScheme = 'light';
-        }
-    }).observe(h, { attributes: true, attributeFilter: ['class'] });
-    return [];
-}
-"""
-    with gr.Blocks(css=ADMIN_CSS, title="OnboardingBuddy — Admin Portal", theme=light_theme, js=_FORCE_LIGHT_JS) as admin_app:
+    with gr.Blocks(css=ADMIN_CSS, title="OnboardingBuddy — Admin Portal", theme=light_theme) as admin_app:
 
         # ── Header ────────────────────────────────────────────────────────────
         gr.HTML("""

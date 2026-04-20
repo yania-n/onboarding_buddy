@@ -39,6 +39,27 @@ from ui.admin_app import build_admin_app
 from ui.joiner_app import build_joiner_app
 
 
+# JavaScript injected at the TabbedInterface (outer app) level.
+# Removes Gradio's html.dark class immediately on load and watches
+# via MutationObserver so it can never be re-applied.
+_FORCE_LIGHT_JS = """
+() => {
+    var h = document.documentElement;
+    h.classList.remove('dark');
+    h.style.colorScheme = 'light';
+    new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+            if (m.attributeName === 'class' && h.classList.contains('dark')) {
+                h.classList.remove('dark');
+                h.style.colorScheme = 'light';
+            }
+        });
+    }).observe(h, { attributes: true, attributeFilter: ['class'] });
+    return [];
+}
+"""
+
+
 # Startup checks
 
 def _check_env():
@@ -101,13 +122,16 @@ def build_app():
     print("[App] Building Joiner Journey UI...")
     joiner_ui = build_joiner_app(orchestrator=orchestrator, store=store)
 
-    # Gradio 6.x: css removed from TabbedInterface — each sub-Blocks
-    # already carries its own CSS (ADMIN_CSS / JOINER_CSS include GLOBAL_CSS_VARS)
     combined = gr.TabbedInterface(
         interface_list=[admin_ui, joiner_ui],
         tab_names=["Admin Portal", "My Onboarding Journey"],
         title=APP_TITLE,
     )
+
+    # Inject JS and CSS at the outer TabbedInterface level so they apply
+    # to the whole page — inner Blocks' js= is ignored by TabbedInterface.
+    combined.js  = _FORCE_LIGHT_JS
+    combined.css = GLOBAL_CSS_VARS
 
     print("[App] {} is ready -- visit http://0.0.0.0:7860".format(APP_TITLE))
     print("=" * 60)

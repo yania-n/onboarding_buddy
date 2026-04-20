@@ -341,7 +341,8 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 f'  <summary><span class="notif-title-text">{title}</span></summary>'
                 f'  <div class="notif-body"'
                 f'       style="background:#F1F8E9;border-radius:6px;padding:14px 16px;'
-                f'              margin-top:10px;border:1px solid #C8E6C9;line-height:1.7">'
+                f'              margin-top:10px;border:1px solid #C8E6C9;line-height:1.7;'
+                f'              color:#000000 !important">'
                 f'    {body}'
                 f'  </div>'
                 f'</details>'
@@ -413,21 +414,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         table_odd_background_fill="#F1F8E9",
         table_odd_background_fill_dark="#F1F8E9",
     )
-    _FORCE_LIGHT_JS = """
-() => {
-    var h = document.documentElement;
-    h.classList.remove('dark');
-    h.style.colorScheme = 'light';
-    new MutationObserver(function() {
-        if (h.classList.contains('dark')) {
-            h.classList.remove('dark');
-            h.style.colorScheme = 'light';
-        }
-    }).observe(h, { attributes: true, attributeFilter: ['class'] });
-    return [];
-}
-"""
-    with gr.Blocks(css=JOINER_CSS, title="OnboardingBuddy — My Journey", theme=light_theme, js=_FORCE_LIGHT_JS) as joiner_ui:
+    with gr.Blocks(css=JOINER_CSS, title="OnboardingBuddy — My Journey", theme=light_theme) as joiner_ui:
 
         # ── Header ──────────────────────────────────────────────────────────
         gr.HTML(
@@ -750,14 +737,17 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # ────────────────────────────────────────────────────────────────────
 
         def send_question(joiner_id: str, question: str, history: list):
+            # Gradio 6.12 Chatbot expects messages-dict format:
+            # {"role": "user"|"assistant", "content": "..."}
             history = history or []
             if not joiner_id:
-                history.append((None, "Please load your dashboard first by entering your Joiner ID above."))
+                history.append({"role": "assistant", "content": "Please load your dashboard first by entering your Joiner ID above."})
                 return history, ""
             if not question.strip():
                 return history, ""
             answer = orchestrator.answer_question(joiner_id, question.strip())
-            history.append((question.strip(), answer))
+            history.append({"role": "user",      "content": question.strip()})
+            history.append({"role": "assistant", "content": answer})
             return history, ""
 
         chat_send_btn.click(
