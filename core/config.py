@@ -422,6 +422,14 @@ GLOBAL_CSS_VARS = f"""
      - Placeholders: soft grey, clearly the "example" not the label
    ════════════════════════════════════════════════════════ */
 
+/* ── 0. Force light mode — override system dark-mode preference ─ */
+:root {{
+    color-scheme: light !important;
+}}
+html {{
+    color-scheme: light !important;
+}}
+
 /* ── 1. Brand tokens ─────────────────────────────────── */
 :root {{
     --ob-primary:        {COLOR_PRIMARY};
@@ -750,4 +758,181 @@ button.primary *, button[variant="primary"] * {{
     color: #B71C1C !important;
     border-left: 4px solid {COLOR_DANGER} !important;
 }}
+
+/* ── 18. Outer TabbedInterface tab — kill orange underline ── */
+/* Gradio 6.x TabbedInterface uses its own default hue for the
+   selected-tab indicator. Override it here to grass green.      */
+.tab-nav button.selected,
+.tab-nav button[aria-selected="true"],
+button[role="tab"][aria-selected="true"],
+button[role="tab"].selected {{
+    color: {COLOR_PRIMARY_DARKER} !important;
+    border-bottom: 3px solid {COLOR_PRIMARY} !important;
+    border-bottom-color: {COLOR_PRIMARY} !important;
+}}
+button[role="tab"] {{
+    color: {COLOR_MUTED} !important;
+    font-weight: 600 !important;
+}}
+button[role="tab"]:hover {{
+    color: {COLOR_PRIMARY} !important;
+}}
+
+/* ── 19. Override Gradio's .dark class — force light mode  ──── */
+/* Gradio 6.x applies dark mode via an html.dark CSS class,       */
+/* NOT via prefers-color-scheme. These rules target that class     */
+/* and override every dark-mode colour back to our light palette.  */
+
+html.dark {{ color-scheme: light !important; }}
+
+html.dark body,
+html.dark .gradio-container,
+html.dark .main,
+html.dark .contain {{
+    background-color: {COLOR_SURFACE} !important;
+    color: {COLOR_TEXT} !important;
+}}
+html.dark .block,
+html.dark .form,
+html.dark .box,
+html.dark .panel,
+html.dark .gr-group,
+html.dark .gr-row,
+html.dark .gr-column,
+html.dark .gr-box,
+html.dark .gr-form,
+html.dark .gr-html,
+html.dark .gr-markdown,
+html.dark .gr-prose {{
+    background: transparent !important;
+    background-color: transparent !important;
+    color: {COLOR_TEXT} !important;
+    border-color: transparent !important;
+}}
+html.dark .form-section {{
+    background: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+    border: 1px solid #E0E0E0 !important;
+}}
+html.dark label,
+html.dark .label-wrap,
+html.dark .label-wrap *,
+html.dark .block-label,
+html.dark .block-label *,
+html.dark span.name,
+html.dark label > span {{
+    color: {COLOR_TEXT} !important;
+    background: transparent !important;
+}}
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="number"],
+html.dark input[type="search"],
+html.dark input[type="url"],
+html.dark input[type="date"],
+html.dark textarea,
+html.dark select,
+html.dark .wrap-inner,
+html.dark .secondary-wrap {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+    border-color: #E0E0E0 !important;
+}}
+html.dark ul.options {{
+    background-color: #FFFFFF !important;
+    border-color: #E0E0E0 !important;
+}}
+html.dark ul.options li,
+html.dark ul.options li.item {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+}}
+html.dark ul.options li:hover {{
+    background-color: #E8F5E9 !important;
+    color: {COLOR_PRIMARY_DARKER} !important;
+}}
+html.dark ul.options li.selected,
+html.dark ul.options li[aria-selected="true"] {{
+    background-color: #C8E6C9 !important;
+    color: #1B5E20 !important;
+}}
+html.dark table {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+}}
+html.dark th {{
+    background-color: #E8F5E9 !important;
+    color: {COLOR_PRIMARY_DARKER} !important;
+}}
+html.dark td {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+}}
+html.dark tr:nth-child(even) td {{
+    background-color: {COLOR_SURFACE} !important;
+}}
+html.dark .prose,
+html.dark .prose *,
+html.dark .markdown,
+html.dark .markdown * {{
+    color: {COLOR_TEXT} !important;
+    background: transparent !important;
+}}
+html.dark button {{
+    background-color: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+    border-color: #E0E0E0 !important;
+}}
+html.dark button.primary,
+html.dark button[variant="primary"],
+html.dark .gr-button-primary {{
+    background-color: {COLOR_PRIMARY} !important;
+    background: {COLOR_PRIMARY} !important;
+    color: #FFFFFF !important;
+    border-color: {COLOR_PRIMARY_DARK} !important;
+}}
+html.dark button.primary:hover,
+html.dark button[variant="primary"]:hover {{
+    background-color: {COLOR_PRIMARY_DARK} !important;
+    background: {COLOR_PRIMARY_DARK} !important;
+}}
+html.dark .tab-nav {{
+    background: transparent !important;
+    border-bottom-color: #E0E0E0 !important;
+}}
+html.dark .tab-nav button {{
+    background: transparent !important;
+    color: {COLOR_MUTED} !important;
+    border: none !important;
+}}
+html.dark .tab-nav button.selected,
+html.dark button[role="tab"][aria-selected="true"],
+html.dark button[role="tab"].selected {{
+    color: {COLOR_PRIMARY_DARKER} !important;
+    border-bottom: 3px solid {COLOR_PRIMARY} !important;
+    border-bottom-color: {COLOR_PRIMARY} !important;
+    background: transparent !important;
+}}
+html.dark details.notif-item {{
+    background: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+    border-color: #E0E0E0 !important;
+}}
+html.dark .joiner-card,
+html.dark .report-block,
+html.dark .gap-item {{
+    background: #FFFFFF !important;
+    color: {COLOR_TEXT} !important;
+}}
+html.dark .section-title {{
+    color: {COLOR_PRIMARY_DARKER} !important;
+    background: transparent !important;
+}}
+html.dark .phase-badge {{
+    background: {COLOR_PRIMARY} !important;
+    color: #FFFFFF !important;
+}}
+html.dark .sentiment-positive {{ color: #2E7D32 !important; }}
+html.dark .sentiment-neutral  {{ color: #616161 !important; }}
+html.dark .sentiment-concerning {{ color: #C62828 !important; }}
 """
