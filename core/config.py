@@ -440,9 +440,9 @@ GLOBAL_CSS_VARS = f"""
     --ob-success:        {COLOR_SUCCESS};
     --ob-success-bg:     #E8F5E9;
     --ob-success-text:   #1B5E20;
-    --ob-warning:        {COLOR_WARNING};
-    --ob-warning-bg:     #FFF8E1;
-    --ob-warning-text:   #E65100;
+    --ob-warning:        {COLOR_PRIMARY};
+    --ob-warning-bg:     #E8F5E9;
+    --ob-warning-text:   {COLOR_PRIMARY_DARKER};
     --ob-danger:         {COLOR_DANGER};
     --ob-error-bg:       #FFEBEE;
     --ob-error-text:     #B71C1C;
@@ -553,8 +553,8 @@ ul.options li:hover {{
 }}
 ul.options li.selected,
 ul.options li[aria-selected="true"] {{
-    background-color: {COLOR_PRIMARY} !important;
-    color: #FFFFFF !important;
+    background-color: #C8E6C9 !important;
+    color: #1B5E20 !important;
 }}
 
 /* ── 8. Prose / Markdown ─────────────────────────────── */
@@ -741,9 +741,9 @@ button.primary *, button[variant="primary"] * {{
     border-left: 4px solid {COLOR_PRIMARY} !important;
 }}
 .toast-body.warning {{
-    background: #FFF8E1 !important;
-    color: #E65100 !important;
-    border-left: 4px solid {COLOR_WARNING} !important;
+    background: #E8F5E9 !important;
+    color: {COLOR_PRIMARY_DARKER} !important;
+    border-left: 4px solid {COLOR_PRIMARY} !important;
 }}
 .toast-body.error {{
     background: #FFEBEE !important;

@@ -140,8 +140,8 @@ ADMIN_CSS = GLOBAL_CSS_VARS + """
 
 /* ── Knowledge gap items ─────────────────── */
 .gap-item {
-    background: #F9FBE7 !important;
-    border-left: 4px solid #F57F17 !important;
+    background: #F1F8E9 !important;
+    border-left: 4px solid #4CAF50 !important;
     padding: 10px 14px;
     border-radius: 0 8px 8px 0;
     color: #000000 !important;
@@ -183,7 +183,7 @@ ADMIN_CSS = GLOBAL_CSS_VARS + """
 # ─────────────────────────────────────────────
 
 def _render_dashboard(store: StateStore) -> str:
-    """Render the active joiners progress dashboard as HTML cards."""
+    """Render the active joiners progress dashboard as an HTML table."""
     profiles = store.list_profiles()
     if not profiles:
         return (
@@ -191,7 +191,7 @@ def _render_dashboard(store: StateStore) -> str:
             'No joiners registered yet. Use the <strong>Add New Joiner</strong> tab to get started.</p>'
         )
 
-    cards = []
+    rows = []
     for profile in profiles:
         state = store.get_state(profile.joiner_id)
         if not state:
@@ -211,52 +211,62 @@ def _render_dashboard(store: StateStore) -> str:
         provisioned  = sum(1 for r in state.access_requests if r.status.value == "provisioned")
 
         # Latest sentiment
-        sentiment_html = '<span class="sentiment-neutral">No feedback yet</span>'
+        sentiment_label = "No feedback yet"
         if state.feedback_responses:
             latest = state.feedback_responses[-1]
             if latest.sentiment:
-                s   = latest.sentiment.value
-                cls = f"sentiment-{s}"
-                lbl = {"positive": "😊 Positive", "neutral": "😐 Neutral",
-                       "concerning": "⚠️ Needs attention"}.get(s, s)
-                sentiment_html = f'<span class="{cls}">{lbl}</span>'
+                s = latest.sentiment.value
+                sentiment_label = {
+                    "positive":   "😊 Positive",
+                    "neutral":    "😐 Neutral",
+                    "concerning": "⚠️ Needs attention",
+                }.get(s, s)
 
-        badge_class = "phase-badge phase-complete" if complete else "phase-badge"
-        badge_text  = "✅ Complete" if complete else f"Phase {state.current_phase}: {phase_name}"
+        phase_badge  = "✅ Complete" if complete else f"Phase {state.current_phase}: {phase_name}"
+        badge_color  = "#2E7D32" if complete else "#4CAF50"
 
-        cards.append(f"""
-        <div class="joiner-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div>
-              <strong style="font-size:1.05rem;color:var(--ob-text)">{profile.full_name}</strong>
-              <span class="ob-muted" style="margin-left:8px;font-size:0.88rem">{profile.job_title}</span>
-            </div>
-            <span class="{badge_class}">{badge_text}</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;font-size:0.86rem;margin-bottom:12px">
-            <div><strong>Dept:</strong> {profile.department}</div>
-            <div><strong>Team:</strong> {profile.team}</div>
-            <div><strong>Manager:</strong> {profile.manager_name}</div>
-            <div><strong>Start:</strong> {profile.start_date}</div>
-            <div><strong>Sentiment:</strong> {sentiment_html}</div>
-            <div><strong>Access:</strong> ✅ {provisioned} ready · ⏳ {pending} pending</div>
-            <div style="font-size:0.78rem;color:var(--ob-muted)">
-              ID: <code>{profile.joiner_id}</code>
-            </div>
-          </div>
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px">
-              <span>Overall checklist progress</span>
-              <span style="font-weight:600">{done}/{total} ({pct}%)</span>
-            </div>
-            <div style="background:var(--ob-progress-track);border-radius:6px;height:8px">
-              <div style="background:var(--ob-primary);width:{pct}%;height:100%;border-radius:6px;transition:width 0.4s"></div>
-            </div>
-          </div>
-        </div>
-        """)
+        rows.append(
+            f"<tr style='border-bottom:1px solid #E0E0E0'>"
+            f"  <td style='padding:10px 12px'>"
+            f"    <strong style='color:#000'>{profile.full_name}</strong><br>"
+            f"    <span style='font-size:0.8rem;color:#616161'>{profile.job_title}</span>"
+            f"  </td>"
+            f"  <td style='padding:10px 12px;color:#000'>{profile.department}</td>"
+            f"  <td style='padding:10px 12px;color:#000'>{profile.team}</td>"
+            f"  <td style='padding:10px 12px;color:#000'>{profile.manager_name}</td>"
+            f"  <td style='padding:10px 12px'>"
+            f"    <span style='background:{badge_color};color:#fff;padding:3px 10px;"
+            f"           border-radius:12px;font-size:0.82rem;font-weight:600'>"
+            f"      {phase_badge}"
+            f"    </span>"
+            f"  </td>"
+            f"  <td style='padding:10px 12px;color:#000'>{done}/{total} ({pct}%)</td>"
+            f"  <td style='padding:10px 12px;color:#000'>✅ {provisioned} · ⏳ {pending}</td>"
+            f"  <td style='padding:10px 12px;color:#000'>{sentiment_label}</td>"
+            f"  <td style='padding:10px 12px'>"
+            f"    <code style='font-size:0.75rem;color:#616161'>{profile.joiner_id[:8]}…</code>"
+            f"  </td>"
+            f"</tr>"
+        )
 
-    return "\n".join(cards)
+    return (
+        '<table style="width:100%;border-collapse:collapse;font-size:0.9rem">'
+        '<thead>'
+        '  <tr style="background:#E8F5E9;border-bottom:2px solid #4CAF50">'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Name</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Dept</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Team</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Manager</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Phase</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Progress</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Access</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Sentiment</th>'
+        '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Joiner ID</th>'
+        '  </tr>'
+        '</thead>'
+        '<tbody>' + "\n".join(rows) + '</tbody>'
+        '</table>'
+    )
 
 
 def _render_gaps(store: StateStore) -> str:
@@ -287,51 +297,6 @@ def _render_gaps(store: StateStore) -> str:
         f'{len(gaps)} open gap(s) — review and add missing docs to the KB.</p>'
         + "\n".join(items)
     )
-
-
-def _render_sentiment(store: StateStore) -> str:
-    """Render sentiment overview table for the Reports tab."""
-    profiles = store.list_profiles()
-    if not profiles:
-        return "<p class='ob-muted'>No data yet.</p>"
-
-    rows = []
-    for p in profiles:
-        state = store.get_state(p.joiner_id)
-        if not state or not state.feedback_responses:
-            continue
-        scores = [f.sentiment_score for f in state.feedback_responses if f.sentiment_score]
-        avg    = round(sum(scores) / len(scores), 1) if scores else None
-        latest = state.feedback_responses[-1]
-        s_val  = latest.sentiment.value if latest.sentiment else "unknown"
-        s_cls  = f"sentiment-{s_val}"
-        rows.append(f"""
-        <tr style="border-bottom:1px solid var(--ob-border)">
-          <td style="padding:8px 12px">{p.full_name}</td>
-          <td style="padding:8px 12px">{p.department}</td>
-          <td style="padding:8px 12px">Phase {state.current_phase}</td>
-          <td style="padding:8px 12px"><span class="{s_cls}">{s_val.title()}</span></td>
-          <td style="padding:8px 12px">{f"{avg}/5" if avg else "—"}</td>
-        </tr>
-        """)
-
-    if not rows:
-        return "<p class='ob-muted'>No feedback submitted yet.</p>"
-
-    return f"""
-    <table style="width:100%;border-collapse:collapse;font-size:0.9rem">
-      <thead>
-        <tr style="background:var(--ob-surface);font-weight:700;text-align:left">
-          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Joiner</th>
-          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Dept</th>
-          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Phase</th>
-          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Sentiment</th>
-          <th style="padding:8px 12px;border-bottom:2px solid var(--ob-border)">Avg Score</th>
-        </tr>
-      </thead>
-      <tbody>{''.join(rows)}</tbody>
-    </table>
-    """
 
 
 # ─────────────────────────────────────────────
@@ -712,39 +677,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                 # resolve_btn wiring happens after notifications_html is declared
 
             # ══════════════════════════════════════════════════════════════════
-            # TAB 4 — Reports
-            # ══════════════════════════════════════════════════════════════════
-            with gr.Tab("📊 Reports"):
-                gr.HTML('<div class="section-title">Manager Weekly Summary</div>')
-                with gr.Row():
-                    mgr_email_in = gr.Textbox(
-                        label="Manager Email",
-                        placeholder="your.email@company.com",
-                        scale=2,
-                    )
-                    report_btn = gr.Button("Generate Summary", variant="primary", scale=1)
-
-                report_out = gr.Textbox(
-                    label="Weekly Summary", lines=22, interactive=False,
-                )
-
-                def gen_summary(email: str):
-                    if not email.strip():
-                        return "Please enter a manager email address."
-                    return orchestrator.progress_tracker.build_manager_summary(email.strip())
-
-                report_btn.click(fn=gen_summary, inputs=[mgr_email_in], outputs=[report_out])
-
-                gr.HTML('<div class="section-title">Sentiment Overview</div>')
-                sentiment_html    = gr.HTML(value=_render_sentiment(store))
-                sentiment_refresh = gr.Button("🔄 Refresh Sentiment", variant="secondary")
-                sentiment_refresh.click(
-                    fn=lambda: _render_sentiment(store),
-                    outputs=[sentiment_html],
-                )
-
-            # ══════════════════════════════════════════════════════════════════
-            # TAB 5 — Notifications (activity log)
+            # TAB 4 — Notifications (activity log)
             # ══════════════════════════════════════════════════════════════════
             # Events (joiner created, LMS confirmed, gap resolved) also pop a
             # transient toast via gr.Info; the full detail is stored here as

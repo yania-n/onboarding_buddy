@@ -5,20 +5,12 @@ The onboarding companion that guides a new employee through all 6 phases
 of their 90-day onboarding journey.
 
 Tab structure:
-  ├── 🗺️ My Journey      (phase timeline + interactive checklist)
+  ├── 🗺️ My Journey      (unified phase cards — current phase expanded with checklist)
   ├── 💬 Ask Anything    (KB-grounded chatbot)
-  ├── 🎓 My Training     (course plan from training agent)
+  ├── 🎓 My Training     (course table with org brief first)
   ├── 🔑 My Access       (IT ticket status table)
   ├── 📝 Feedback        (pulse survey — phases 3 & 6)
-  └── 🔔 Notifications   (all agent messages — titles only, click to expand)
-
-Notification UX:
-  - Newest agent messages fire a transient toast (gr.Info) with a close
-    button. The full content is ALWAYS logged to the Notifications tab
-    as a collapsible row (title visible, body hidden until clicked).
-
-Access model: joiner enters their Joiner ID (UUID) to load their record.
-The orchestrator handles all reads/writes — no direct store access from UI.
+  └── 🔔 Notifications   (welcome + buddy messages only)
 """
 
 import re
@@ -46,87 +38,14 @@ JOINER_CSS = GLOBAL_CSS_VARS + """
 .joiner-header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: #FFFFFF !important; }
 .joiner-header p  { margin: 4px 0 0; opacity: 0.9; font-size: 0.9rem; color: #FFFFFF !important; }
 
-/* ── Phase timeline ──────────────────────── */
-.phase-row {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 10px;
-    gap: 14px;
-    color: #000000 !important;
-}
-.phase-dot {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 3px;
-}
-.phase-dot.complete { background: #4CAF50 !important; }
-.phase-dot.active   { background: #4CAF50 !important; box-shadow: 0 0 0 3px rgba(76,175,80,0.3); }
-.phase-dot.locked   { background: #A5D6A7 !important; }
-
-/* ── Current phase card ──────────────────── */
-.current-phase-card {
-    background: #FFFFFF !important;
-    border: 1px solid #A5D6A7 !important;
-    border-left: 5px solid #4CAF50 !important;
-    border-radius: 10px;
-    padding: 18px 22px;
-    margin-bottom: 16px;
-    color: #000000 !important;
-}
-.current-phase-card * { color: #000000 !important; }
-.current-phase-card h3 {
-    margin: 0 0 4px;
-    color: #2E7D32 !important;
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-.current-phase-card .objective {
-    color: #616161 !important;
-    font-size: 0.9rem;
-    margin: 0 0 12px;
-}
-
-/* ── Checklist items ─────────────────────── */
-.checklist-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 6px;
-    background: #F1F8E9 !important;
-    border: 1px solid #A5D6A7 !important;
-    color: #000000 !important;
-}
-.checklist-item.done { border-color: #4CAF50 !important; background: #E8F5E9 !important; }
-.checklist-tick.done { color: #4CAF50 !important; font-weight: 700; }
-.checklist-tick.todo { color: #A5D6A7 !important; }
-
-/* ── Progress bar ────────────────────────── */
-.progress-bar-wrap {
-    background: #E0E0E0 !important;
-    border-radius: 6px;
-    height: 10px;
-    width: 100%;
-    margin: 10px 0;
-    overflow: hidden;
-}
-.progress-bar-fill {
-    background: #4CAF50 !important;
-    height: 100%;
-    border-radius: 6px;
-    transition: width 0.4s ease;
-}
-
-/* ── Access status badges ────────────────── */
-.badge-pending     { background: #FFF3E0 !important; color: #E65100 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
+/* ── Access status badges ────────────────────────── */
+.badge-pending     { background: #EEEEEE !important; color: #424242 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
 .badge-provisioned { background: #E8F5E9 !important; color: #2E7D32 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
 .badge-blocked     { background: #FFEBEE !important; color: #C62828 !important; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; }
 
-/* ── Chatbot tweaks ──────────────────────── */
-.chatbot-wrap .message.bot     { background: #E8F5E9 !important; color: #000000 !important; }
-.chatbot-wrap .message.user    { background: #C8E6C9 !important; color: #000000 !important; }
+/* ── Chatbot tweaks ──────────────────────────────── */
+.chatbot-wrap .message.bot  { background: #E8F5E9 !important; color: #000000 !important; }
+.chatbot-wrap .message.user { background: #C8E6C9 !important; color: #000000 !important; }
 """
 
 
@@ -140,122 +59,129 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
     Called by app.py; the orchestrator is injected at startup.
     """
 
-    # ── Helper: format phase status label ───────────────────────────────────
+    # ── Helper: build unified phase cards HTML ───────────────────────────────
+    # All 6 phases displayed as cards:
+    #   complete  → compact green card  (✅)
+    #   active    → expanded card with inline checklist
+    #   locked    → compact grey card   (🔒)
 
-    def _phase_status_label(status: PhaseStatus, phase_id: int, current: int) -> str:
-        """Return a short text badge for a phase status."""
-        if status == PhaseStatus.COMPLETE:
-            return "✅ Complete"
-        if status == PhaseStatus.ACTIVE:
-            return "🟢 In Progress"
-        if phase_id == current + 1:
-            return "⏳ Up Next"
-        return "🔒 Locked"
-
-    # ── Helper: build phase timeline HTML ───────────────────────────────────
-
-    def _build_timeline_html(state) -> str:
-        """Render a vertical timeline of all 6 phases as HTML."""
-        rows = []
+    def _build_phase_cards_html(state, profile) -> str:
+        cards = []
         for ph in PHASES:
             ph_id   = ph.phase_id
             status  = state.phase_statuses.get(ph_id, PhaseStatus.LOCKED)
-            label   = _phase_status_label(status, ph_id, state.current_phase)
-            dot_cls = (
-                "complete" if status == PhaseStatus.COMPLETE
-                else "active" if status == PhaseStatus.ACTIVE
-                else "locked"
-            )
-            start = state.phase_start_dates.get(ph_id)
-            end   = state.phase_complete_dates.get(ph_id)
-            date_str = ""
-            if end:
-                date_str = f" · Completed {end}"
-            elif start:
-                date_str = f" · Started {start}"
+            is_complete = (status == PhaseStatus.COMPLETE)
+            is_current  = (ph_id == state.current_phase and not is_complete)
 
-            rows.append(
-                f'<div class="phase-row">'
-                f'  <div class="phase-dot {dot_cls}"></div>'
-                f'  <div>'
-                f'    <strong>Phase {ph_id}: {ph.name}</strong> '
-                f'    <span style="font-size:0.82rem; color:#666">{label}{date_str}</span><br>'
-                f'    <span style="font-size:0.85rem; color:#555">Days {ph.day_start}–{ph.day_end} · {ph.objective}</span>'
-                f'  </div>'
-                f'</div>'
-            )
+            if is_complete:
+                cards.append(
+                    f'<div style="background:#E8F5E9;border:1px solid #A5D6A7;'
+                    f'border-left:4px solid #4CAF50;border-radius:8px;padding:12px 16px;'
+                    f'margin-bottom:8px;display:flex;align-items:flex-start;gap:12px">'
+                    f'  <span style="font-size:1.2rem;margin-top:2px">✅</span>'
+                    f'  <div>'
+                    f'    <strong style="color:#2E7D32">Phase {ph_id}: {ph.name}</strong>'
+                    f'    <span style="font-size:0.82rem;color:#666;margin-left:8px">'
+                    f'      Days {ph.day_start}–{ph.day_end}</span>'
+                    f'    <div style="font-size:0.83rem;color:#555;margin-top:2px">{ph.objective}</div>'
+                    f'  </div>'
+                    f'</div>'
+                )
 
-        return '<div style="padding:8px 0">' + "\n".join(rows) + "</div>"
+            elif is_current:
+                items = [c for c in state.checklist_items if c.phase_id == ph_id]
+                total = len(items)
+                done  = sum(1 for c in items if c.completed)
+                pct   = int(done / total * 100) if total else 0
 
-    # ── Helper: build checklist HTML ─────────────────────────────────────────
+                # Checklist rows
+                rows_html = ""
+                for item in items:
+                    if item.completed:
+                        rows_html += (
+                            f'<div style="display:flex;align-items:center;gap:10px;'
+                            f'padding:8px 12px;margin-bottom:6px;border-radius:6px;'
+                            f'background:#E8F5E9;border:1px solid #A5D6A7">'
+                            f'  <span style="color:#4CAF50;font-weight:700">✔</span>'
+                            f'  <span style="color:#2E7D32;text-decoration:line-through">{item.label}</span>'
+                            f'</div>'
+                        )
+                    else:
+                        rows_html += (
+                            f'<div style="display:flex;align-items:center;gap:10px;'
+                            f'padding:8px 12px;margin-bottom:6px;border-radius:6px;'
+                            f'background:#F1F8E9;border:1px solid #C8E6C9">'
+                            f'  <span style="color:#A5D6A7">○</span>'
+                            f'  <span style="color:#000">{item.label}</span>'
+                            f'</div>'
+                        )
 
-    def _build_checklist_html(state) -> str:
-        """Render the current phase checklist as styled HTML."""
-        items = [c for c in state.checklist_items if c.phase_id == state.current_phase]
-        if not items:
-            return "<p style='color:#888'>No checklist items for this phase.</p>"
+                # LMS gate notice (green tint instead of orange)
+                lms_note = ""
+                if ph.system_gated and not state.lms_mandatory_confirmed:
+                    lms_note = (
+                        '<div style="background:#E8F5E9;border-radius:6px;padding:10px 14px;'
+                        'margin-top:10px;font-size:0.88rem;color:#2E7D32;border:1px solid #A5D6A7">'
+                        '⏳ <strong>Phase gate:</strong> Your admin must confirm LMS course completion '
+                        'before you can mark this phase done. Reach out to your manager if needed.'
+                        '</div>'
+                    )
 
-        total = len(items)
-        done  = sum(1 for c in items if c.completed)
-        pct   = int(done / total * 100) if total else 0
+                cards.append(
+                    f'<div style="background:#FFFFFF;border:1px solid #A5D6A7;'
+                    f'border-left:5px solid #4CAF50;border-radius:10px;padding:18px 22px;margin-bottom:16px">'
+                    f'  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+                    f'    <h3 style="margin:0;color:#2E7D32;font-size:1.1rem;font-weight:700">'
+                    f'      🟢 Phase {ph_id}: {ph.name}'
+                    f'      <span style="font-size:0.82rem;color:#777;font-weight:400;margin-left:6px">'
+                    f'        Days {ph.day_start}–{ph.day_end}</span></h3>'
+                    f'    <span style="font-size:0.88rem;font-weight:600;color:#4CAF50">{done}/{total} done</span>'
+                    f'  </div>'
+                    f'  <p style="color:#555;font-size:0.9rem;margin:0 0 10px">🎯 {ph.objective}</p>'
+                    f'  <div style="background:#E0E0E0;border-radius:6px;height:8px;margin-bottom:14px">'
+                    f'    <div style="background:#4CAF50;width:{pct}%;height:100%;border-radius:6px;'
+                    f'         transition:width 0.4s"></div>'
+                    f'  </div>'
+                    f'  {rows_html}'
+                    f'  {lms_note}'
+                    f'</div>'
+                )
 
-        rows = []
-        for item in items:
-            tick_cls = "done" if item.completed else "todo"
-            tick_sym = "✔" if item.completed else "○"
-            rows.append(
-                f'<div class="checklist-item {"done" if item.completed else ""}">'
-                f'  <span class="checklist-tick {tick_cls}">{tick_sym}</span>'
-                f'  <span>{item.label}</span>'
-                f'</div>'
-            )
+            else:
+                # Locked future phase
+                cards.append(
+                    f'<div style="background:#FAFAFA;border:1px solid #E0E0E0;'
+                    f'border-left:4px solid #BDBDBD;border-radius:8px;padding:12px 16px;'
+                    f'margin-bottom:8px;opacity:0.65;display:flex;align-items:flex-start;gap:12px">'
+                    f'  <span style="font-size:1.2rem;margin-top:2px">🔒</span>'
+                    f'  <div>'
+                    f'    <strong style="color:#757575">Phase {ph_id}: {ph.name}</strong>'
+                    f'    <span style="font-size:0.82rem;color:#999;margin-left:8px">'
+                    f'      Days {ph.day_start}–{ph.day_end}</span>'
+                    f'    <div style="font-size:0.83rem;color:#999;margin-top:2px">{ph.objective}</div>'
+                    f'  </div>'
+                    f'</div>'
+                )
 
-        return (
-            f'<div class="progress-bar-wrap">'
-            f'  <div class="progress-bar-fill" style="width:{pct}%"></div>'
-            f'</div>'
-            f'<p style="font-size:0.85rem;color:#555;margin:4px 0 12px">{done}/{total} items complete ({pct}%)</p>'
-            + "\n".join(rows)
-        )
-
-    # ── Helper: build current phase card ─────────────────────────────────────
-
-    def _build_phase_card(state, profile) -> str:
-        """Render the current phase summary card."""
-        ph_id  = state.current_phase
-        ph_def = PHASE_BY_ID.get(ph_id)
-        if not ph_def:
-            return ""
-
-        lms_note = ""
-        if ph_def.system_gated and not state.lms_mandatory_confirmed:
-            lms_note = (
-                '<div style="background:#FFF3E0;border-radius:6px;padding:10px 14px;'
-                'margin-top:10px;font-size:0.88rem;color:#E65100">'
-                '⏳ <strong>Phase gate:</strong> Your admin must confirm LMS course completion before '
-                'you can mark this phase done. Reach out to your manager if this is taking too long.'
-                '</div>'
-            )
-
-        complete_note = ""
+        # Completion banner
         if state.onboarding_complete:
-            complete_note = (
-                '<div style="background:#E8F5E9;border-radius:8px;padding:14px 18px;text-align:center">'
-                '<span style="font-size:1.8rem">🎉</span>'
-                '<h3 style="margin:6px 0;color:var(--ob-primary-darker)">Onboarding Complete!</h3>'
-                '<p style="color:#555;margin:0">You\'ve finished all 6 phases. Welcome fully aboard!</p>'
+            cards.append(
+                '<div style="background:#E8F5E9;border-radius:10px;padding:22px;'
+                'text-align:center;margin-top:16px;border:1px solid #A5D6A7">'
+                '  <span style="font-size:2rem">🎉</span>'
+                '  <h3 style="margin:8px 0 4px;color:#2E7D32">Onboarding Complete!</h3>'
+                "  <p style=\"color:#555;margin:0\">You've finished all 6 phases. Welcome fully aboard!</p>"
                 '</div>'
             )
 
-        return (
-            f'<div class="current-phase-card">'
-            f'  <h3>Phase {ph_id}: {ph_def.name}</h3>'
-            f'  <p class="objective">🎯 {ph_def.objective}</p>'
-            f'  <span style="font-size:0.82rem;color:#777">Days {ph_def.day_start}–{ph_def.day_end}</span>'
-            f'{lms_note}'
-            f'</div>'
-            f'{complete_note}'
-        )
+        return "\n".join(cards)
+
+    # ── Helper: checklist dropdown choices for current phase ─────────────────
+
+    def _get_checklist_dropdown_choices(state) -> list[str]:
+        """Return all checklist item labels for the current phase (for dropdown)."""
+        items = [c for c in state.checklist_items if c.phase_id == state.current_phase]
+        return [item.label for item in items]
 
     # ── Helper: build access table HTML ─────────────────────────────────────
 
@@ -273,9 +199,9 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             }.get(req.status, "badge-pending")
             status_label = req.status.value.title()
             rows.append(
-                f"<tr>"
-                f"  <td style='padding:8px 12px'>{req.tool_name}</td>"
-                f"  <td style='padding:8px 12px'>{req.permission_level or '—'}</td>"
+                f"<tr style='border-bottom:1px solid #E0E0E0'>"
+                f"  <td style='padding:8px 12px;color:#000'>{req.tool_name}</td>"
+                f"  <td style='padding:8px 12px;color:#000'>{req.permission_level or '—'}</td>"
                 f"  <td style='padding:8px 12px'><span class='{badge_cls}'>{status_label}</span></td>"
                 f"  <td style='padding:8px 12px;font-size:0.82rem;color:#777'>{req.ticket_id}</td>"
                 f"</tr>"
@@ -283,52 +209,84 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
         return (
             '<table style="width:100%;border-collapse:collapse;font-size:0.9rem">'
-            '<thead><tr style="background:#E8F5E9">'
-            '  <th style="padding:10px 12px;text-align:left">Tool</th>'
-            '  <th style="padding:10px 12px;text-align:left">Permission</th>'
-            '  <th style="padding:10px 12px;text-align:left">Status</th>'
-            '  <th style="padding:10px 12px;text-align:left">Ticket ID</th>'
+            '<thead><tr style="background:#E8F5E9;border-bottom:2px solid #4CAF50">'
+            '  <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Tool</th>'
+            '  <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Permission</th>'
+            '  <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Status</th>'
+            '  <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Ticket ID</th>'
             '</tr></thead>'
             '<tbody>' + "\n".join(rows) + "</tbody></table>"
         )
 
-    # ── Helper: extract training content from notifications ──────────────────
+    # ── Helper: build training table HTML ────────────────────────────────────
 
     def _build_training_html(state) -> str:
         """
-        Pull the training plan notification from state.
-        The training agent writes this as a notification containing 'Training Plan'.
+        Render the training plan as a Course Name | Status table.
+        Org brief is always the first row. Courses are parsed from the
+        training plan notification; falls back to Phase 3 checklist.
         """
+        rows = []
+
+        # Row 1: Org & Role Brief (always present — delivered via org_agent in Phase 1)
+        rows.append((
+            "🏢 Org & Role Brief — company vision, structure, and your role fit",
+            "📖 Self-paced (see Notifications)",
+        ))
+
+        # Try to find training plan notification
         plan_notif = next(
             (n for n in state.app_notifications if "Training Plan" in n or "🎓" in n),
             None,
         )
-        if not plan_notif:
-            return (
-                "<p style='color:#888'>Your training plan is being prepared — "
-                "check back shortly or refresh the page.</p>"
-            )
-        # Convert markdown-style bold to HTML
-        txt = plan_notif.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        parts = txt.split("**")
-        html = ""
-        for i, part in enumerate(parts):
-            html += ("<strong>" if i % 2 == 1 else "") + part
-            if i % 2 == 1:
-                html += "</strong>"
-        html = html.replace("\n\n", "<br><br>").replace("\n", "<br>")
-        return f'<div style="line-height:1.7">{html}</div>'
+
+        if plan_notif:
+            # Parse bullet-point lines from the notification text
+            for line in plan_notif.splitlines():
+                stripped = line.strip()
+                if stripped.startswith(("- ", "• ", "* ")):
+                    course = stripped[2:].strip()
+                    if not course:
+                        continue
+                    is_mandatory = any(
+                        kw in course.lower()
+                        for kw in ["gdpr", "security", "compliance", "code of conduct",
+                                   "mandatory", "required", "data privacy", "ethics"]
+                    )
+                    status = "✅ Mandatory" if is_mandatory else "📘 Recommended"
+                    rows.append((course, status))
+        else:
+            # Fallback: show Phase 3 checklist items as pending courses
+            from core.config import PHASE_BY_ID as _PBY
+            phase3 = _PBY.get(3)
+            if phase3:
+                for item in phase3.checklist:
+                    rows.append((item, "⏳ Pending"))
+
+        # Render table
+        tbody = "\n".join(
+            f"<tr style='border-bottom:1px solid #E0E0E0'>"
+            f"  <td style='padding:10px 12px;color:#000'>{name}</td>"
+            f"  <td style='padding:10px 12px;color:#000'>{status}</td>"
+            f"</tr>"
+            for name, status in rows
+        )
+
+        return (
+            '<table style="width:100%;border-collapse:collapse;font-size:0.9rem">'
+            '<thead>'
+            '  <tr style="background:#E8F5E9;border-bottom:2px solid #4CAF50">'
+            '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Course Name</th>'
+            '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Status</th>'
+            '  </tr>'
+            '</thead>'
+            f'<tbody>{tbody}</tbody>'
+            '</table>'
+        )
 
     # ── Helper: extract a short title from a notification string ─────────────
 
     def _extract_title(notif: str) -> str:
-        """Return a short one-line title suitable for a collapsed list row.
-
-        Strategy (in order):
-          1. First **bold** phrase (agents usually lead with one).
-          2. First non-empty line, truncated to 70 chars.
-          3. Fallback: "Notification".
-        """
         m = re.search(r"\*\*([^*]+)\*\*", notif)
         if m:
             t = m.group(1).strip()
@@ -339,7 +297,6 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         return "Notification"
 
     def _markdown_to_html(txt: str) -> str:
-        """Minimal safe conversion: escape HTML, then convert **bold** and newlines."""
         txt = txt.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         parts = txt.split("**")
         out = ""
@@ -349,40 +306,49 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 out += "</strong>"
         return out.replace("\n\n", "<br><br>").replace("\n", "<br>")
 
-    # ── Helper: build notifications list ─────────────────────────────────────
+    # ── Helper: build notifications list (welcome + buddy only) ──────────────
 
     def _build_notifications_html(state) -> str:
-        """Render notifications as a collapsible list.
-
-        Each row shows only a short title; clicking expands to reveal the
-        full body. This matches the "event list shouldn't display the
-        entire content, only on clicking the event" requirement.
+        """
+        Render notifications as a collapsible list.
+        Only shows welcome and buddy-related messages — training, IT access,
+        and org brief have their own dedicated tabs.
         """
         if not state.app_notifications:
             return (
-                "<p class='ob-muted' style='padding:20px;text-align:center'>"
-                "No notifications yet. Agent messages (org brief, training plan, "
-                "buddy intro, access updates) will appear here as they arrive.</p>"
+                "<p style='padding:20px;text-align:center;color:#616161'>"
+                "No notifications yet. Your welcome message and buddy intro will appear here.</p>"
+            )
+
+        # Filter: show only welcome and buddy messages
+        visible = [
+            n for n in reversed(state.app_notifications)
+            if any(kw in n.lower() for kw in ["welcome", "buddy", "👋", "🌱", "congratulations"])
+        ]
+
+        if not visible:
+            return (
+                "<p style='padding:20px;text-align:center;color:#616161'>"
+                "Your welcome message and buddy intro will appear here once your onboarding is activated.</p>"
             )
 
         items = []
-        # Newest first — most recent agent messages are at the end of the list,
-        # so reverse for display.
-        for notif in reversed(state.app_notifications):
+        for notif in visible:
             title = _extract_title(notif).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
             body  = _markdown_to_html(notif)
             items.append(
                 f'<details class="notif-item">'
-                f'  <summary>'
-                f'    <span class="notif-title-text">{title}</span>'
-                f'  </summary>'
-                f'  <div class="notif-body">{body}</div>'
+                f'  <summary><span class="notif-title-text">{title}</span></summary>'
+                f'  <div class="notif-body"'
+                f'       style="background:#F1F8E9;border-radius:6px;padding:14px 16px;'
+                f'              margin-top:10px;border:1px solid #C8E6C9;line-height:1.7">'
+                f'    {body}'
+                f'  </div>'
                 f'</details>'
             )
         return "\n".join(items)
 
     def _latest_notification_title(state) -> str | None:
-        """Return the short title of the most recent notification, if any."""
         if not state or not state.app_notifications:
             return None
         return _extract_title(state.app_notifications[-1])
@@ -424,34 +390,37 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
             # ── TAB 1: My Journey ────────────────────────────────────────────
             with gr.Tab("🗺️ My Journey"):
-                phase_card_html   = gr.HTML("")
-                timeline_html     = gr.HTML("")
-
-                gr.HTML('<div class="section-title">Current Phase Checklist</div>')
-                checklist_html    = gr.HTML("")
-
-                with gr.Row():
-                    refresh_journey_btn   = gr.Button("🔄 Refresh", size="sm")
-                    mark_complete_btn     = gr.Button(
-                        "✅ Mark Phase Complete", variant="primary", size="sm"
-                    )
-
-                advance_msg = gr.Markdown("")
-
-                # Checklist tick controls
-                gr.HTML('<div class="section-title" style="margin-top:20px">Tick Off Items</div>')
                 gr.Markdown(
-                    "_Enter part of the item label to mark it complete or incomplete._"
+                    "Your 6-phase onboarding journey. Your **current phase** is expanded "
+                    "with an interactive checklist — tick items off as you complete them. "
+                    "Completed and upcoming phases are shown as summary cards."
+                )
+
+                # Unified phase cards (current expanded, others compact)
+                phase_cards_html = gr.HTML("")
+
+                # Tick off a checklist item
+                gr.HTML(
+                    '<div style="font-size:1rem;font-weight:700;color:#2E7D32;'
+                    'margin:20px 0 12px;padding:0 0 6px;border-bottom:2px solid #4CAF50;'
+                    'background:transparent">Tick Off a Checklist Item</div>'
                 )
                 with gr.Row():
-                    tick_label_input = gr.Textbox(
-                        label="Checklist item label",
-                        placeholder="e.g. Complete IT security induction",
+                    tick_item_dropdown = gr.Dropdown(
+                        label="Select item",
+                        choices=[],
                         scale=4,
                     )
-                    tick_done_input  = gr.Checkbox(label="Mark as complete", value=True, scale=1)
-                    tick_btn         = gr.Button("Update", size="sm", scale=1)
+                    tick_done_input = gr.Checkbox(label="Mark as complete", value=True, scale=1)
+                    tick_btn = gr.Button("Update", size="sm", scale=1)
                 tick_msg = gr.Markdown("")
+
+                with gr.Row():
+                    refresh_journey_btn = gr.Button("🔄 Refresh", size="sm")
+                    mark_complete_btn   = gr.Button(
+                        "✅ Mark Phase Complete", variant="primary", size="sm"
+                    )
+                advance_msg = gr.Markdown("")
 
             # ── TAB 2: Ask Anything ──────────────────────────────────────────
             with gr.Tab("💬 Ask Anything"):
@@ -460,7 +429,6 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     "Ask any question about the company, your role, tools, processes, or anything "
                     "else you'd like to know. I'll search the knowledge base to help you."
                 )
-                # Gradio 6.x uses (user_msg, bot_msg) tuple pairs by default
                 chatbot = gr.Chatbot(
                     label="OnboardingBuddy Chat",
                     elem_classes=["chatbot-wrap"],
@@ -469,7 +437,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 with gr.Row():
                     chat_input = gr.Textbox(
                         label="Your question",
-                        placeholder="What is the expense policy?",
+                        placeholder="How does the performance review process work?",
                         scale=5,
                         max_lines=2,
                     )
@@ -480,8 +448,9 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             with gr.Tab("🎓 My Training"):
                 gr.Markdown(
                     "### Your Learning Plan\n"
-                    "Here is the personalised course plan prepared for your role. "
-                    "Mandatory courses must be completed before Phase 3 can be marked done."
+                    "Your personalised course list for the first 90 days. "
+                    "The **Org & Role Brief** (first row) gives you strategic context about the company. "
+                    "Mandatory LMS courses must be completed before Phase 3 can be marked done."
                 )
                 training_html        = gr.HTML("")
                 refresh_training_btn = gr.Button("🔄 Refresh", size="sm")
@@ -525,12 +494,10 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             # ── TAB 6: Notifications ─────────────────────────────────────────
             with gr.Tab("🔔 Notifications"):
                 gr.Markdown(
-                    "### Your Notifications\n"
-                    "Messages from OnboardingBuddy agents — org brief, training plan, "
-                    "buddy intro, access updates, and progress nudges. "
+                    "### Personal Messages\n"
+                    "Your welcome message and buddy intro from OnboardingBuddy. "
                     "**Click any row to expand its full content.** "
-                    "New events also appear briefly as a popup in the top-right "
-                    "corner of the screen — close the popup to dismiss it."
+                    "Training and access information are available in their dedicated tabs."
                 )
                 notifications_html = gr.HTML("")
                 refresh_notif_btn  = gr.Button("🔄 Refresh", size="sm")
@@ -544,14 +511,6 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # ────────────────────────────────────────────────────────────────────
 
         def load_dashboard(joiner_id_raw: str):
-            """
-            Validate joiner ID, load state, and populate all tab content.
-            Returns updates for every dependent component.
-
-            Also fires a toast popup (gr.Info) with the latest notification
-            title — the popup has a built-in close button; full detail is
-            available in the 🔔 Notifications tab.
-            """
             joiner_id = joiner_id_raw.strip()
             state     = store.get_state(joiner_id)
             profile   = store.get_profile(joiner_id)
@@ -565,32 +524,33 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     )),
                     gr.update(visible=False),
                     "",
-                    "", "", "", "", "", "",
+                    "",              # phase_cards_html
+                    gr.update(),     # tick_item_dropdown
+                    "", "", "",      # training, access, notifications
                 )
 
             ph_name = PHASE_BY_ID[state.current_phase].name
             status_html = (
-                f'<p style="color:var(--ob-primary-darker)">✅ Welcome back, '
+                f'<p style="color:#2E7D32">✅ Welcome back, '
                 f'<strong>{profile.full_name}</strong>! '
                 f'Currently on Phase {state.current_phase}: {ph_name}</p>'
             )
 
-            # Pop a toast for the most recent notification (if any)
             latest = _latest_notification_title(state)
             if latest:
-                count = len(state.app_notifications)
+                count  = len(state.app_notifications)
                 plural = "notification" if count == 1 else "notifications"
                 gr.Info(
-                    f"{latest}  ·  ({count} {plural} — see the 🔔 Notifications tab for details)"
+                    f"{latest}  ·  ({count} {plural} — see the 🔔 Notifications tab)"
                 )
 
+            choices = _get_checklist_dropdown_choices(state)
             return (
                 gr.update(value=status_html),
                 gr.update(visible=True),
                 joiner_id,
-                _build_phase_card(state, profile),
-                _build_timeline_html(state),
-                _build_checklist_html(state),
+                _build_phase_cards_html(state, profile),
+                gr.update(choices=choices, value=choices[0] if choices else None),
                 _build_training_html(state),
                 _build_access_html(state),
                 _build_notifications_html(state),
@@ -603,9 +563,8 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 login_status,
                 main_tabs,
                 active_joiner_id,
-                phase_card_html,
-                timeline_html,
-                checklist_html,
+                phase_cards_html,
+                tick_item_dropdown,
                 training_html,
                 access_html,
                 notifications_html,
@@ -618,21 +577,21 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
         def refresh_journey(joiner_id: str):
             if not joiner_id:
-                return "", "", ""
+                return "", gr.update()
             state   = store.get_state(joiner_id)
             profile = store.get_profile(joiner_id)
             if not state or not profile:
-                return "", "", ""
+                return "", gr.update()
+            choices = _get_checklist_dropdown_choices(state)
             return (
-                _build_phase_card(state, profile),
-                _build_timeline_html(state),
-                _build_checklist_html(state),
+                _build_phase_cards_html(state, profile),
+                gr.update(choices=choices, value=choices[0] if choices else None),
             )
 
         refresh_journey_btn.click(
             fn=refresh_journey,
             inputs=[active_joiner_id],
-            outputs=[phase_card_html, timeline_html, checklist_html],
+            outputs=[phase_cards_html, tick_item_dropdown],
         )
 
         # ────────────────────────────────────────────────────────────────────
@@ -640,35 +599,36 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # ────────────────────────────────────────────────────────────────────
 
         def mark_phase_complete(joiner_id: str):
-            """Ask the orchestrator to advance the phase; refresh all journey components."""
             if not joiner_id:
                 gr.Warning("Please load your dashboard first.")
-                return "Please load your dashboard first.", "", "", ""
+                return "Please load your dashboard first.", "", gr.update()
 
             success, msg = orchestrator.advance_phase(joiner_id)
 
             state   = store.get_state(joiner_id)
             profile = store.get_profile(joiner_id)
-            card = timeline = checklist = ""
+            cards   = ""
+            choices = []
             if state and profile:
-                card      = _build_phase_card(state, profile)
-                timeline  = _build_timeline_html(state)
-                checklist = _build_checklist_html(state)
+                cards   = _build_phase_cards_html(state, profile)
+                choices = _get_checklist_dropdown_choices(state)
 
-            # Fire a popup toast — success or warning — so the joiner sees
-            # the outcome without a full page-filling banner.
             if success:
                 gr.Info(msg)
             else:
                 gr.Warning(msg)
 
             prefix = "✅ " if success else "⚠️ "
-            return prefix + msg, card, timeline, checklist
+            return (
+                prefix + msg,
+                cards,
+                gr.update(choices=choices, value=choices[0] if choices else None),
+            )
 
         mark_complete_btn.click(
             fn=mark_phase_complete,
             inputs=[active_joiner_id],
-            outputs=[advance_msg, phase_card_html, timeline_html, checklist_html],
+            outputs=[advance_msg, phase_cards_html, tick_item_dropdown],
         )
 
         # ────────────────────────────────────────────────────────────────────
@@ -676,39 +636,44 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # ────────────────────────────────────────────────────────────────────
 
         def tick_item(joiner_id: str, label: str, completed: bool):
-            """Find checklist item by partial label match and toggle its status."""
-            if not joiner_id or not label.strip():
-                return "Please load your dashboard and enter a checklist item label.", ""
+            if not joiner_id or not label:
+                return "Please load your dashboard and select a checklist item.", "", gr.update()
 
-            state = store.get_state(joiner_id)
+            state   = store.get_state(joiner_id)
+            profile = store.get_profile(joiner_id)
             if not state:
-                return "Could not load your record. Try refreshing.", ""
+                return "Could not load your record. Try refreshing.", "", gr.update()
 
+            # Exact match from dropdown
             matched = next(
-                (
-                    item for item in state.checklist_items
-                    if label.strip().lower() in item.label.lower()
-                ),
+                (item for item in state.checklist_items if item.label == label),
                 None,
             )
             if not matched:
                 return (
-                    f"⚠️ No item matching '{label}' found. Copy the exact label from the checklist.",
-                    _build_checklist_html(state),
+                    f"⚠️ Item not found. Please refresh and try again.",
+                    _build_phase_cards_html(state, profile),
+                    gr.update(),
                 )
 
             updated = orchestrator.toggle_checklist_item(joiner_id, matched.item_id, completed)
             if not updated:
-                return "❌ Could not update the item. Please try again.", _build_checklist_html(state)
+                return "❌ Could not update. Please try again.", _build_phase_cards_html(state, profile), gr.update()
 
-            state  = store.get_state(joiner_id)
-            action = "marked complete ✅" if completed else "marked incomplete"
-            return f"'{matched.label}' {action}.", _build_checklist_html(state)
+            state   = store.get_state(joiner_id)
+            profile = store.get_profile(joiner_id)
+            action  = "marked complete ✅" if completed else "marked incomplete"
+            choices = _get_checklist_dropdown_choices(state)
+            return (
+                f"'{matched.label}' {action}.",
+                _build_phase_cards_html(state, profile),
+                gr.update(choices=choices, value=choices[0] if choices else None),
+            )
 
         tick_btn.click(
             fn=tick_item,
-            inputs=[active_joiner_id, tick_label_input, tick_done_input],
-            outputs=[tick_msg, checklist_html],
+            inputs=[active_joiner_id, tick_item_dropdown, tick_done_input],
+            outputs=[tick_msg, phase_cards_html, tick_item_dropdown],
         )
 
         # ────────────────────────────────────────────────────────────────────
@@ -716,16 +681,12 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # ────────────────────────────────────────────────────────────────────
 
         def send_question(joiner_id: str, question: str, history: list):
-            """Route question to QA agent and append both turns to chat history."""
             history = history or []
-
             if not joiner_id:
                 history.append((None, "Please load your dashboard first by entering your Joiner ID above."))
                 return history, ""
-
             if not question.strip():
                 return history, ""
-
             answer = orchestrator.answer_question(joiner_id, question.strip())
             history.append((question.strip(), answer))
             return history, ""
@@ -770,19 +731,13 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             return _build_notifications_html(state)
 
         refresh_training_btn.click(
-            fn=refresh_training,
-            inputs=[active_joiner_id],
-            outputs=[training_html],
+            fn=refresh_training, inputs=[active_joiner_id], outputs=[training_html],
         )
         refresh_access_btn.click(
-            fn=refresh_access,
-            inputs=[active_joiner_id],
-            outputs=[access_html],
+            fn=refresh_access, inputs=[active_joiner_id], outputs=[access_html],
         )
         refresh_notif_btn.click(
-            fn=refresh_notifications,
-            inputs=[active_joiner_id],
-            outputs=[notifications_html],
+            fn=refresh_notifications, inputs=[active_joiner_id], outputs=[notifications_html],
         )
 
         # ────────────────────────────────────────────────────────────────────
@@ -790,10 +745,6 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # ────────────────────────────────────────────────────────────────────
 
         def load_feedback_questions(joiner_id: str, phase_id: int):
-            """
-            Fetch questions for the chosen phase from the feedback agent.
-            Returns updates for the three answer textboxes and the submit button.
-            """
             if not joiner_id:
                 return (
                     "<p style='color:#C62828'>Load your dashboard first.</p>",
@@ -814,8 +765,10 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     q_updates.append(gr.update(visible=False))
 
             header = (
-                f'<div class="section-title">Phase {phase_id} Feedback</div>'
-                '<p style="font-size:0.9rem;color:#555">Please answer honestly — '
+                f'<div style="font-size:1rem;font-weight:700;color:#2E7D32;'
+                f'margin:0 0 8px;padding:0 0 6px;border-bottom:2px solid #4CAF50">'
+                f'Phase {phase_id} Feedback</div>'
+                '<p style="font-size:0.9rem;color:#555;margin:0 0 12px">Please answer honestly — '
                 'your feedback is kept confidential.</p>'
             )
             return header, q_updates[0], q_updates[1], q_updates[2], gr.update(visible=True), questions
@@ -841,7 +794,6 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             questions: list,
             a1: str, a2: str, a3: str,
         ):
-            """Pair answers with question labels and route to the feedback agent."""
             if not joiner_id:
                 gr.Warning("Please load your dashboard first.")
                 return "Please load your dashboard first."
