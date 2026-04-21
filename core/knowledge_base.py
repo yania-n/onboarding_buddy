@@ -421,22 +421,76 @@ class KnowledgeBase:
             print(f"[KB] Semantic search error: {e} — using keyword fallback.")
             return self._keyword_search(query, top_k)
 
+    # Common English stop words — excluded from keyword matching so they
+    # don't inflate scores for irrelevant chunks.
+    _STOP_WORDS: set = {
+        "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
+        "of", "with", "by", "from", "is", "it", "its", "this", "that", "are",
+        "was", "were", "be", "been", "being", "have", "has", "had", "do", "does",
+        "did", "will", "would", "could", "should", "may", "might", "can", "not",
+        "no", "so", "if", "as", "up", "out", "how", "what", "when", "where",
+        "who", "which", "about", "into", "than", "then", "them", "they", "their",
+        "your", "our", "we", "you", "i", "me", "he", "she", "his", "her", "my",
+        "any", "all", "also", "more", "new", "some", "there", "these", "those",
+        "get", "got", "use", "used", "see", "know", "need", "go", "make", "just",
+    }
+
+    @staticmethod
+    def _normalise_query(text: str) -> set[str]:
+        """
+        Normalise a query string into a set of meaningful keywords.
+
+        Steps:
+          1. Lower-case
+          2. Strip possessives ("nexora's" → "nexora", "company's" → "company")
+          3. Remove remaining punctuation
+          4. Split into words
+          5. Remove stop words and very short tokens (len < 3)
+        """
+        # Step 2: strip possessives before removing punctuation
+        text = re.sub(r"'s\b", "", text.lower())
+        # Step 3: strip remaining punctuation
+        text = re.sub(r"[^\w\s]", " ", text)
+        words = text.split()
+        return {
+            w for w in words
+            if len(w) >= 3 and w not in KnowledgeBase._STOP_WORDS
+        }
+
     def _keyword_search(self, query: str, top_k: int) -> list[dict]:
         """
-        Simple keyword overlap search — no ML required.
-        Scores each chunk by the fraction of query words it contains.
-        Used when Voyage / FAISS are not available.
+        Improved keyword search — stop-word-free, possessive-normalised.
+
+        Scoring:
+          - Primary : fraction of meaningful query words found in the chunk
+          - Tie-break: source name bonus when a query word appears in the filename
+
+        This produces far better results than naive word overlap when semantic
+        search (Voyage) is unavailable.
         """
-        query_words = set(re.sub(r"[^\w\s]", "", query.lower()).split())
+        query_words = self._normalise_query(query)
+        if not query_words:
+            # Fallback: if all words were stop words, use raw split (avoids empty result)
+            query_words = set(re.sub(r"[^\w\s]", "", query.lower()).split()) - {""}
+
         if not query_words:
             return []
 
         scored = []
         for chunk in self._chunks:
-            chunk_words = set(re.sub(r"[^\w\s]", "", chunk["text"].lower()).split())
+            # Normalise chunk text the same way
+            chunk_text_lower = re.sub(r"'s\b", "", chunk["text"].lower())
+            chunk_words = set(re.sub(r"[^\w\s]", " ", chunk_text_lower).split())
+
             overlap = len(query_words & chunk_words) / max(len(query_words), 1)
-            if overlap > 0:
-                scored.append((overlap, chunk))
+            if overlap == 0:
+                continue
+
+            # Small bonus when query words appear in the source document name
+            source_words = set(re.sub(r"[_\-]", " ", chunk["source"].lower()).split())
+            source_bonus = 0.1 * len(query_words & source_words) / max(len(query_words), 1)
+
+            scored.append((overlap + source_bonus, chunk))
 
         scored.sort(key=lambda x: x[0], reverse=True)
         results = []
