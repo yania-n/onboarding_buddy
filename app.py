@@ -197,14 +197,18 @@ def build_app():
     print("[App] Building Joiner Journey UI...")
     joiner_ui = build_joiner_app(orchestrator=orchestrator, store=store)
 
-    # Gradio 6.0: js= is still accepted by TabbedInterface constructor.
-    # css= and theme= must go to launch() — see below.
+    # Gradio 6.0: TabbedInterface does NOT accept js=, css=, or theme=.
+    # css= and theme= go to launch() — see below.
+    # JS is injected via the .load() event which runs client-side on page load.
     combined = gr.TabbedInterface(
         interface_list=[admin_ui, joiner_ui],
         tab_names=["Admin Portal", "My Onboarding Journey"],
         title=APP_TITLE,
-        js=_FORCE_LIGHT_JS,
     )
+
+    # Inject light-mode JS on page load (strips html.dark class + MutationObserver).
+    # fn=None means no server round-trip — pure client-side execution.
+    combined.load(fn=None, js=_FORCE_LIGHT_JS)
 
     print("[App] {} is ready -- visit http://0.0.0.0:7860".format(APP_TITLE))
     print("=" * 60)
