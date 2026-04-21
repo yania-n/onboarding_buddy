@@ -309,63 +309,9 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
     Injected dependencies: orchestrator (shared), store (shared).
     """
 
-    light_theme = gr.themes.Soft(
-        primary_hue="green", secondary_hue="green", neutral_hue="gray",
-    ).set(
-        # Force white/light backgrounds even when OS is in dark mode
-        body_background_fill="#F1F8E9",
-        body_background_fill_dark="#F1F8E9",
-        background_fill_primary="#FFFFFF",
-        background_fill_primary_dark="#FFFFFF",
-        background_fill_secondary="#F1F8E9",
-        background_fill_secondary_dark="#F1F8E9",
-        block_background_fill="#FFFFFF",
-        block_background_fill_dark="#FFFFFF",
-        panel_background_fill="#FFFFFF",
-        panel_background_fill_dark="#FFFFFF",
-        input_background_fill="#FFFFFF",
-        input_background_fill_dark="#FFFFFF",
-        input_background_fill_focus="#FFFFFF",
-        input_background_fill_focus_dark="#FFFFFF",
-        # Text
-        body_text_color="#000000",
-        body_text_color_dark="#000000",
-        body_text_color_subdued="#616161",
-        body_text_color_subdued_dark="#616161",
-        block_label_text_color="#000000",
-        block_label_text_color_dark="#000000",
-        block_title_text_color="#2E7D32",
-        block_title_text_color_dark="#2E7D32",
-        # Borders
-        border_color_primary="#A5D6A7",
-        border_color_primary_dark="#A5D6A7",
-        block_border_color="#A5D6A7",
-        block_border_color_dark="#A5D6A7",
-        input_border_color="#E0E0E0",
-        input_border_color_dark="#E0E0E0",
-        input_placeholder_color="#9E9E9E",
-        input_placeholder_color_dark="#9E9E9E",
-        # Primary button
-        button_primary_background_fill="#4CAF50",
-        button_primary_background_fill_dark="#4CAF50",
-        button_primary_background_fill_hover="#388E3C",
-        button_primary_background_fill_hover_dark="#388E3C",
-        button_primary_text_color="#FFFFFF",
-        button_primary_text_color_dark="#FFFFFF",
-        # Secondary button
-        button_secondary_background_fill="#FFFFFF",
-        button_secondary_background_fill_dark="#FFFFFF",
-        button_secondary_text_color="#000000",
-        button_secondary_text_color_dark="#000000",
-        button_secondary_border_color="#E0E0E0",
-        button_secondary_border_color_dark="#E0E0E0",
-        # Table
-        table_even_background_fill="#FFFFFF",
-        table_even_background_fill_dark="#FFFFFF",
-        table_odd_background_fill="#F1F8E9",
-        table_odd_background_fill_dark="#F1F8E9",
-    )
-    with gr.Blocks(css=ADMIN_CSS, title="OnboardingBuddy — Admin Portal", theme=light_theme) as admin_app:
+    # NOTE (Gradio 6.0): css= and theme= are no longer accepted by gr.Blocks().
+    # They are passed to launch() in app.py via LIGHT_THEME and COMBINED_CSS.
+    with gr.Blocks(title="OnboardingBuddy — Admin Portal") as admin_app:
 
         # ── Header ────────────────────────────────────────────────────────────
         gr.HTML("""
