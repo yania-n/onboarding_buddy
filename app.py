@@ -199,16 +199,17 @@ def build_app():
 
     # Gradio 6.0: TabbedInterface does NOT accept js=, css=, or theme=.
     # css= and theme= go to launch() — see below.
-    # JS is injected via the .load() event which runs client-side on page load.
+    # JS must be wired inside a Blocks context via .load().
     combined = gr.TabbedInterface(
         interface_list=[admin_ui, joiner_ui],
         tab_names=["Admin Portal", "My Onboarding Journey"],
         title=APP_TITLE,
     )
 
-    # Inject light-mode JS on page load (strips html.dark class + MutationObserver).
-    # fn=None means no server round-trip — pure client-side execution.
-    combined.load(fn=None, js=_FORCE_LIGHT_JS)
+    # Re-open the TabbedInterface context to register the load event.
+    # .load() cannot be called outside a gr.Blocks context in Gradio 6.x.
+    with combined:
+        combined.load(fn=None, js=_FORCE_LIGHT_JS)
 
     print("[App] {} is ready -- visit http://0.0.0.0:7860".format(APP_TITLE))
     print("=" * 60)
