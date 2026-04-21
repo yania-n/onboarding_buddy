@@ -233,16 +233,22 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
 
     def _build_training_html(state) -> str:
         """
-        Render the training plan as a Course Name | Status table.
+        Render the training plan as a Course Name | Type | Status table.
+        - Type   : Mandatory / Recommended / Self-paced (category of the course)
+        - Status : Pending / In Progress / Completed (joiner's progress on the course)
+
         Org brief is always the first row. Courses are parsed from the
         training plan notification; falls back to Phase 3 checklist.
+        LMS mandatory courses are marked Completed once admin confirms LMS gate.
         """
+        # rows: (course_name, type_label, status_label)
         rows = []
 
-        # Row 1: Org & Role Brief (always present — delivered via org_agent in Phase 1)
+        # Row 1: Org & Role Brief
         rows.append((
             "🏢 Org & Role Brief — company vision, structure, and your role fit",
-            "📖 Self-paced (see Notifications)",
+            "📖 Self-paced",
+            "✅ Completed" if state.app_notifications else "⏳ Pending",
         ))
 
         # Try to find training plan notification
@@ -250,6 +256,9 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             (n for n in state.app_notifications if "Training Plan" in n or "🎓" in n),
             None,
         )
+
+        # LMS gate confirmed? → mark mandatory courses completed
+        lms_done = getattr(state, "lms_mandatory_confirmed", False)
 
         if plan_notif:
             # Parse bullet-point lines from the notification text
@@ -264,23 +273,26 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                         for kw in ["gdpr", "security", "compliance", "code of conduct",
                                    "mandatory", "required", "data privacy", "ethics"]
                     )
-                    status = "✅ Mandatory" if is_mandatory else "📘 Recommended"
-                    rows.append((course, status))
+                    type_label   = "✅ Mandatory" if is_mandatory else "📘 Recommended"
+                    status_label = "✅ Completed" if (is_mandatory and lms_done) else "⏳ Pending"
+                    rows.append((course, type_label, status_label))
         else:
-            # Fallback: show Phase 3 checklist items as pending courses
+            # Fallback: show Phase 3 checklist items as mandatory pending courses
             from core.config import PHASE_BY_ID as _PBY
             phase3 = _PBY.get(3)
             if phase3:
                 for item in phase3.checklist:
-                    rows.append((item, "⏳ Pending"))
+                    status_label = "✅ Completed" if lms_done else "⏳ Pending"
+                    rows.append((item, "✅ Mandatory", status_label))
 
         # Render table
         tbody = "\n".join(
             f"<tr style='border-bottom:1px solid #E0E0E0'>"
             f"  <td style='padding:10px 12px;color:#000'>{name}</td>"
-            f"  <td style='padding:10px 12px;color:#000'>{status}</td>"
+            f"  <td style='padding:10px 12px;color:#000'>{type_label}</td>"
+            f"  <td style='padding:10px 12px;color:#000'>{status_label}</td>"
             f"</tr>"
-            for name, status in rows
+            for name, type_label, status_label in rows
         )
 
         return (
@@ -288,6 +300,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
             '<thead>'
             '  <tr style="background:#E8F5E9;border-bottom:2px solid #4CAF50">'
             '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Course Name</th>'
+            '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Type</th>'
             '    <th style="padding:10px 12px;text-align:left;color:#2E7D32;font-weight:700;background:#E8F5E9">Status</th>'
             '  </tr>'
             '</thead>'
@@ -444,7 +457,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 with gr.Row():
                     chat_input = gr.Textbox(
                         label="Your question",
-                        placeholder="How does the performance review process work?",
+                        placeholder="What are Nexora's company values?",
                         scale=5,
                         max_lines=2,
                     )
