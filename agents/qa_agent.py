@@ -72,7 +72,12 @@ class QAAgent:
         if not chunks:
             # No relevant content found at all → log gap immediately
             self._log_gap(joiner_id, question)
+            # DEBUG: surface KB state so we can diagnose HF deployment issues.
+            # Remove this line once the chatbot is confirmed working.
+            _kb_chunks = len(self.kb._chunks)
+            _kb_mode   = "semantic" if self.kb._index is not None else "keyword"
             return (
+                f"⚠️ _Debug: KB has {_kb_chunks} chunks · search mode: {_kb_mode}_\n\n"
                 "I don't have that information in the knowledge base yet. "
                 "I've flagged your question so the team can add it — "
                 "please ask your buddy or manager directly in the meantime."

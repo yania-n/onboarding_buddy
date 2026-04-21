@@ -14,9 +14,14 @@ PoC constraints applied:
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
+
+# Repo root — the directory containing this file's parent (core/ → repo root)
+# Using absolute paths avoids any CWD issues on HF Spaces.
+_REPO_ROOT: Path = Path(__file__).parent.parent
 
 # Load .env file for local development (no-op in HF Spaces)
 load_dotenv()
@@ -60,8 +65,8 @@ EMBEDDING_MODEL: str = "voyage-3-lite"            # Free-tier Voyage embeddings
 CHUNK_SIZE: int        = 400             # ~words per chunk
 CHUNK_OVERLAP: int     = 80             # overlap between consecutive chunks
 TOP_K_RESULTS: int     = 5              # KB chunks retrieved per query
-KB_DOCS_PATH: str      = "data/kb_documents"
-FAISS_INDEX_PATH: str  = "data/faiss_index.pkl"
+KB_DOCS_PATH: str      = str(_REPO_ROOT / "data" / "kb_documents")
+FAISS_INDEX_PATH: str  = str(_REPO_ROOT / "data" / "faiss_index.pkl")
 
 
 # ─────────────────────────────────────────────
