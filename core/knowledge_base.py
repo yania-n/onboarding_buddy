@@ -345,20 +345,45 @@ class KnowledgeBase:
         Embed all chunks via Voyage AI and build a FAISS IndexFlatIP.
         Batches of 128 are used to stay within API rate limits.
         Vectors are L2-normalised so inner-product = cosine similarity.
+
+        Robustness rules:
+          - The embedding dimension is detected from the first successful batch.
+          - Failed batches use zero-vectors of the SAME detected dimension
+            (not a hardcoded 1024 which differs from voyage-3-lite's 512-dim output).
+          - If no batch succeeds at all, the index is not built and keyword search
+            is used as fallback.
         """
         texts = [c["text"] for c in chunks]
         BATCH = 128
-        all_vecs = []
+        all_vecs   = []
+        embed_dim  = None   # determined from the first successful batch
+        total_batches = (len(texts) - 1) // BATCH + 1
 
         for i in range(0, len(texts), BATCH):
-            batch = texts[i : i + BATCH]
+            batch      = texts[i : i + BATCH]
+            batch_num  = i // BATCH + 1
             try:
                 result = self._voyage.embed(batch, model=EMBEDDING_MODEL, input_type="document")
-                all_vecs.extend(result.embeddings)
-                print(f"[KB]   Embedded batch {i // BATCH + 1}/{(len(texts) - 1) // BATCH + 1}")
+                vecs   = result.embeddings            # list of lists
+                if vecs and embed_dim is None:
+                    embed_dim = len(vecs[0])          # detect dim from first real result
+                all_vecs.extend(vecs)
+                print(f"[KB]   Embedded batch {batch_num}/{total_batches} (dim={embed_dim})")
             except Exception as e:
-                print(f"[KB]   Embedding batch failed: {e} — using zero vectors")
-                all_vecs.extend([[0.0] * 1024] * len(batch))
+                print(f"[KB]   Embedding batch {batch_num} failed: {e}")
+                if embed_dim is not None:
+                    # Use detected dimension for zero-vector placeholder
+                    all_vecs.extend([[0.0] * embed_dim] * len(batch))
+                else:
+                    # Dimension still unknown — defer; will be filled after loop
+                    all_vecs.extend([None] * len(batch))
+
+        if embed_dim is None:
+            print("[KB] No successful embedding batch — skipping FAISS build; using keyword search.")
+            return
+
+        # Replace any None placeholders (batches that failed before dim was known)
+        all_vecs = [v if v is not None else [0.0] * embed_dim for v in all_vecs]
 
         vectors = np.array(all_vecs, dtype="float32")
 
@@ -373,7 +398,7 @@ class KnowledgeBase:
 
         self._index   = index
         self._vectors = vectors
-        print(f"[KB] FAISS index: {index.ntotal} vectors, dim={dim}")
+        print(f"[KB] FAISS index built: {index.ntotal} vectors, dim={dim}")
 
     # ── Persistence ───────────────────────────────────────────────────────────
 
