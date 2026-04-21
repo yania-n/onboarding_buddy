@@ -35,3 +35,7 @@ tenacity>=8.2.0
 # -- Utilities ------------------------------------------------
 numpy>=1.26.0
 rich>=13.0.0
+
+# -- Python 3.13 compatibility --------------------------------
+# audioop was removed in Python 3.13; pydub (Gradio dep) falls back to this.
+pyaudioop>=0.2.0
