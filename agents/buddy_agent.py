@@ -18,6 +18,8 @@ Model routing:
   - KB retrieval: used to provide onboarding buddy programme context
 """
 
+import asyncio
+
 import anthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -56,13 +58,13 @@ class BuddyAgent:
     def __init__(self, store: StateStore):
         self.store   = store
         self._client = (
-            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
             if ANTHROPIC_API_KEY else None
         )
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def send_buddy_intro(self, profile: JoinerProfile, state: JoinerState) -> None:
+    async def send_buddy_intro(self, profile: JoinerProfile, state: JoinerState) -> None:
         """
         Generate and store the buddy welcome message.
 
@@ -73,7 +75,7 @@ class BuddyAgent:
         print(f"[BuddyAgent] Creating buddy intro for {profile.full_name} → {profile.buddy_name}")
 
         if self._client:
-            note = self._generate_note(profile)
+            note = await self._generate_note(profile)
         else:
             note = self._template_note(profile)
 
@@ -86,8 +88,8 @@ class BuddyAgent:
     # ── Private helpers ───────────────────────────────────────────────────────
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
-    def _generate_note(self, profile: JoinerProfile) -> str:
-        """Generate personalised welcome note from buddy using Claude Haiku."""
+    async def _generate_note(self, profile: JoinerProfile) -> str:
+        """Generate personalised welcome note from buddy using Claude Haiku (async)."""
         calendar_line = (
             f"You can also grab time directly via my calendar: {profile.buddy_calendar_link}"
             if profile.buddy_calendar_link
@@ -100,7 +102,7 @@ class BuddyAgent:
             f"Buddy email: {profile.buddy_email}\n"
             f"How to arrange intro: {calendar_line}"
         )
-        resp = self._client.messages.create(
+        resp = await self._client.messages.create(
             model=MODEL_FAST,
             max_tokens=200,
             system=_BUDDY_SYSTEM,

@@ -15,6 +15,8 @@ Model routing:
   - Answer gen   : Claude Haiku (fast, cheap — most KB answers are factual)
 """
 
+import asyncio
+
 import anthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -51,11 +53,11 @@ class QAAgent:
         self.store = store
         self.kb    = kb
         self._client = (
-            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
             if ANTHROPIC_API_KEY else None
         )
 
-    def answer(self, joiner_id: str, question: str) -> str:
+    async def answer(self, joiner_id: str, question: str) -> str:
         """
         Main entry point.
         1. Retrieve relevant KB chunks via semantic search
@@ -88,7 +90,7 @@ class QAAgent:
             return self._direct_chunk_response(chunks)
 
         try:
-            answer = self._call_llm(context, question)
+            answer = await self._call_llm(context, question)
 
             # If model signals it couldn't answer from the KB, log a gap
             if "don't have that information" in answer.lower():
@@ -101,13 +103,13 @@ class QAAgent:
             return self._direct_chunk_response(chunks)
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
-    def _call_llm(self, context: str, question: str) -> str:
-        """Call Claude Haiku with KB context and the joiner's question. Retries on failure."""
+    async def _call_llm(self, context: str, question: str) -> str:
+        """Call Claude Haiku with KB context and the joiner's question (async). Retries on failure."""
         user_msg = (
             f"Context from the knowledge base:\n\n{context}\n\n"
             f"Joiner's question: {question}"
         )
-        response = self._client.messages.create(
+        response = await self._client.messages.create(
             model=MODEL_FAST,
             max_tokens=600,
             system=_QA_SYSTEM,

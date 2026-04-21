@@ -21,6 +21,8 @@ Model routing:
   - Plan writing  : Claude Haiku (structured, factual output)
 """
 
+import asyncio
+
 import anthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -66,13 +68,13 @@ class TrainingAgent:
         self.store   = store
         self.kb      = kb
         self._client = (
-            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
             if ANTHROPIC_API_KEY else None
         )
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def build_course_plan(self, profile: JoinerProfile, state: JoinerState) -> None:
+    async def build_course_plan(self, profile: JoinerProfile, state: JoinerState) -> None:
         """
         Build and store the personalised training plan.
 
@@ -101,7 +103,7 @@ class TrainingAgent:
                     all_chunks.append(chunk)
 
         if self._client and all_chunks:
-            plan = self._generate_with_llm(profile, all_chunks)
+            plan = await self._generate_with_llm(profile, all_chunks)
         elif all_chunks:
             plan = self._template_plan(profile, all_chunks)
         else:
@@ -117,8 +119,8 @@ class TrainingAgent:
     # ── Private helpers ───────────────────────────────────────────────────────
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
-    def _generate_with_llm(self, profile: JoinerProfile, chunks: list[dict]) -> str:
-        """Generate the personalised training plan via Claude Haiku + KB context."""
+    async def _generate_with_llm(self, profile: JoinerProfile, chunks: list[dict]) -> str:
+        """Generate the personalised training plan via Claude Haiku + KB context (async)."""
         context = "\n\n---\n\n".join(
             f"[Source: {c['source']}]\n{c['text']}" for c in chunks[:10]
         )
@@ -135,7 +137,7 @@ class TrainingAgent:
             f"Knowledge base context:\n\n{context}\n\n"
             f"Write the personalised training plan for {profile.full_name}."
         )
-        resp = self._client.messages.create(
+        resp = await self._client.messages.create(
             model=MODEL_FAST,
             max_tokens=600,
             system=_TRAINING_SYSTEM,

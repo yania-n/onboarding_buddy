@@ -23,6 +23,8 @@ Model routing:
 import uuid
 from datetime import datetime
 
+import asyncio
+
 import anthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -70,13 +72,13 @@ class AccessAgent:
         self.store   = store
         self.kb      = kb
         self._client = (
-            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
             if ANTHROPIC_API_KEY else None
         )
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def raise_access_tickets(self, profile: JoinerProfile, state: JoinerState) -> None:
+    async def raise_access_tickets(self, profile: JoinerProfile, state: JoinerState) -> None:
         """
         Simulate raising IT access tickets for every tool in the joiner's access list.
 
@@ -92,6 +94,7 @@ class AccessAgent:
                 notifications=["🔐 No tool access requests configured — check with your manager."],
             )
             return
+
 
         # Step 1: Build AccessRequest objects for each tool
         requests_to_raise: list[AccessRequest] = []
@@ -114,8 +117,8 @@ class AccessAgent:
             access_requests = requests_to_raise,
         )
 
-        # Step 3: Generate and store the joiner notification
-        notification = self._build_notification(profile, requests_to_raise)
+        # Step 3: Generate and store the joiner notification (async LLM call)
+        notification = await self._build_notification(profile, requests_to_raise)
         self.store.append_to_state(
             joiner_id     = profile.joiner_id,
             notifications = [notification],
@@ -124,16 +127,16 @@ class AccessAgent:
 
     # ── Private helpers ───────────────────────────────────────────────────────
 
-    def _build_notification(
+    async def _build_notification(
         self,
         profile: JoinerProfile,
         requests: list[AccessRequest],
     ) -> str:
         """
         Build the in-app access summary notification.
-        Uses LLM if available, otherwise produces a structured template.
+        Uses async LLM if available, otherwise produces a structured template.
         """
-        # Retrieve any SLA / procedure info from KB
+        # Retrieve any SLA / procedure info from KB (sync — local FAISS)
         sla_context = ""
         if self.kb:
             chunks = self.kb.retrieve(
@@ -149,7 +152,7 @@ class AccessAgent:
         )
 
         if self._client and sla_context:
-            return self._generate_with_llm(profile, requests, sla_context)
+            return await self._generate_with_llm(profile, requests, sla_context)
 
         # Structured fallback
         return (
@@ -165,13 +168,13 @@ class AccessAgent:
         )
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
-    def _generate_with_llm(
+    async def _generate_with_llm(
         self,
         profile: JoinerProfile,
         requests: list[AccessRequest],
         sla_context: str,
     ) -> str:
-        """Generate the access notification via Claude Haiku."""
+        """Generate the access notification via Claude Haiku (async)."""
         tool_list = "\n".join(
             f"- {r.tool_name} ({r.permission_level})" for r in requests
         )
@@ -181,7 +184,7 @@ class AccessAgent:
             f"Tools requested:\n{tool_list}\n\n"
             f"KB context on SLAs/procedures:\n{sla_context}"
         )
-        resp = self._client.messages.create(
+        resp = await self._client.messages.create(
             model=MODEL_FAST,
             max_tokens=400,
             system=_ACCESS_SYSTEM,

@@ -19,6 +19,8 @@ Model routing:
   - Brief writing : Claude Haiku (cheap, fast, factual summary)
 """
 
+import asyncio
+
 import anthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -59,18 +61,18 @@ class OrgAgent:
         self.store   = store
         self.kb      = kb
         self._client = (
-            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
             if ANTHROPIC_API_KEY else None
         )
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def build_org_brief(self, profile: JoinerProfile, state: JoinerState) -> None:
+    async def build_org_brief(self, profile: JoinerProfile, state: JoinerState) -> None:
         """
         Build and store the org context brief.
 
-        1. Retrieve KB chunks for department, team, role, and culture
-        2. Generate the personalised brief with Claude Haiku
+        1. Retrieve KB chunks for department, team, role, and culture (sync — local FAISS)
+        2. Generate the personalised brief with Claude Haiku (async — non-blocking LLM call)
         3. Append the brief as an in-app notification to the state store
         """
         print(f"[OrgAgent] Building brief for {profile.full_name} / {profile.department}")
@@ -83,7 +85,7 @@ class OrgAgent:
             f"culture values ways of working communication norms rituals",
         ]
 
-        # Collect and deduplicate retrieved chunks
+        # Collect and deduplicate retrieved chunks (sync — local CPU FAISS, no I/O)
         seen:       set[str]  = set()
         all_chunks: list[dict] = []
         for query in queries:
@@ -93,15 +95,15 @@ class OrgAgent:
                     seen.add(key)
                     all_chunks.append(chunk)
 
-        # Generate brief (LLM or structured fallback)
+        # Generate brief (async LLM or structured fallback)
         if self._client and all_chunks:
-            brief = self._generate_with_llm(profile, all_chunks)
+            brief = await self._generate_with_llm(profile, all_chunks)
         elif all_chunks:
             brief = self._template_brief(profile, all_chunks)
         else:
             brief = self._fallback_brief(profile)
 
-        # Store as in-app notification
+        # Store as in-app notification (sync — fast in-memory + JSON write)
         self.store.append_to_state(
             joiner_id=profile.joiner_id,
             notifications=[f"🏢 **Your Team & Organisation Brief**\n\n{brief}"],
@@ -111,8 +113,8 @@ class OrgAgent:
     # ── Private helpers ───────────────────────────────────────────────────────
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
-    def _generate_with_llm(self, profile: JoinerProfile, chunks: list[dict]) -> str:
-        """Call Claude Haiku with KB context to produce the personalised brief."""
+    async def _generate_with_llm(self, profile: JoinerProfile, chunks: list[dict]) -> str:
+        """Call Claude Haiku with KB context to produce the personalised brief (async)."""
         context = "\n\n---\n\n".join(
             f"[Source: {c['source']}]\n{c['text']}" for c in chunks[:10]
         )
@@ -127,7 +129,7 @@ class OrgAgent:
             f"Knowledge base context:\n\n{context}\n\n"
             f"Write the personalised org & role brief for {profile.full_name}."
         )
-        resp = self._client.messages.create(
+        resp = await self._client.messages.create(
             model=MODEL_FAST,
             max_tokens=700,
             system=_ORG_SYSTEM,

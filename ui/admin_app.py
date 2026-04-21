@@ -446,7 +446,7 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                 nj_status = gr.Markdown("")
 
                 # ── Submit handler ───────────────────────────────────────────
-                def submit_new_joiner(
+                async def submit_new_joiner(
                     name, email, start,
                     bu, division, dept, team, role, seniority, role_desc,
                     mgr_name, mgr_email,
@@ -515,8 +515,8 @@ def build_admin_app(orchestrator, store: StateStore) -> gr.Blocks:
                         created_by        = mgr_email.strip(),
                     )
 
-                    # Activate — triggers all agents in parallel
-                    orchestrator.activate_new_joiner(profile)
+                    # Activate — fires all agents as concurrent async tasks (non-blocking)
+                    await orchestrator.activate_new_joiner(profile)
 
                     # Build the long-form body (goes into the Notification tab only)
                     tool_lines = "".join(

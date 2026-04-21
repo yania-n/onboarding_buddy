@@ -17,6 +17,7 @@ Design principle: orchestrator decides WHAT and WHEN — agents decide HOW.
 All Day 1 agents run in parallel threads (Steps 4a–4c execute simultaneously).
 """
 
+import asyncio
 import threading
 from datetime import date, datetime
 from typing import Optional
@@ -64,7 +65,7 @@ class Orchestrator:
     # New Joiner Activation — Day 1
     # ─────────────────────────────────────────────
 
-    def activate_new_joiner(self, profile: JoinerProfile) -> JoinerState:
+    async def activate_new_joiner(self, profile: JoinerProfile) -> JoinerState:
         """
         Called by the admin app when a manager submits the new joiner form.
 
@@ -72,45 +73,41 @@ class Orchestrator:
           Step 1: Persist profile to state store
           Step 2: Create fresh JoinerState (Phase 1 active)
           Step 3: Orchestrator activates
-          Steps 4a–4c: Core agents run in parallel
+          Steps 4a–4e: All agents fire as async tasks (non-blocking, run concurrently)
             4a → org_agent.build_org_brief()
             4b → access_agent.raise_access_tickets()
             4c → training_agent.build_course_plan()
-          Step 4d (added): buddy_agent.send_buddy_intro()
-          Step 4e (added): integration_agent.run_activation_integrations()
+            4d → buddy_agent.send_buddy_intro()
+            4e → integration_agent.run_activation_integrations()
           Step 5: Welcome notification → joiner app is live
 
-        Returns the initialised JoinerState.
+        Returns the initialised JoinerState immediately — agents continue in background.
         """
         print(f"[Orchestrator] Activating new joiner: {profile.full_name}")
 
-        # Steps 1 & 2: Persist and initialise state
+        # Steps 1 & 2: Persist and initialise state (sync — fast in-memory + JSON)
         self.store.create_profile(profile)
         state = self.store.create_state(profile.joiner_id, profile)
 
-        # Steps 4a–4e: Dispatch all agents in parallel (daemon threads)
+        # Steps 4a–4e: Fire all agents as concurrent async tasks (fire-and-forget).
+        # create_task schedules them on the current event loop and returns immediately,
+        # so the admin form responds instantly while agents run in the background.
         agent_tasks = [
-            ("org_agent",          self.org_agent.build_org_brief),
-            ("access_agent",       self.access_agent.raise_access_tickets),
-            ("training_agent",     self.training_agent.build_course_plan),
-            ("buddy_agent",        self.buddy_agent.send_buddy_intro),
-            ("integration_agent",  self.integration_agent.run_activation_integrations),
+            ("org_agent",         self.org_agent.build_org_brief),
+            ("access_agent",      self.access_agent.raise_access_tickets),
+            ("training_agent",    self.training_agent.build_course_plan),
+            ("buddy_agent",       self.buddy_agent.send_buddy_intro),
+            ("integration_agent", self.integration_agent.run_activation_integrations),
         ]
 
-        threads = [
-            threading.Thread(
-                target=self._run_agent_safe,
-                args=(name, fn, profile, state),
-                daemon=True,
+        for name, fn in agent_tasks:
+            asyncio.create_task(
+                self._run_agent_safe(name, fn, profile, state),
+                name=f"onboarding-{name}-{profile.joiner_id[:8]}",
             )
-            for name, fn in agent_tasks
-        ]
 
-        for t in threads:
-            t.start()
-
-        # Step 5: Welcome notification — written before agents finish
-        # (agents will append their outputs via atomic append_to_state)
+        # Step 5: Welcome notification written synchronously before returning.
+        # Agents will append their own notifications asynchronously afterward.
         welcome = (
             f"👋 **Welcome to the team, {profile.full_name}!**\n\n"
             f"I'm OnboardingBuddy — your AI companion for the next 90 days at "
@@ -127,7 +124,7 @@ class Orchestrator:
 
         return self.store.get_state(profile.joiner_id) or state
 
-    def _run_agent_safe(
+    async def _run_agent_safe(
         self,
         name: str,
         fn,
@@ -135,11 +132,11 @@ class Orchestrator:
         state: JoinerState,
     ) -> None:
         """
-        Thread wrapper for agent calls.
-        Catches all exceptions so one agent failure doesn't block the others.
+        Async wrapper for agent coroutine calls.
+        Catches all exceptions so one agent failure doesn't cancel the others.
         """
         try:
-            fn(profile, state)
+            await fn(profile, state)
         except Exception as e:
             print(f"[Orchestrator] Agent '{name}' raised an error: {e}")
 
@@ -147,7 +144,7 @@ class Orchestrator:
     # Phase Advancement
     # ─────────────────────────────────────────────
 
-    def advance_phase(self, joiner_id: str) -> tuple[bool, str]:
+    async def advance_phase(self, joiner_id: str) -> tuple[bool, str]:
         """
         Attempt to advance the joiner to the next phase.
 
@@ -192,12 +189,11 @@ class Orchestrator:
         state.phase_statuses[current]      = PhaseStatus.COMPLETE
         state.phase_complete_dates[current] = date.today()
 
-        # Trigger feedback pulse in background (only at 50% and 100% per spec)
-        threading.Thread(
-            target=self._run_feedback_pulse,
-            args=(joiner_id, current),
-            daemon=True,
-        ).start()
+        # Trigger feedback pulse as a background async task (only at 50% and 100% per spec)
+        asyncio.create_task(
+            self._run_feedback_pulse(joiner_id, current),
+            name=f"feedback-pulse-phase{current}-{joiner_id[:8]}",
+        )
 
         # Advance to next phase (or mark onboarding complete at Phase 6)
         next_phase = current + 1
@@ -227,8 +223,8 @@ class Orchestrator:
         self.store.save_state(state)
         return True, f"Phase {current} marked complete. {msg}"
 
-    def _run_feedback_pulse(self, joiner_id: str, phase_id: int) -> None:
-        """Safely trigger the feedback prompt in a background thread."""
+    async def _run_feedback_pulse(self, joiner_id: str, phase_id: int) -> None:
+        """Safely trigger the feedback prompt in a background async task."""
         try:
             self.feedback_agent.prompt_phase_feedback(joiner_id, phase_id)
         except Exception as e:
@@ -261,9 +257,9 @@ class Orchestrator:
     # Q&A Routing
     # ─────────────────────────────────────────────
 
-    def answer_question(self, joiner_id: str, question: str) -> str:
-        """Route a joiner question to the QA agent and return the answer."""
-        return self.qa_agent.answer(joiner_id=joiner_id, question=question)
+    async def answer_question(self, joiner_id: str, question: str) -> str:
+        """Route a joiner question to the QA agent and return the answer (async)."""
+        return await self.qa_agent.answer(joiner_id=joiner_id, question=question)
 
     # ─────────────────────────────────────────────
     # LMS Gate Confirmation (Phase 3)
@@ -294,11 +290,11 @@ class Orchestrator:
     # Feedback
     # ─────────────────────────────────────────────
 
-    def store_feedback(
+    async def store_feedback(
         self, joiner_id: str, phase_id: int, answers: dict[str, str]
     ) -> str:
-        """Route feedback submission to the feedback agent. Returns thank-you message."""
-        return self.feedback_agent.store_feedback(
+        """Route feedback submission to the feedback agent (async). Returns thank-you message."""
+        return await self.feedback_agent.store_feedback(
             joiner_id=joiner_id,
             phase_id=phase_id,
             answers=answers,

@@ -20,6 +20,8 @@ Model routing:
   - Feedback prompts: static from config (no LLM needed)
 """
 
+import asyncio
+
 import anthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 from datetime import datetime
@@ -64,7 +66,7 @@ class FeedbackAgent:
     def __init__(self, store: StateStore):
         self.store   = store
         self._client = (
-            anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+            anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
             if ANTHROPIC_API_KEY else None
         )
 
@@ -80,7 +82,7 @@ class FeedbackAgent:
             return phase_def.feedback_questions
         return ["How is your onboarding going so far?"]
 
-    def store_feedback(
+    async def store_feedback(
         self,
         joiner_id: str,
         phase_id:  int,
@@ -101,9 +103,9 @@ class FeedbackAgent:
             answers      = answers,
         )
 
-        # Run sentiment analysis
+        # Run sentiment analysis (async LLM call)
         if self._client and answers:
-            sentiment, score, summary, flag = self._analyse_sentiment(phase_id, answers)
+            sentiment, score, summary, flag = await self._analyse_sentiment(phase_id, answers)
         else:
             sentiment, score, summary, flag = SentimentLevel.NEUTRAL, 3.0, "", False
 
@@ -171,7 +173,7 @@ class FeedbackAgent:
     # ── Private helpers ───────────────────────────────────────────────────────
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=8))
-    def _analyse_sentiment(
+    async def _analyse_sentiment(
         self,
         phase_id: int,
         answers: dict[str, str],
@@ -189,7 +191,7 @@ class FeedbackAgent:
             f"Phase {phase_id} feedback answers:\n\n{answers_text}"
         )
 
-        resp = self._client.messages.create(
+        resp = await self._client.messages.create(
             model=MODEL_SMART,
             max_tokens=200,
             system=_SENTIMENT_SYSTEM,

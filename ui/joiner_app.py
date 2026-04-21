@@ -517,14 +517,26 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # Event: Load Dashboard
         # ────────────────────────────────────────────────────────────────────
 
-        def load_dashboard(joiner_id_raw: str):
+        async def load_dashboard(joiner_id_raw: str):
+            """
+            Async generator: yields in two passes so the phase cards appear
+            immediately without waiting for training/access/notifications HTML.
+
+            Pass 1 (~instant): validate ID, show status bar + phase cards + checklist.
+            Pass 2 (~instant): populate the three background tabs.
+
+            Using async def allows Gradio to serve other requests concurrently
+            while this function is running.
+            """
             joiner_id = joiner_id_raw.strip()
-            state     = store.get_state(joiner_id)
-            profile   = store.get_profile(joiner_id)
+
+            # Read state once — both passes use the same snapshot.
+            state   = store.get_state(joiner_id)
+            profile = store.get_profile(joiner_id)
 
             if not state or not profile:
                 gr.Warning("Joiner ID not found. Please check your welcome email.")
-                return (
+                yield (
                     gr.update(value=(
                         '<p style="color:#C62828">❌ Joiner ID not found. '
                         'Please check your welcome email and try again.</p>'
@@ -535,6 +547,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     gr.update(),  # checklist_checkboxes
                     "", "", "",   # training, access, notifications
                 )
+                return
 
             ph_name = PHASE_BY_ID[state.current_phase].name
             status_html = (
@@ -542,7 +555,21 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 f'<strong>{profile.full_name}</strong>! '
                 f'Currently on Phase {state.current_phase}: {ph_name}</p>'
             )
+            choices, values = _get_checklist_choices_and_values(state)
 
+            # ── Pass 1: phase cards visible immediately ───────────────────────
+            yield (
+                gr.update(value=status_html),
+                gr.update(visible=True),
+                joiner_id,
+                _build_phase_cards_html(state, profile),
+                gr.update(choices=choices, value=values),
+                "",   # training   — empty; filled in pass 2
+                "",   # access     — empty; filled in pass 2
+                "",   # notifications — empty; filled in pass 2
+            )
+
+            # ── Pass 2: populate the remaining tabs ───────────────────────────
             latest = _latest_notification_title(state)
             if latest:
                 count  = len(state.app_notifications)
@@ -551,13 +578,12 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                     f"{latest}  ·  ({count} {plural} — see the 🔔 Notifications tab)"
                 )
 
-            choices, values = _get_checklist_choices_and_values(state)
-            return (
-                gr.update(value=status_html),
-                gr.update(visible=True),
+            yield (
+                gr.update(),          # keep status
+                gr.update(),          # keep tabs visible
                 joiner_id,
-                _build_phase_cards_html(state, profile),
-                gr.update(choices=choices, value=values),
+                gr.update(),          # keep phase cards
+                gr.update(),          # keep checklist
                 _build_training_html(state),
                 _build_access_html(state),
                 _build_notifications_html(state),
@@ -605,12 +631,12 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # Event: Mark Phase Complete
         # ────────────────────────────────────────────────────────────────────
 
-        def mark_phase_complete(joiner_id: str):
+        async def mark_phase_complete(joiner_id: str):
             if not joiner_id:
                 gr.Warning("Please load your dashboard first.")
                 return "Please load your dashboard first.", "", gr.update()
 
-            success, msg = orchestrator.advance_phase(joiner_id)
+            success, msg = await orchestrator.advance_phase(joiner_id)
 
             state   = store.get_state(joiner_id)
             profile = store.get_profile(joiner_id)
@@ -687,7 +713,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # Event: Chat / Ask Anything
         # ────────────────────────────────────────────────────────────────────
 
-        def send_question(joiner_id: str, question: str, history: list):
+        async def send_question(joiner_id: str, question: str, history: list):
             # Gradio 6.12 Chatbot expects messages-dict format:
             # {"role": "user"|"assistant", "content": "..."}
             history = history or []
@@ -696,7 +722,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 return history, ""
             if not question.strip():
                 return history, ""
-            answer = orchestrator.answer_question(joiner_id, question.strip())
+            answer = await orchestrator.answer_question(joiner_id, question.strip())
             history.append({"role": "user",      "content": question.strip()})
             history.append({"role": "assistant", "content": answer})
             return history, ""
@@ -798,7 +824,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
         # Event: Submit Feedback
         # ────────────────────────────────────────────────────────────────────
 
-        def submit_feedback(
+        async def submit_feedback(
             joiner_id: str,
             phase_id: int,
             questions: list,
@@ -819,7 +845,7 @@ def build_joiner_app(orchestrator, store: StateStore) -> gr.Blocks:
                 gr.Warning("Please fill in at least one answer before submitting.")
                 return "⚠️ Please fill in at least one answer before submitting."
 
-            result = orchestrator.store_feedback(
+            result = await orchestrator.store_feedback(
                 joiner_id=joiner_id,
                 phase_id=int(phase_id),
                 answers=answers,

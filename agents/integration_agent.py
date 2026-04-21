@@ -22,6 +22,7 @@ This agent is called once at activation to handle integration actions
 that fall outside the scope of the core agents.
 """
 
+import asyncio
 import uuid
 from datetime import datetime
 
@@ -52,7 +53,7 @@ class IntegrationAgent:
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def run_activation_integrations(
+    async def run_activation_integrations(
         self, profile: JoinerProfile, state: JoinerState
     ) -> None:
         """
