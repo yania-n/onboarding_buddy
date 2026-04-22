@@ -1,0 +1,36 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality
+  CEQ Meeting Templates  
+Department
+Version 1.0   ·   2026   ·   Internal Use Only
+NPS Business Review
+Agenda Template
+NPS performance dashboard review — current score, trend, vs last quarter, vs industry benchmark (15 min)
+Top 5 Promoter themes — what is driving loyalty this month (10 min)
+Top 5 Detractor themes — what is driving dissatisfaction (15 min)
+Closed-loop status — how many Detractors contacted, resolved, escalated (10 min)
+Segment deep dive — one account tier, region, or product rotating each month (15 min)
+Action plan review — status of last month's actions; new actions from today's themes (20 min)
+AOB (5 min)
+Pre-work
+Pre-read deck sent 48 hours before meeting. All attendees expected to have reviewed the NPS Scorecard in Power BI before arriving.
+CX Leadership Forum
+Agenda Template
+CX health summary — NPS trends, CSAT, CES across all programmes (20 min)
+Journey map spotlight — one journey presented in depth with improvement recommendations (30 min)
+CX impact quantification — revenue impact of CX improvements implemented since last Forum (20 min)
+Competitive CX benchmarking — how Nexora compares to industry (15 min)
+Strategic recommendations — 3 CX investments the team recommends for the next quarter (20 min)
+ExCo Q&A and direction (15 min)
+Closed-Loop Weekly Review
+Agenda Template
+Open Detractor follow-ups — who has been contacted, who is overdue (10 min)
+Escalations — any Detractors with 5+ days no contact; agreed escalation path (10 min)
+Resolved Detractors this week — outcomes: retained, churned, neutral (5 min)
+Actions for this week (5 min)
+Insight Refinement
+Agenda Template
+Review incoming insight requests in Jira — scope, estimate, prioritise (40 min)
+Data availability check for upcoming sprint work (15 min)
+Methodology review — any new request requiring a method we haven't used before (20 min)
+Backlog grooming — archive or re-prioritise stale items (15 min)

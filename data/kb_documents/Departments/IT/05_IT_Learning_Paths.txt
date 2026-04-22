@@ -1,0 +1,24 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department — Role-Based Learning Paths  
+What to Learn, In What Order, By When
+Version 1.0   ·   2026   ·   Internal Use Only
+How Learning Paths Work
+Each role in the IT Department has a structured learning path covering mandatory training, recommended upskilling, and long-term certification goals. All mandatory items are assigned automatically in NexoraLearn on your start date. Recommended items are self-enrol.
+Learning Path: Technical Product Owner (TPO)
+Weeks 1–2: Mandatory Foundation
+Weeks 3–8: Role Deepening
+Months 3–12: Growth & Certification
+Learning Path: Site Reliability Engineer (SRE)
+Weeks 1–2: Mandatory Foundation
+Weeks 3–8: Role Deepening
+Months 3–12: Growth & Certification
+Learning Path: FinOps Analyst
+Weeks 1–2: Mandatory Foundation
+Months 3–12: Growth & Certification
+Learning Path: Cloud Security Engineer
+Weeks 1–2: Mandatory Foundation
+Months 3–12: Growth & Certification
+Learning Path: Developer Experience (Platform Engineer / CI/CD)
+Weeks 1–2: Mandatory Foundation
+Months 3–12: Growth & Certification

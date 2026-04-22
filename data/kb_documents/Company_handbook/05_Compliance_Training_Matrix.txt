@@ -1,0 +1,14 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Compliance Training Matrix  
+Who Must Complete What, By When
+Version 1.0   ·   2026   ·   Internal Use Only
+Overview
+This matrix defines mandatory training requirements by role type, band, and region. All training is delivered via NexoraLearn (learn.nexoraglobal.com). Completion is tracked in Workday and reported to the Audit & Compliance Committee quarterly.
+Universal Mandatory Training — All Employees
+Every Nexora employee globally must complete the following:
+Role-Specific Mandatory Training
+IT Department — All IT Staff
+Finance & Accounting — All Finance Staff
+People Management — All Managers (Band 4+)
+Region-Specific Additional Requirements

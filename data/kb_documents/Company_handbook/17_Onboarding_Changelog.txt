@@ -1,0 +1,16 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Onboarding System Changelog  
+What's Changed and When
+Version 1.0   ·   2026   ·   Internal Use Only
+About This Document
+This changelog tracks all significant updates to Nexora's onboarding knowledge base, policies, and processes. It is used by the AI onboarding system to answer 'has anything changed recently?' questions and to surface relevant updates to new joiners.
+2026 Changes
+Q1 2026 (January – March)
+2025 Changes (Reference)
+Q4 2025
+How to Submit a Change
+Edit the relevant source document in Confluence or Workday
+Add an entry to this changelog with the date, document name, change description, priority, and your name
+Notify the People Ops team at people.ops@nexoraglobal.com with subject 'Knowledge Base Update'
+The AI onboarding system will ingest the update in its next weekly refresh (every Monday 6am CT)

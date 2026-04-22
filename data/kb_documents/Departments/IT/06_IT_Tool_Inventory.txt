@@ -1,0 +1,14 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department Tool Inventory  
+Every Tool, Its Purpose, Owner, and Access Path
+Version 1.0   ·   2026   ·   Internal Use Only
+About This Inventory
+This document is the authoritative record of every tool used by the IT Department. It is used by the onboarding system to answer 'what tool do I use for X?' and 'how do I get access to Y?' questions. Updated quarterly by IT Ops.
+Project & Work Management
+Cloud & Infrastructure
+Observability & Security
+Analytics & Data Platform
+Communication & Collaboration
+IT System Architecture — Tool Relationships
+The following diagram (maintained in Miro and exported quarterly to Confluence: IT Department > Architecture > Tool Ecosystem Map) shows how IT's core tools are interconnected:

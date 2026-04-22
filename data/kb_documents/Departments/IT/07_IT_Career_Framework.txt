@@ -1,0 +1,29 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department Career Framework  
+Levels, Expectations, and Progression Paths
+Version 1.0   ·   2026   ·   Internal Use Only
+About This Framework
+Nexora's career framework defines what is expected at each level, how to demonstrate readiness for progression, and the pathways available in the IT Department. Bands 1–8 are used across the company; IT has specific role families within those bands.
+IT Role Families & Band Mapping
+Band 3 → Band 4 Progression — Engineer to Senior / Tech Lead
+What Band 3 looks like
+Independently delivers complex features or infrastructure changes with minimal guidance
+Reviews PRs and provides constructive, actionable feedback
+Identifies technical risks and communicates them proactively
+Mentors Band 1–2 engineers informally
+What you must demonstrate to reach Band 4
+Band 4 → Band 5 — Senior to Principal / Staff
+What makes this transition hard
+The Band 4 to 5 transition is where most engineers plateau. The shift is from being an excellent individual contributor with team leadership to being a multiplier — someone whose work makes many other engineers more effective.
+TPO Career Progression
+The TPO → Manager path
+TPOs who want to move into people management can transition to Engineering Manager (Band 4) with 2+ years as a TPO and demonstrated coaching and team leadership. This requires a conversation with your HRBP about the 'IC to Manager' transition programme.
+How to Have a Progression Conversation
+Review this career framework and identify the specific behaviours at the next band
+Track evidence of those behaviours in your Workday Goals module over 2+ quarters
+Bring the evidence to your manager in a dedicated 1:1 (not a regular check-in)
+Ask: 'Based on what you've observed, am I performing at Band [X+1]? What gaps do you see?'
+Your manager calibrates with the HRBP before confirming a promotion recommendation
+Promotion is approved at the next People Leadership Committee meeting (quarterly)
+Compensation change is effective the following payroll cycle

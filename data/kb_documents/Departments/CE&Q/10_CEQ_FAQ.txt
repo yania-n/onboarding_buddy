@@ -1,0 +1,31 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality
+  CEQ Department FAQ  
+Department
+Version 1.0   ·   2026   ·   Internal Use Only
+About This FAQ
+Covers the most common questions from new CEQ team members and from other departments consuming CX & NPS insights. Updated quarterly from new joiner survey responses.
+Q1. What does NPS stand for and how is it calculated?
+NPS stands for Net Promoter Score. It is calculated by asking customers 'How likely are you to recommend Nexora to a colleague or friend?' on a 0–10 scale. Respondents scoring 9–10 are Promoters, 7–8 are Passives, and 0–6 are Detractors. NPS = % Promoters minus % Detractors. Scores range from -100 to +100.
+Q2. How often do we run NPS surveys at Nexora?
+We run a Relationship NPS (r-NPS) quarterly across all eligible customer accounts. We also run Transactional NPS (t-NPS) triggered by specific events: contract renewal, onboarding completion, and support case closure. Contacts are protected from survey fatigue — no contact receives more than one survey per quarter.
+Q3. What happens when a customer gives us a low NPS score?
+Detractor responses (0–6) trigger an automatic alert to the customer's CSM within 2 hours via Salesforce and Slack. The CSM must contact the customer within 48 hours. The NPS Programme Manager tracks all Detractor follow-ups in the Closed-Loop Tracker (Power BI). If a CSM has not confirmed contact within 24 hours, the NPS Programme Manager escalates to the CS Team Lead.
+Q4. What is the difference between CSAT, NPS, and CES?
+NPS (Net Promoter Score) measures overall loyalty and likelihood to recommend — best for tracking relationship health over time. CSAT (Customer Satisfaction Score) measures satisfaction with a specific interaction or product — best for transactional touchpoints like support or onboarding. CES (Customer Effort Score) measures how easy it was to accomplish something — best for identifying friction in specific processes. Nexora uses all three: NPS for the relationship, CSAT for onboarding, and CES for support interactions.
+Q5. How do I request a CX or NPS insight from the team?
+Raise an insight request in Jira: Project CEQ CX NPS > Create Issue > type: Insight Request. Include the business question, who needs the insight, the format (dashboard, deck, or report), and your deadline. The CX team will respond within 1 business day to confirm scope and timeline. Urgent requests from VP-level or above should also be flagged to the CX Team Lead via Slack (#cx-nps-team).
+Q6. Where do I find the latest NPS scorecard?
+The live NPS Scorecard is in Power BI: CEQ CX Workspace > NPS Scorecard. It refreshes daily with the latest survey data. The monthly narrative report (with context and themes) is in Confluence: CEQ > NPS Programme > Reports > [Year]. The most recent version is always pinned in #cx-insights.
+Q7. What tools does the CX team use?
+Primary tools: Qualtrics (survey platform), Salesforce (customer data), Power BI (dashboards), Snowflake (data warehouse), Miro (journey mapping), and Dovetail (research repository). See the CEQ Tool Inventory document for full access details and request paths.
+Q8. How do I access journey maps?
+All published journey maps are in Miro: CEQ Workspace > Journey Maps. There are four maps: Prospect Journey, Customer Onboarding Journey, Renewal Journey, and Support Journey. To request a new journey study or an update to an existing map, raise an insight request in Jira.
+Q9. What is the minimum response size for NPS segment reporting?
+Nexora does not publish NPS scores for any segment with fewer than 10 responses. This is a hard rule to protect individual customer privacy and ensure statistical reliability. If you receive a data request that would require reporting on a group smaller than n=10, decline and explain the methodology rule. Escalate to the CX Team Lead if the requestor pushes back.
+Q10. Where are past NPS Business Review presentations stored?
+In Confluence: CEQ > NPS Programme > NPS Business Reviews > [Year]. Each monthly review deck is stored within 3 business days of the meeting. The CEQ SharePoint (Finance > CEQ) also holds the last 12 months of decks for stakeholders without Confluence access.
+Q11. How do I report a data quality issue with NPS data?
+Flag it immediately in #cx-nps-team with details of the issue, which dataset is affected, and when the error was introduced. Do not distribute any reports using affected data until the issue is resolved. If the error has already been distributed in a published report, the CX Team Lead will decide whether to issue a correction notice.
+Q12. Who owns the NPS programme at Nexora?
+The CX & NPS Team owns the NPS programme operationally. The Chief Customer Officer (CCO) is the executive sponsor and approves any changes to the programme design, survey instrument, or NPS targets. The NPS Programme Manager is the day-to-day owner.

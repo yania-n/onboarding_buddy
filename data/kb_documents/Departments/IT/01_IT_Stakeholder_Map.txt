@@ -1,0 +1,10 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department Stakeholder Map  
+Who We Work With and How
+Version 1.0   ·   2026   ·   Internal Use Only
+Purpose
+This document maps every key stakeholder group the IT Department interacts with — who they are, what they need from IT, what IT needs from them, and who the primary relationship owner is. It is used by the onboarding system to answer 'who should I talk to about X?' questions.
+IT Internal Stakeholders
+External Business Stakeholders
+External Vendors & Partners

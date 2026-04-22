@@ -1,0 +1,9 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality
+  CEQ Employee Directory  
+Department
+Version 1.0   ·   2026   ·   Internal Use Only
+CEQ Department — Sample Profiles
+In the live onboarding system this data is pulled dynamically from Workday. This document provides the CEQ-specific schema and sample data used to train the AI system.
+CEQ Leadership
+CX & NPS Team — Members

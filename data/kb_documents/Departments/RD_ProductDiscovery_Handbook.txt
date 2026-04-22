@@ -1,0 +1,85 @@
+NEXORA GLOBAL CORPORATION
+R&D / Product Innovation Department
+  Product Discovery Team  
+Onboarding Handbook
+Your guide to the Product Discovery Team — how we work, what we do, and how to get started.
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the Product Discovery Team	3
+2. Team Structure & R&D Department	4
+3. The Discovery Role — What You Do	5
+4. How We Work — Discovery Sprints	6
+5. Discovery to Delivery Flow	7
+6. Meetings & Ceremonies	8
+7. Research Ethics & IP	9
+8. Definition of Ready & Done	10
+9. Communication Norms	11
+10. Tools Access & Setup Guide	12
+11. Your First 30 Days	13
+12. Key Contacts	14
+1. Welcome to the Product Discovery Team
+Welcome! You've joined the Product Discovery Team — the innovation engine within Nexora's R&D / Product Innovation Department. We research, explore, and prototype the ideas that become Nexora's next generation of products and capabilities.
+2. Team Structure & R&D Department
+R&D / Product Innovation Department
+The R&D Department drives Nexora's long-term product innovation — from blue-sky research through to engineering the platforms that power our products. It operates across Applied Research (technology exploration and data science), Engineering & Platforms (build and scale), and our team — Product Discovery (research, ideation, and prototyping).
+3. The Discovery Role — What You Do
+Core Responsibilities
+User research & insight generation
+You conduct qualitative and quantitative research to understand user needs, pain points, and unmet opportunities. Methods include user interviews, usability studies, diary studies, survey design, and secondary research. All research is documented in Confluence and tagged in the Research Repository.
+Opportunity framing & concept development
+You synthesise research into clear opportunity statements and product concepts. Working with Product Strategists, you frame 'how might we' problem spaces, generate concept options, and evaluate them against strategic fit, user value, and technical feasibility.
+Rapid prototyping & validation
+Working with Prototype Engineers, you build low-to-high fidelity prototypes to test product hypotheses with real users. The goal is to invalidate bad ideas cheaply and build confidence in good ones — not to build production-quality software.
+Build / no-build recommendations
+At the end of a discovery cycle, you produce a Discovery Brief — a structured recommendation on whether to invest in building the concept, refine it further, or abandon it. This is the primary artefact reviewed by Product VPs and the Innovation Committee.
+Key Skills
+4. How We Work — Discovery Sprints
+Discovery work is structured in 2-week sprints, but the nature of the work differs from delivery sprints. Discovery sprints are hypothesis-driven: each sprint starts with a research question or product hypothesis and ends with evidence that either validates or invalidates it.
+5. Discovery to Delivery Flow
+6. Meetings & Ceremonies
+7. Research Ethics & IP
+Research Ethics
+All user research involving human participants requires informed consent — use the Nexora Research Consent Form (Confluence: Research > Templates)
+Participant data is anonymised in all research reports — never identify individuals without explicit consent
+External user research (with customers or non-employees) requires Legal sign-off before recruitment begins
+Incentives for research participants must be approved by Finance (standard: gift card up to USD 75 per session)
+Intellectual Property
+All concepts, prototypes, and research produced by the team are Nexora's intellectual property
+Never share prototype code, concept materials, or research findings outside Nexora without Legal approval
+Competitive intelligence gathered during research must be stored in the restricted Confluence space: R&D > Competitive Intelligence
+8. Definition of Ready & Done
+A discovery sprint is Ready when:
+Research question or product hypothesis is clearly stated and agreed by the Product VP
+Research methods are defined and participant recruitment plan is in place
+Prototype scope (if applicable) is agreed with Prototype Engineering
+Success criteria: what evidence will validate or invalidate the hypothesis?
+A discovery sprint is Done when:
+Research question is answered with evidence from primary or secondary research
+Findings are documented in the Research Repository (Confluence)
+Discovery Brief is written and reviewed by Discovery Lead
+Insight Share-out delivered to Product VP and stakeholders
+Build / refine / abandon recommendation is recorded in the Innovation Backlog
+9. Communication Norms
+10. Tools Access & Setup Guide
+Core Tools
+Figma — UX design and prototyping
+Dovetail — Research repository and analysis
+UserTesting.com — Remote usability testing
+Miro — Workshop facilitation and ideation
+Jira & Confluence
+11. Your First 30 Days
+Week 1 — Orient
+Complete Research Ethics and IP/Confidentiality training in NexoraLearn
+Submit access requests for Figma, Dovetail, and Miro
+Meet your Discovery Lead, Product Strategist colleagues, and onboarding buddy
+Review 2 completed Discovery Briefs in Confluence to understand the team's output format
+Week 2 — Immerse
+Shadow your buddy on a user research session (observe only)
+Attend sprint ceremonies and the bi-weekly Insight Share-out
+Explore the Research Repository in Dovetail — understand what's already been learned
+Weeks 3–4 — Contribute
+Conduct your first 2 user research interviews (with buddy present for the first one)
+Co-author one section of an in-flight Discovery Brief
+Complete your 30-day check-in with your manager in Workday
+12. Key Contacts
+The ideas you validate or invalidate today shape what Nexora builds tomorrow. Welcome to the most forward-looking team in the company.

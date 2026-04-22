@@ -1,0 +1,23 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Goal-Setting Framework  
+OKRs at Nexora — How We Set and Track Goals
+Version 1.0   ·   2026   ·   Internal Use Only
+The OKR Framework
+Nexora uses Objectives and Key Results (OKRs) as its primary goal-setting framework. OKRs provide direction (the Objective) and a clear measure of success (the Key Results).
+Writing Good OKRs
+A Good Objective
+Is inspiring and directional — it should make people want to work on it
+Is achievable in the timeframe but requires a stretch
+Does not contain metrics (those go in Key Results)
+Example: 'Make Nexora's Analytics Platform the most trusted internal data tool in the company'
+Good Key Results
+Are measurable — there must be a clear way to know if you achieved it
+Are outcomes, not outputs — 'increase NPS from 32 to 50' not 'run 3 workshops'
+Are time-bound — state the target date or tie to the annual cycle
+Example: 'Increase platform NPS from 32 to 50 by Q3 2026'
+Example: 'Reduce average dashboard load time from 8s to under 3s by June 2026'
+Example: 'Achieve 90% of business units using self-serve reports without IT support by Q4 2026'
+Common Mistakes
+OKR Alignment at Nexora
+OKRs cascade from company level to department to team to individual. Each level's OKRs should support the level above.

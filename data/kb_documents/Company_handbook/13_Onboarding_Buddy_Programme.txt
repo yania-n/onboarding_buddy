@@ -1,0 +1,35 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Onboarding Buddy Programme  
+Guide for Buddies & New Joiners
+Version 1.0   ·   2026   ·   Internal Use Only
+About the Programme
+Every new joiner at Nexora is paired with an Onboarding Buddy — an experienced colleague (not their direct manager) who helps them navigate the first 90 days. Buddies are the human layer that no handbook can replace.
+The Buddy's Role — Week by Week
+Before Start Date
+Send a warm welcome message via email or LinkedIn
+Share your Slack handle and invite them to DM with questions before Day 1
+Check the new joiner's start date, role, and team in Workday
+Week 1 — Orientation
+Meet on Day 1 — even a 30-minute virtual coffee is enough to set the relationship up
+Walk them through the physical office or share the office guide
+Help them get set up in Slack — introduce them in the team channel
+Answer any immediate 'how does this work?' questions (Jira, Confluence, etc.)
+Share your own onboarding story — what do you wish you'd known?
+Weeks 2–4 — Immersion
+Check in twice a week (brief — 15 minutes is enough)
+Make warm introductions to 3–5 key people the new joiner should know
+Flag any team norms, unwritten rules, or 'how things actually work' insights
+Help them identify their first quick win
+Weeks 5–12 — Independence
+Weekly check-in (30 min)
+Encourage them to bring questions and challenges — coach, don't solve
+Help them prepare for their 30-day and 60-day manager check-ins
+At 90 days, complete the Buddy Programme Feedback form in Workday
+For New Joiners — Getting the Most from Your Buddy
+Reach out before Day 1 — your buddy is expecting to hear from you
+Bring real questions — no question is too basic
+Be honest about what's confusing or overwhelming
+Your buddy is not your manager — you can speak freely about challenges
+Respect their time — keep check-ins focused; prepare a question or two in advance
+After 90 days, the formal programme ends but the relationship doesn't have to

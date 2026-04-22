@@ -1,0 +1,160 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  Cloud Infrastructure & Platform Team  
+Cloud Operations Sub-Team — Onboarding Handbook
+Your guide to the team, the cloud, and how we keep everything running.
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the Cloud Infrastructure & Platform Team	3
+2. Team Structure — Three Sub-Teams	4
+3. The Cloud Operations Role — What You Do	5
+4. How We Work — Sprints & On-Call	7
+5. Infrastructure Request & Change Flow	9
+6. Meetings & Ceremonies	11
+7. Cloud Standards, Security & Cost Governance	12
+8. Incident Management	13
+9. Definition of Ready & Done	14
+10. Communication Norms	15
+11. Tools Access & Setup Guide	16
+12. Your First 30 Days	19
+13. Key Contacts	20
+1. Welcome to the Cloud Infrastructure & Platform Team
+Welcome! You've joined one of the most operationally critical teams at Nexora — the Cloud Infrastructure & Platform Team. We own, operate, and evolve the cloud foundation that every Nexora product, service, and internal system runs on.
+Whether you're joining the Cloud Operations sub-team, Platform Engineering, or Developer Experience, you're now part of the team that keeps the lights on — and builds the infrastructure for Nexora's next decade of growth.
+2. Team Structure — Three Sub-Teams
+Cloud Infrastructure & Platform Team
+The team operates across three specialised sub-teams that work closely together but own distinct domains:
+How the Sub-Teams Interact
+Platform Engineering builds the foundation. Cloud Operations keeps it reliable, secure, and cost-efficient. Developer Experience wraps it in tooling that makes developers productive. All three sub-teams contribute to the same infrastructure backlog and share sprint ceremonies.
+3. The Cloud Operations Role — What You Do
+The Cloud Operations team is the reliability and operational excellence function of the Cloud Infrastructure & Platform Team. Three specialist roles work together as one squad:
+Site Reliability Engineering (SRE)
+What SREs own
+You own the reliability and observability of Nexora's production cloud environment. This means defining and tracking SLOs (Service Level Objectives), building and maintaining monitoring and alerting infrastructure, leading incident response, and driving post-incident reviews that prevent recurrence.
+Define SLOs and SLIs for all critical platform services
+Own the observability stack (Datadog, PagerDuty) — dashboards, alerts, runbooks
+Lead on-call rotations and incident response for P1/P2 incidents
+Conduct blameless post-incident reviews (PIRs) within 48 hours of P1 incidents
+Drive reliability improvements via error budget tracking and toil reduction
+FinOps Analysis
+What FinOps Analysts own
+You own cloud cost visibility and optimisation across all Nexora cloud accounts. Your job is to ensure Nexora gets maximum value from its cloud spend — tracking, allocating, forecasting, and reducing costs without compromising reliability.
+Maintain cloud cost dashboards by account, service, team, and environment
+Run monthly cost reviews with each engineering team and the CTO office
+Identify and action cost optimisation opportunities (rightsizing, Reserved Instances, Savings Plans)
+Forecast cloud spend for the annual budget and quarterly reforecasts
+Define and enforce tagging standards that enable accurate cost allocation
+Cloud Security Engineering
+What Cloud Security Engineers own
+You own the security posture of Nexora's cloud environments — ensuring our infrastructure meets compliance requirements, passes external audits, and is configured to prevent breaches.
+Own the cloud security posture management (CSPM) tooling and remediation backlog
+Define and enforce cloud security baselines (IAM policies, network security groups, encryption standards)
+Lead on security-related changes to cloud infrastructure — review and approve before deployment
+Support external compliance audits (SOC 2, ISO 27001, GDPR) for cloud infrastructure scope
+Respond to cloud security incidents in partnership with the Cybersecurity team
+What the Cloud Ops Team Does NOT Own
+Application-layer security (owned by Cybersecurity & InfoSec team)
+Provisioning new cloud resources from scratch (Platform Engineering)
+Writing application code or product features
+CI/CD pipeline tooling (Developer Experience team)
+Key Skills Across the Squad
+4. How We Work — Sprints & On-Call
+2-Week Sprint Cadence
+All three Cloud Infrastructure & Platform sub-teams run on a shared 2-week sprint. The Cloud Ops backlog covers reliability improvements, security remediations, cost optimisation projects, observability enhancements, and internal tooling.
+On-Call Rotation
+SREs and Cloud Security Engineers participate in a 24/7 on-call rotation for production incidents. FinOps Analysts are not on the on-call rota. Key on-call principles:
+On-call rotation is weekly — one primary and one secondary engineer at all times
+Alerts are routed via PagerDuty — ensure your PagerDuty app is installed and notifications enabled on Day 1
+P1 (service down, data loss risk): respond within 5 minutes, engage secondary within 15 minutes
+P2 (degraded performance, partial outage): respond within 30 minutes
+On-call engineers do not take sprint work on-call weeks — capacity is 20% sprint work, 80% reactive
+Time-in-lieu is given for on-call weekends — log in Workday under 'On-Call Compensation'
+Change Management
+All infrastructure changes to the production environment follow Nexora's Change Advisory Board (CAB) process:
+5. Infrastructure Request & Change Flow
+How Infrastructure Work Reaches Us
+Self-Service vs Managed Infrastructure
+Not every request needs to come to Cloud Ops. Engineering teams can self-serve many common infrastructure needs via the Internal Developer Platform (owned by Developer Experience). The distinction:
+6. Meetings & Ceremonies
+7. Cloud Standards, Security & Cost Governance
+Cloud Standards
+All infrastructure must be defined as code (Terraform) — no manual changes in production consoles
+IaC modules are stored in GitHub: nexora-org/infra-modules — PRs require 2 approvals
+Every AWS resource must have the following tags: team, environment, cost-centre, data-classification
+Encryption at rest and in transit is mandatory for all production resources — no exceptions
+No public S3 buckets — ever. Automated CSPM rules will alert and auto-remediate within 1 hour
+Cloud Security Baseline
+Cost Governance
+Cloud budget is reviewed monthly — teams over budget by > 10% require a cost review with FinOps
+All production resources must have cost allocation tags before deployment — CI/CD will block untagged resources
+Reserved Instance and Savings Plan recommendations reviewed quarterly by FinOps and approved by CTO
+Development and staging environments must be scheduled off overnight and weekends (automated via Instance Scheduler)
+8. Incident Management
+Severity Levels
+Incident Response Process
+PagerDuty alert fires → On-call SRE acknowledges within SLA
+Open incident channel in Slack: #inc-[YYYYMMDD]-[short-description]
+Assign Incident Commander (IC) — on-call SRE for P2; senior SRE or Cloud Ops Lead for P1
+Diagnose and mitigate — runbooks in Confluence: Cloud Ops > Runbooks
+Communicate updates every 15 minutes (P1) or 30 minutes (P2) in #cloud-incidents
+Resolve and close PagerDuty alert
+Post-Incident Review within 48h — blameless, action items tracked in Jira
+9. Definition of Ready & Done
+Definition of Ready — an infrastructure task is Ready when:
+The requirement is clearly stated: what problem does this solve, or what improvement does it deliver?
+The infrastructure scope is defined (which accounts, regions, services)
+Security and compliance implications have been assessed
+Cost impact has been estimated by FinOps
+Rollback plan is documented for any production change
+CAB ticket submitted if a normal or emergency change
+Definition of Done — infrastructure work is Done when:
+Change is deployed to production and validated against defined acceptance criteria
+Post-deployment monitoring confirmed stable for 24–48 hours
+IaC is merged to main and documentation updated in Confluence
+Cost tags are applied and verified in the billing dashboard
+Security scan passed (Wiz/Prisma Cloud findings resolved)
+Jira ticket updated to 'Done' with deployment notes and runbook links
+10. Communication Norms
+Response Time Expectations
+11. Tools Access & Setup Guide
+All access requests are submitted via ServiceNow (it.nexoraglobal.com). Your manager will pre-approve core tools on Day 1. Production cloud console access requires additional security approval and takes up to 3 business days.
+Cloud Platforms
+AWS Console — Primary cloud platform
+Azure Portal — Secondary cloud platform
+Observability & Monitoring
+Datadog — Observability platform
+PagerDuty — On-call and incident management
+CloudWatch — AWS native monitoring
+Infrastructure as Code & Source Control
+GitHub — IaC repository and code reviews
+Terraform Cloud — IaC state management and remote runs
+Security & FinOps Tools
+Wiz — Cloud Security Posture Management (CSPM)
+HashiCorp Vault — Secrets management
+AWS Cost Explorer + Nexora FinOps Dashboard
+Collaboration & Project Management
+HR & Admin
+12. Your First 30 Days
+Week 1 — Orient
+Submit Day 1 access requests: AWS read-only, Datadog, PagerDuty, GitHub, Jira, Confluence
+Install PagerDuty mobile app and verify your notification settings — do this on Day 1
+Complete mandatory NexoraLearn modules: Nexora AWS Architecture Overview, Cloud Security Baseline, Data Privacy
+Meet your Cloud Ops Lead, squad members, and onboarding buddy in 1:1s
+Read the Cloud Platform Architecture Overview in Confluence: Cloud Infra > Architecture
+Join all required Slack channels and introduce yourself in #cloud-platform
+Week 2 — Immerse
+Shadow your buddy through the full on-call workflow — observe how alerts are triaged and incidents handled
+Explore the Datadog dashboards — understand what 'healthy' looks like for the platform
+Attend sprint ceremonies and your first Infra Refinement session
+Review the last 3 Post-Incident Reviews in Confluence to understand how we learn from incidents
+Submit AWS write access and Terraform Cloud access requests if not already done
+Weeks 3–4 — Contribute
+Complete 'Terraform at Nexora' training in NexoraLearn
+Take ownership of one sprint task (backlog improvement, alert tuning, cost tagging, or runbook update) with buddy support
+Shadow your first on-call week (observe only — your buddy is primary)
+Attend your first Cloud Cost Review or Security Posture Review (whichever falls in this period)
+Complete your 30-day check-in with your manager in Workday
+13. Key Contacts
+Welcome to the team. The cloud doesn't sleep — and neither does our ambition.
+If this handbook is wrong, out of date, or missing something — tell us. It belongs to the team.
+© 2026 Nexora Global Corporation — IT Department — Cloud Infrastructure & Platform Team. Internal use only.

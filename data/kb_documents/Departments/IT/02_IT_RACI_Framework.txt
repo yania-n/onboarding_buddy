@@ -1,0 +1,10 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department RACI Framework  
+Decision Ownership Across IT Teams
+Version 1.0   ·   2026   ·   Internal Use Only
+How to Read This RACI
+R = Responsible (does the work), A = Accountable (one person; approves and owns the outcome), C = Consulted (provides input before decision), I = Informed (notified after decision).
+Cloud Infrastructure & Platform — RACI
+Analytics Platform — RACI
+Cross-IT RACI — Shared Processes

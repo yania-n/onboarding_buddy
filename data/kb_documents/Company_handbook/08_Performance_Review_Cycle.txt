@@ -1,0 +1,18 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Performance Review Cycle  
+How Performance Management Works at Nexora
+Version 1.0   ·   2026   ·   Internal Use Only
+Overview
+Nexora's performance cycle is designed to be continuous — not a once-a-year event. It combines structured formal reviews with ongoing feedback and real-time recognition.
+The Rating Scale
+Calibration
+After manager ratings are submitted, each department holds a calibration session — a cross-manager discussion to ensure ratings are consistent and fair across teams. The People Analytics team provides benchmarking data. Calibration is facilitated by the HR Business Partner.
+Continuous Feedback
+How to Give Feedback
+Use the Feedback module in Workday to send structured feedback to any colleague at any time
+Feedback prompts: 'What went well?', 'What could be even better?', 'What should they keep doing?'
+Feedback is visible to the recipient and their manager — there is no anonymous peer feedback at Nexora
+NexoraShoutout — Recognition Programme
+NexoraShoutout is our peer recognition platform (integrated into Slack). Anyone can give a Shoutout tied to one of our five values. Shoutouts are visible company-wide, and can be redeemed for rewards via the Shoutout portal.
+Manager 1:1 Cadence

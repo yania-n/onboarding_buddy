@@ -41,3 +41,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# KB source documents — binary formats stay local/on Drive, only .txt committed
+data/kb_documents/**/*.docx
+data/kb_documents/**/*.pptx
+data/kb_documents/**/*.pdf
+data/kb_documents/**/*.xlsx

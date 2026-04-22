@@ -1,0 +1,11 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department Escalation Paths  
+When and How to Escalate at Every Level
+Version 1.0   ·   2026   ·   Internal Use Only
+Why Escalation Matters
+Escalation is not failure — it is professional judgment. Escalating at the right time prevents small problems from becoming large ones. Under-escalation is a more common and more damaging pattern than over-escalation.
+Incident Escalation — Cloud Operations
+Sprint & Delivery Escalation — Analytics Platform
+Access & Security Escalation
+HR & People Escalation (for IT Managers)

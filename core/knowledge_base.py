@@ -312,8 +312,9 @@ class KnowledgeBase:
         optionally build a FAISS vector index.
         """
         all_chunks: list[dict] = []
+        # rglob recurses into subdirectories (e.g. Company_handbook/, Departments/)
         txt_files = sorted(
-            list(docs_path.glob("*.txt")) + list(docs_path.glob("*.md"))
+            list(docs_path.rglob("*.txt")) + list(docs_path.rglob("*.md"))
         )
 
         if not txt_files:

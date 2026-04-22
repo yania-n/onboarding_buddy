@@ -1,0 +1,25 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality
+  CEQ Setup Checklists  
+Department
+Version 1.0   ·   2026   ·   Internal Use Only
+Universal Setup — All CEQ Staff
+Day 1 — Hardware & Accounts
+Sign in to Nexora Microsoft account and set up MFA (Microsoft Authenticator)
+Connect to Nexora VPN (GlobalProtect) before accessing any internal systems
+Set up 1Password — accept invite email, set master password
+Open Slack — join #cx-nps-team, #cx-insights, #ceq-department, #nexora-cs-general
+Log in to Workday — confirm employment details, start benefits enrolment window
+Log in to NexoraLearn — confirm GDPR training is assigned (mandatory before data access)
+Setup Checklist: CX Analyst
+Access Requests — Submit These on Day 1
+Setup Checklist: NPS Programme Manager
+Access Requests — Submit These on Day 1
+Critical Day 1 Actions
+Review the Closed-Loop Tracker in Power BI — understand the current status of all open Detractor follow-ups
+Introduce yourself to the CS Team Lead (Closed-Loop depends on this relationship)
+Setup Checklist: Journey Mapping Specialist
+Access Requests — Submit These on Day 1
+Day 1 Orientation
+Review existing journey maps in Miro: CEQ > Journey Maps — there are 4 published maps (Prospect, Onboarding, Renewal, Support)
+Read the Research Ethics Guide in Confluence: CEQ > Research > Ethics before conducting any customer interviews

@@ -1,0 +1,11 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality
+  CEQ Tool Inventory  
+Department
+Version 1.0   ·   2026   ·   Internal Use Only
+About This Inventory
+Authoritative record of every tool used by the CEQ Department's CX & NPS team. All access via ServiceNow unless noted. DG = Data Governance approval required (3 business days).
+Survey & CX Platforms
+Data & Analytics
+Research & Collaboration
+Project & Communication

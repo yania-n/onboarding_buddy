@@ -1,0 +1,22 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Process Maps & Standard Operating Procedures  
+How Key IT Processes Work
+Version 1.0   ·   2026   ·   Internal Use Only
+SOP 1 — New Joiner IT Provisioning
+Trigger
+HR Ops submits a 'New Hire' record in Workday, which triggers an automated provisioning workflow.
+Process Steps
+SOP 2 — Access Request & Provisioning
+Trigger
+Employee or manager submits an access request in ServiceNow.
+Process Steps
+SOP 3 — Incident Response
+Trigger
+PagerDuty alert fires, or a user reports a system issue via ServiceNow / Slack #cloud-incidents.
+SOP 4 — Infrastructure Change (CAB Process)
+Change Types
+Normal Change Process
+SOP 5 — Offboarding & Access Revocation
+Trigger
+Manager or HR notifies IT Ops of an employee departure (resignation, termination, or end of contract).

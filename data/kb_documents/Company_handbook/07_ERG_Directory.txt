@@ -1,0 +1,21 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Employee Resource Group Directory  
+Nexora's Global ERG Network — 2026
+Version 1.0   ·   2026   ·   Internal Use Only
+About Our ERGs
+Nexora has 18 Employee Resource Groups operating across 40 countries. ERGs are voluntary, employee-led communities that foster belonging, provide professional development, and advise the business on inclusion strategy.
+All ERGs are open to all employees — both as members and as allies. You do not need to identify with an ERG's primary focus group to join. ERG membership is tracked in Workday.
+ERG Directory
+Starting or Joining an ERG
+How to Join
+Go to NexoraConnect > Community > Employee Resource Groups
+Find your ERG of interest and click 'Join'
+Join the corresponding Slack channel
+Attend the next welcome call (scheduled monthly for most ERGs)
+How to Start a New ERG
+Identify at least 10 founding members across at least 2 regions
+Complete the ERG Proposal Template in Confluence: HR > ERG Toolkit
+Present to the Inclusion & Belonging team (inclusion@nexoraglobal.com)
+Receive People Leadership Committee approval (meets quarterly)
+ERG is launched with a dedicated Slack channel, Confluence space, and USD 5,000 annual budget

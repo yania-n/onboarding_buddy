@@ -1,0 +1,12 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Employee Directory  
+Nexora Global Corporation — 2026
+Version 1.0   ·   2026   ·   Internal Use Only
+How to Use This Directory
+This directory provides a representative sample of employees across Nexora's departments and global offices. In the live onboarding system, this content is dynamically pulled from Workday and updated in real time.
+Profile Schema
+Sample Employee Profiles — IT Department
+IT Leadership
+Analytics Platform — Technical Coordination & Planning Team
+Cloud Infrastructure & Platform — Cloud Operations Team

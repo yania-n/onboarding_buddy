@@ -1,0 +1,78 @@
+NEXORA GLOBAL CORPORATION
+Operations & Supply Chain Department
+  Supply Chain Visibility Team  
+Onboarding Handbook
+Your guide to the Supply Chain Visibility Team — how we work, what we do, and how to get started.
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the Supply Chain Visibility Team	3
+2. Team Structure & Operations Department	4
+3. The Visibility Analyst Role — What You Do	5
+4. How We Work — Sprint Cadence	6
+5. Supply Chain Data Flow	7
+6. Meetings & Ceremonies	8
+7. Data Quality & Governance	9
+8. Definition of Ready & Done	10
+9. Communication Norms	11
+10. Tools Access & Setup Guide	12
+11. Your First 30 Days	13
+12. Key Contacts	14
+1. Welcome to the Supply Chain Visibility Team
+Welcome! You've joined the Supply Chain Visibility Team — a specialist data and analytics team within Nexora's Operations & Supply Chain Department. We track, monitor, and improve the flow of goods, materials, and information across Nexora's global supply network.
+2. Team Structure & Operations Department
+Operations & Supply Chain Department
+The department manages Nexora's end-to-end supply chain — from sourcing and procurement through to warehousing and last-mile delivery. It operates across three major functions: Procurement & Sourcing, Logistics & Fulfilment, and the Supply Chain Visibility Team.
+3. The Visibility Analyst Role — What You Do
+Core Responsibilities
+Dashboard & tracking product ownership
+You maintain and evolve the suite of supply chain dashboards used by operations leadership — including the Global Supply Tracker, Supplier On-Time Performance Scorecard, Inventory Level Monitor, and Disruption Alert Dashboard.
+Data engineering & pipeline management
+You work with data engineers to ensure supply chain data flows reliably from source systems (ERP, 3PL portals, supplier APIs) into our analytics layer. You flag data quality issues and own their resolution with upstream teams.
+Process optimisation analysis
+You identify bottlenecks, inefficiencies, and risk concentrations in the supply chain through data analysis. You produce recommendations that Procurement and Logistics teams can act on.
+Key Skills
+4. How We Work — Sprint Cadence
+We work in 2-week sprints. Our backlog is a mix of ongoing dashboard maintenance, new visibility product development, ad hoc disruption analysis requests, and proactive improvement initiatives.
+5. Supply Chain Data Flow
+6. Meetings & Ceremonies
+7. Data Quality & Governance
+Data Quality Standards
+All dashboard data must be validated against source systems weekly (automated checks + manual spot-check)
+Any data discrepancy > 2% vs source must be investigated and resolved within 24 hours
+Data pipeline incidents must be logged in Jira and communicated to dashboard consumers in #sc-data-alerts
+Supplier-level data is commercially sensitive — access is restricted to Ops, Procurement, and Finance
+8. Definition of Ready & Done
+Definition of Ready — a visibility task is Ready when:
+The data sources required are confirmed available and accessible
+The output and audience are defined (dashboard, alert, report)
+Refresh frequency and SLA are agreed with stakeholders
+Data quality requirements are documented
+Definition of Done — work is Done when:
+Dashboard or output is live and validated against source data
+Automated data quality checks are in place and passing
+Consumer-facing documentation (data dictionary, refresh schedule) is published in Confluence
+Stakeholders have been trained on or oriented to the new output
+9. Communication Norms
+10. Tools Access & Setup Guide
+Core Tools
+Snowflake — Supply chain data warehouse
+dbt Cloud — Data transformation
+Power BI — Supply chain dashboards
+SAP (Read-only) — ERP source data
+Jira & Confluence
+11. Your First 30 Days
+Week 1 — Orient
+Complete Data Privacy and Supplier Data Confidentiality training in NexoraLearn
+Submit Snowflake and SAP access requests on Day 1 (both require approval)
+Meet your team lead, data engineers, and onboarding buddy in 1:1s
+Review existing dashboards in Power BI to understand current visibility coverage
+Week 2 — Immerse
+Attend sprint ceremonies as an observer
+Explore the data pipeline architecture documented in Confluence: Operations > Data Architecture
+Attend an Ops Leadership Data Review to see how dashboards are used in practice
+Weeks 3–4 — Contribute
+Own one dashboard maintenance task or small enhancement (with buddy support)
+Attend your first S&OP meeting
+Complete your 30-day check-in with your manager in Workday
+12. Key Contacts
+Every pipeline you maintain and every dashboard you publish helps Nexora's operations teams see around corners. Welcome to the team.

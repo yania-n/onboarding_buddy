@@ -1,0 +1,19 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Benefits Enrolment Walkthrough  
+How to Enrol in Your Nexora Benefits
+Version 1.0   ·   2026   ·   Internal Use Only
+Your Benefits Window
+As a new joiner, you have 30 days from your start date to enrol in your benefits. After this window closes, you must wait until the annual Open Enrolment period in November. Don't miss your window.
+Step-by-Step Enrolment Guide
+Step 1 — Log into Workday
+Go to workday.nexoraglobal.com and sign in with your Nexora SSO credentials.
+Step 2 — Navigate to Benefits
+Click your profile photo (top right) > Benefits > Manage > Change Benefits. Select 'New Hire Enrolment' from the event list.
+Step 3 — Medical, Dental & Vision
+Step 4 — Life Insurance
+Basic life insurance at 4× annual salary is automatically enrolled and fully company-funded. You may purchase voluntary supplemental life for yourself and/or dependants — up to 8× salary with no medical evidence required during new hire window.
+Step 5 — Retirement / Pension
+Step 6 — Additional Benefits
+Step 7 — Review & Submit
+Review your selections, enter your dependants if applicable, confirm your beneficiary for life insurance, and click Submit. You will receive a confirmation email and a summary in Workday.

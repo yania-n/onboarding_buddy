@@ -1,0 +1,16 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Cross-Department Dependency Map  
+How Nexora's Departments Work Together
+Version 1.0   ·   2026   ·   Internal Use Only
+About This Map
+This document maps the key dependencies, handoffs, and collaboration points between Nexora's departments. It is used by the onboarding system to answer questions like 'who does IT work with?' and 'where do my requests come from?'
+Reading This Map
+From → To: the direction of a primary dependency or service
+Type: the nature of the relationship (Data, Service, Approval, Collaboration)
+Frequency: how often the interaction typically occurs
+Key contact: the role that manages the relationship on each side
+Department Dependency Matrix
+IT Department — Key Upstream & Downstream Dependencies
+IT receives from:
+IT provides to:

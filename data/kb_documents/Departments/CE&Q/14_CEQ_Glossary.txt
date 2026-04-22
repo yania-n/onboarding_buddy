@@ -1,0 +1,55 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality
+  CEQ Glossary  
+Department
+Version 1.0   ·   2026   ·   Internal Use Only
+CEQ Glossary & Terminology
+Key terms used by the Commercial Excellence & Quality department and the CX & NPS team. Used by the AI onboarding system to answer 'what does X mean?' questions.
+CSAT
+Customer Satisfaction Score — measures satisfaction with a specific interaction on a scale of 1–5 or 1–10
+CES
+Customer Effort Score — measures how easy it was for a customer to accomplish a task (e.g. resolve a support issue)
+CX
+Customer Experience — the sum of all interactions and perceptions a customer has with Nexora across their journey
+CCXP
+Certified Customer Experience Professional — professional certification from the CXPA; the gold standard CX credential
+CEQ
+Commercial Excellence & Quality — Nexora's department owning sales excellence, CX/NPS, and quality assurance
+Closed-loop
+The process of following up with Detractor respondents after an NPS survey to understand and resolve their concerns
+Cohort analysis
+Grouping customers by a shared characteristic (e.g. contract start date, product tier) and tracking NPS trends for that group over time
+CXPA
+Customer Experience Professionals Association — the global body for CX professionals; awards the CCXP certification
+Detractor
+An NPS respondent who scores 0–6 — at risk of churn and unlikely to recommend
+Dovetail
+Research repository tool used by the CEQ team to store and analyse customer interview transcripts and NPS verbatim comments
+eNPS
+Employee Net Promoter Score — the NPS methodology applied to employee experience; owned by People Analytics, not CEQ
+Journey map
+A visual representation of a customer's experience across a specific journey (e.g. onboarding) showing touchpoints, emotions, pain points, and moments of truth
+JTBD
+Jobs-to-be-Done — a research framework that focuses on the outcomes customers are trying to achieve, not just their stated needs
+Medallia
+Enterprise CX management platform — used by CEQ for deep analytics on strategic accounts
+Moment of truth
+A touchpoint in the customer journey that has a disproportionate impact on overall CX perception, positively or negatively
+NLP
+Natural Language Processing — used by the CX team to automatically tag and classify NPS verbatim comments by theme
+NPS
+Net Promoter Score — a customer loyalty metric calculated as % Promoters minus % Detractors; ranges from -100 to +100
+Passive
+An NPS respondent who scores 7–8 — satisfied but not enthusiastic; not counted in NPS calculation
+Promoter
+An NPS respondent who scores 9–10 — loyal and likely to recommend Nexora
+Qualtrics
+Survey platform used for NPS, CSAT, and CES programmes at Nexora
+r-NPS
+Relationship NPS — survey sent periodically (quarterly at Nexora) to measure overall loyalty, not tied to a specific event
+Survey fatigue
+Decline in response rates caused by too-frequent surveying; Nexora limits contacts to one survey per quarter to avoid this
+t-NPS
+Transactional NPS — survey triggered by a specific event (e.g. onboarding completion, renewal, support case closure)
+VoC
+Voice of Customer — the practice of systematically capturing and actioning customer feedback across all channels

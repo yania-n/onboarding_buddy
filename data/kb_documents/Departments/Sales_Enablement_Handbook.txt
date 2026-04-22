@@ -1,0 +1,82 @@
+NEXORA GLOBAL CORPORATION
+Sales & Business Development Department
+  Sales Enablement Team  
+Onboarding Handbook
+Your guide to the Sales Enablement Team — how we work, what we do, and how to get started.
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the Sales Enablement Team	3
+2. Team Structure & Sales Department	4
+3. The Enablement Role — What You Do	5
+4. How We Work — Sprint Cadence	6
+5. Enablement Content & Programme Flow	7
+6. Meetings & Ceremonies	8
+7. Content Standards & Version Control	9
+8. Definition of Ready & Done	10
+9. Communication Norms	11
+10. Tools Access & Setup Guide	12
+11. Your First 30 Days	13
+12. Key Contacts	14
+1. Welcome to the Sales Enablement Team
+Welcome! You've joined the Sales Enablement Team — a strategic function within Nexora's Sales & Business Development Department. We equip salespeople with the tools, content, training, and process knowledge they need to win more deals, faster.
+2. Team Structure & Sales Department
+Sales & Business Development Department
+The Sales & BD Department drives Nexora's revenue growth across all market segments and geographies. It operates across Enterprise Sales (direct large-account selling), Business Development (partnerships and new markets), and the Sales Enablement Team — which supports both.
+3. The Enablement Role — What You Do
+Core Responsibilities
+Playbook & content development
+You create and maintain the core sales content library: pitch decks, objection-handling guides, competitive battle cards, ROI calculators, proposal templates, and case studies. Content is audience-specific, up to date, and stored in the Sales Content Hub (Confluence + Highspot).
+Sales onboarding & training
+You design and run the sales onboarding programme for new hires, and deliver ongoing training on new products, messaging changes, and sales skills. Training is blended: live workshops, e-learning in NexoraLearn, and peer learning.
+CRM & tooling optimisation
+You partner with Sales Ops to ensure Salesforce is configured to support the sales process. You maintain CRM hygiene standards, create dashboards for sales managers, and identify friction points in the tool stack.
+Sales performance analytics
+You analyse win/loss data, pipeline velocity, ramp time, and content usage to identify what's working and what isn't — and use those insights to continuously improve the enablement programme.
+Key Skills
+4. How We Work — Sprint Cadence
+The Enablement Team operates in 2-week sprints. Our backlog balances reactive requests from sales leadership (new messaging, competitive responses) with proactive programme improvements.
+5. Enablement Content & Programme Flow
+6. Meetings & Ceremonies
+7. Content Standards & Version Control
+Content Standards
+All customer-facing content must be reviewed by Marketing and Legal before use — use the Content Approval workflow in Jira
+Internal sales content (playbooks, battle cards) requires Enablement Lead sign-off only
+Content naming convention: [Type]_[Audience]_[Topic]_v[X.X]_[YYYYMM] — e.g. Playbook_AE_EnterpriseSaaS_v2.1_202603
+Content stored in Highspot (primary) and Confluence (internal reference). Never in personal Google Drive.
+All content must have a review date (maximum 6 months). Stale content is archived, never deleted.
+8. Definition of Ready & Done
+Definition of Ready — a content or programme task is Ready when:
+Brief is written and approved by Enablement Lead
+Audience, format, and success metric are defined
+Subject matter expert (SME) availability confirmed for review
+Legal/compliance review requirement assessed
+Definition of Done — work is Done when:
+Content meets the brief and has been reviewed by SME and Enablement Lead
+Legal/compliance review completed where required
+Content published in Highspot with correct metadata and tags
+Sales team notified via Slack (#sales-enablement) and email where relevant
+Success metrics baseline recorded for future performance tracking
+9. Communication Norms
+10. Tools Access & Setup Guide
+Core Tools
+Highspot — Sales content management platform
+Salesforce (CRM) — Sales data and pipeline
+NexoraLearn (LMS) — Training delivery
+Jira & Confluence
+Canva for Enterprise — Visual content creation
+11. Your First 30 Days
+Week 1 — Orient
+Complete Sales Product Knowledge and Brand & Messaging training in NexoraLearn
+Submit access requests for Highspot, Salesforce, and Canva
+Meet your Enablement Lead, Sales Directors, and onboarding buddy
+Review the current sales playbook and last quarter's win/loss report in Confluence
+Week 2 — Immerse
+Shadow 2 sales calls with Account Executives to understand the field reality
+Review the Highspot content library and identify any obvious gaps
+Attend sprint ceremonies and your first Content Refinement session
+Weeks 3–4 — Contribute
+Take ownership of one content update or training module (with buddy support)
+Attend a Sales All-Hands and observe how enablement content is received
+Complete your 30-day check-in with your manager in Workday
+12. Key Contacts
+Every playbook you build and every training you run makes our salespeople sharper. Welcome to the team.

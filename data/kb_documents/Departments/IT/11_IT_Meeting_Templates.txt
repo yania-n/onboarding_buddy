@@ -1,0 +1,50 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department Meeting Templates  
+IT-Specific Ceremony Agendas & Guides
+Version 1.0   ·   2026   ·   Internal Use Only
+IT All-Hands
+Agenda Template
+IT Director opening — company context, key messages (10 min)
+Highlights from each sub-team — 3 min per team lead: one win, one challenge (20 min)
+Spotlight — one team presents a deep dive on something they built or learned (15 min)
+Metrics dashboard review — SLO performance, incident count, cost, backlog health (10 min)
+Q&A — open floor (5 min)
+Notes
+Slides prepared by IT Director and team leads. Recording posted to Confluence: IT Department > All-Hands Recordings within 24h.
+Architecture Review Board (ARB)
+Agenda Template
+Review of previous ARB actions — are items from last session closed? (5 min)
+Proposed design reviews — each presenter has 15 min: 10 min presentation, 5 min Q&A (up to 3 per session)
+Standards and principles — any proposed changes to IT architecture standards (10 min)
+Emerging topics — technology radar updates, new vendor evaluations (5 min)
+How to Submit a Design for Review
+Create a design document in Confluence (IT Department > Architecture > Proposed Designs) using the ARB Design Template. Submit to the Lead Architect at least 5 business days before the ARB you wish to present at. Designs not submitted in time will be scheduled for the following session.
+Cloud Cost Review
+Agenda Template
+Month-in-review — total cloud spend vs budget; YoY comparison (10 min)
+Spend by team / account / service — anomalies and explanations (15 min)
+Forecast — next 3 months projection vs budget (10 min)
+Optimisation actions — status of current optimisation initiatives; new recommendations (15 min)
+Decisions needed — any budget increase requests, RI/Savings Plan approvals (10 min)
+Pre-work
+FinOps Analyst sends a pre-read cost report (Power BI export) to all attendees 48 hours before the meeting.
+Security Posture Review
+Agenda Template
+CSPM dashboard review — current critical and high findings (10 min)
+Remediation progress — status of findings from last month (10 min)
+New findings — significant new issues discovered this month and response plan (10 min)
+Compliance status — SOC 2 / ISO 27001 control status; upcoming audit preparation (10 min)
+Decisions needed — any exception requests, risk acceptances (5 min)
+Sprint Review — Analytics Platform
+Agenda Template
+Sprint goal recap — what did we commit to? (2 min)
+Demos — working software only; TPO introduces each story, developer demos (25 min)
+What we didn't complete — brief explanation; what happens to the items (5 min)
+Metrics — velocity, bug count, SLO performance (5 min)
+Next sprint preview — top priorities for next sprint (5 min)
+Q&A and feedback (3 min)
+Rules
+Demo only working software — never demo code that hasn't passed DoD
+No slides for demos — use the actual product in staging
+Incomplete stories are returned to backlog without ceremony

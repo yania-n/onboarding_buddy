@@ -1,0 +1,80 @@
+NEXORA GLOBAL CORPORATION
+Customer Success Department
+  Customer Onboarding Team  
+Onboarding Handbook
+Your guide to the Customer Onboarding Team — how we work, what we do, and how to get started.
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the Customer Onboarding Team	3
+2. Team Structure & Customer Success Department	4
+3. The Onboarding Role — What You Do	5
+4. How We Work — Sprint Cadence	6
+5. Customer Onboarding Journey Flow	7
+6. Meetings & Ceremonies	8
+7. Customer Data & Privacy	9
+8. Definition of Ready & Done	10
+9. Communication Norms	11
+10. Tools Access & Setup Guide	12
+11. Your First 30 Days	13
+12. Key Contacts	14
+1. Welcome to the Customer Onboarding Team
+Welcome! You've joined the Customer Onboarding Team — a specialist team within Nexora's Customer Success Department focused entirely on getting new customers to first value as quickly and smoothly as possible.
+2. Team Structure & Customer Success Department
+Customer Success Department
+The Customer Success Department owns the post-sale customer relationship at Nexora — from the moment a contract is signed through to renewal and expansion. It operates across Account Management (retention and growth), Support & Service (issue resolution), and our team — Customer Onboarding (new customer activation).
+3. The Onboarding Role — What You Do
+Core Responsibilities
+Customer onboarding programme management
+You own the end-to-end onboarding journey for assigned customers — from the sales handoff call through to go-live sign-off. You manage the project plan, coordinate internal resources (Solutions Engineering, Customer Education), and keep the customer on track.
+Technical configuration & integration support
+Working with Solutions Engineers, you guide customers through platform configuration, data integration, and user provisioning. You are not responsible for writing code, but you must understand the technical setup well enough to track progress and manage expectations.
+Customer training delivery
+You deliver or coordinate training sessions for customer admin users and end users. Training follows the Nexora Customer Education playbook — live workshops, e-learning assets, and role-based certification programmes.
+Risk identification & escalation
+You monitor onboarding health scores and flag at-risk customers early. A customer is 'at risk' if they are more than 5 days behind plan or have an unresolved blocker. Escalate to the Onboarding Lead immediately — never wait for the weekly review.
+Key Skills
+4. How We Work — Sprint Cadence
+The Onboarding Team works in 2-week sprints. Each sprint contains a mix of active customer onboarding project milestones and team improvement work (playbook updates, new training content, process automation).
+5. Customer Onboarding Journey Flow
+6. Meetings & Ceremonies
+7. Customer Data & Privacy
+Handling Customer Data
+Customer data shared during onboarding is strictly confidential — never shared outside the project team without written customer consent
+All customer data is stored in Salesforce and the designated SharePoint customer folder — never in personal drives
+Customer contact details, contractual terms, and configuration data are classified as Confidential per Nexora's Data Governance Policy
+Any suspected data breach involving customer data must be reported to Legal immediately via legal@nexoraglobal.com
+8. Definition of Ready & Done
+An onboarding project is Ready to start when:
+Signed contract is in Salesforce and contract value is confirmed
+Sales handoff call completed and discovery notes shared in Salesforce
+Success criteria and go-live date agreed with the customer
+Internal resources (Solutions Engineer, Customer Education) confirmed available
+An onboarding is Done when:
+Customer is live on the platform and go-live checklist is signed off by customer
+All contracted training sessions delivered and attendance recorded
+30-day health score is Green (per CS health score framework)
+Formal handoff to CSM completed and documented in Salesforce
+9. Communication Norms
+10. Tools Access & Setup Guide
+Core Tools
+Salesforce — CRM and customer project management
+Gainsight — Customer health and success platform
+Nexora Analytics Platform — The product you onboard customers onto
+Jira & Confluence
+Zoom Webinars — Customer training delivery
+11. Your First 30 Days
+Week 1 — Orient
+Complete Customer Data Privacy and Salesforce training in NexoraLearn
+Submit access requests for Salesforce, Gainsight, and Analytics Platform Sandbox
+Meet your Onboarding Lead, Solutions Engineers, and onboarding buddy
+Review 2 recently completed onboarding projects in Salesforce to understand the journey
+Week 2 — Immerse
+Shadow your buddy on a live customer kickoff call and weekly check-in
+Attend sprint ceremonies and the weekly At-Risk Customer Review
+Review the Customer Onboarding Playbook in Confluence end-to-end
+Weeks 3–4 — Contribute
+Co-manage one active customer onboarding with your buddy
+Deliver your first customer training session (with buddy present)
+Complete your 30-day check-in with your manager in Workday
+12. Key Contacts
+The onboarding experience shapes a customer's entire perception of Nexora. What you do in those first weeks matters enormously. Welcome to the team.

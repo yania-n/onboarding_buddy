@@ -1,0 +1,198 @@
+NEXORA
+GLOBAL CORPORATION
+  EMPLOYEE HANDBOOK  
+2026 Edition
+Empowering People. Accelerating Innovation. Connecting the World.
+Nexora Global Corporation HQ  |  333 Innovation Drive, Austin, TX 78701
+people@nexoraglobal.com  |  www.nexoraglobal.com
+Table of Contents
+1. Welcome to Nexora	3
+2. About Nexora Global Corporation	4
+3. Our Values & Culture	5
+4. Your First 30 Days	6
+5. Employment Policies	8
+6. Compensation & Benefits	10
+7. Time Off & Leave	12
+8. Health, Safety & Wellbeing	14
+9. Code of Conduct & Ethics	15
+10. Technology & Data Policy	16
+11. Learning & Development	17
+12. Performance Management	18
+13. Global Mobility & Travel	19
+14. Contacts & Key Resources	20
+1. Welcome to Nexora
+Dear [Employee Name],
+On behalf of everyone at Nexora Global Corporation, welcome aboard! We are thrilled to have you join us. This handbook is your go-to guide for understanding how we work, what we stand for, and the support available to you as a member of our global team.
+At Nexora, we believe that our people are our greatest competitive advantage. Whether you are joining us in Austin, London, Singapore, São Paulo, or any of our 47 office locations worldwide, you are now part of a community of over 28,000 talented professionals committed to making a difference.
+This handbook covers policies, benefits, expectations, and the culture that makes Nexora unique. Please read it carefully, keep it as a reference, and reach out to your HR Business Partner or People Operations team with any questions.
+We look forward to growing together.
+Warmly,
+Dr. Amara Osei-Bonsu
+Chief People Officer, Nexora Global Corporation
+2. About Nexora Global Corporation
+Our Story
+Founded in 2001 by Elena Marchetti and David Kwon, Nexora started as a 12-person software consultancy in San Francisco. Over 25 years we have grown into a global technology and professional services powerhouse operating across five continents.
+At a Glance
+What We Do
+Nexora operates across four core business divisions:
+NexoraTech — Enterprise cloud infrastructure, cybersecurity, and AI platforms
+NexoraConsult — Strategy, transformation, and managed services for Fortune 500 clients
+NexoraData — Advanced analytics, data engineering, and business intelligence solutions
+NexoraVentures — Early-stage investment arm focused on B2B SaaS and deep tech
+Global Presence
+Our key regional hubs include Austin (Global HQ), London (EMEA HQ), Singapore (APAC HQ), and São Paulo (LATAM HQ). Each region has dedicated HR, Finance, Legal, and IT teams supporting local employees while remaining connected to our global operating model.
+3. Our Values & Culture
+Our five core values guide every decision we make — from how we serve clients to how we treat one another:
+01  Bold Innovation
+We challenge the status quo, embrace experimentation, and reward courageous thinking. Failure is a learning opportunity, not a setback.
+02  Integrity Always
+We do what we say, say what we mean, and hold ourselves accountable. Transparency is non-negotiable.
+03  Inclusive Excellence
+We hire, develop, and promote the best talent from every background. Diversity is our strength; belonging is our goal.
+04  Client Obsession
+Our clients' success is our success. We go beyond the brief to deliver outcomes that matter.
+05  Sustainable Impact
+We build for the long term — for our shareholders, our communities, and our planet. Our 2030 Net-Zero commitment guides our operations globally.
+4. Your First 30 Days
+Day 1 Checklist
+Collect your access badge from Reception and complete ID verification
+Meet your onboarding buddy — they will be in touch before your start date
+Set up your Nexora account: laptop, email (firstname.lastname@nexoraglobal.com), and Slack
+Complete mandatory Day 1 e-learning modules in NexoraLearn (see link in welcome email)
+Attend New Hire Orientation — virtual or in-person depending on your location
+Review and sign your employment contract addenda and policy acknowledgements in Workday
+Week 1 Priorities
+Complete IT security and data privacy training (required within 5 business days)
+Schedule 1:1 introductions with your manager and direct team members
+Join your team channels in Slack and attend your first team stand-up
+Review your 30/60/90-day goals with your manager in Workday
+Complete benefits enrolment in Workday (window closes after 30 days)
+Your Onboarding Team
+30/60/90-Day Framework
+All new hires at Nexora follow a structured onboarding framework:
+5. Employment Policies
+Equal Opportunity Employment
+Nexora is an equal opportunity employer. We do not discriminate on the basis of race, colour, religion, gender, gender identity, sexual orientation, age, national origin, disability, veteran status, or any other characteristic protected by applicable law.
+Employment Classification
+Work Arrangements
+Nexora operates a hybrid-first working model. Most roles offer a combination of in-office and remote work. Your arrangement will be specified in your role profile and agreed with your manager. There are three standard arrangements:
+Hybrid (default) — Minimum 2 days per week in-office; remainder remote
+Office-Based — Role requires primary office presence (e.g., lab, client site)
+Remote (approved) — Fully remote; subject to annual manager and HR review
+Probationary Period
+All new employees serve a 90-day probationary period. During this time, your manager will conduct structured check-ins at 30, 60, and 90 days. Successful completion is confirmed in writing via Workday.
+Background Checks
+Offers of employment are contingent upon satisfactory completion of a background check, including identity verification, right-to-work, employment history, and (for certain roles) criminal record and credit checks, in accordance with local law.
+Termination & Resignation
+Notice periods are defined in your individual employment contract. Standard notice periods are:
+Band 1–3 (Individual Contributor): 4 weeks
+Band 4–6 (Manager/Senior): 8 weeks
+Band 7+ (Director and above): 12 weeks
+6. Compensation & Benefits
+Pay Philosophy
+Nexora aims to pay at the 65th percentile of the relevant market for all roles. Pay is reviewed annually in Q1, with market benchmarking conducted via Radford and Mercer surveys. Off-cycle adjustments may be made following promotions.
+Payroll
+Annual Bonus
+Eligible employees participate in the Annual Performance Bonus programme. Payouts are determined by company performance, business unit performance, and individual performance ratings, assessed at year-end. Target bonus percentages by band:
+Equity
+Employees at Band 5 and above are eligible for Restricted Stock Unit (RSU) grants. RSUs vest over a 4-year cliff/monthly schedule (25% at year 1, monthly thereafter). Equity is granted upon hire and reviewed at annual performance cycles.
+Core Benefits (Global)
+Medical, dental, and vision insurance — company pays 80% of premiums
+Life insurance — 4x annual base salary, company funded
+Employee Assistance Programme (EAP) — free counselling and mental health support
+Global retirement/pension plan — Nexora matches up to 5% of salary
+Fertility and family-forming support — up to USD 10,000 lifetime benefit
+Learning stipend — USD 2,000 per year for external courses, conferences, and certifications
+7. Time Off & Leave
+Annual Leave
+Nexora provides a minimum of 25 days of paid annual leave per year (pro-rated for part-time employees). Some regions provide more in line with local law. Leave must be approved by your manager in Workday.
+Public Holidays
+Employees observe the public holidays applicable to their country of employment. A full list is available on the NexoraConnect intranet under HR > Holiday Calendar.
+Leave Types
+Leave Request Process
+Submit leave request in Workday at least 5 business days in advance (2 weeks for absences >5 days)
+Manager approves or escalates within 3 business days
+HR is automatically notified for leaves exceeding 10 consecutive days
+Sick leave: Notify your manager before your start time on Day 1 of absence
+8. Health, Safety & Wellbeing
+Workplace Safety
+Nexora is committed to providing a safe, healthy, and hazard-free working environment for all employees, contractors, and visitors. All employees must:
+Complete mandatory Health & Safety e-learning within your first 7 days
+Report accidents, near-misses, or unsafe conditions to Facilities or your manager immediately
+Familiarise yourself with emergency exits, assembly points, and fire procedures at your office location
+Mental Health & Wellbeing
+Nexora takes mental health seriously. Our global wellbeing programme, NexoraMind, provides:
+Free access to Calm and Headspace apps
+8 free counselling sessions per year via our EAP partner, Lyra Health
+Mental Health First Aiders (MHFAs) trained and available in every office
+Quarterly wellbeing webinars covering resilience, sleep, nutrition, and financial health
+Ergonomics & Remote Work
+Remote and hybrid employees are entitled to a one-time home office setup stipend of USD 500. Ergonomic equipment (desk, chair, monitor) can be requested via Facilities for all office locations. A workstation assessment can be arranged through HR upon request.
+9. Code of Conduct & Ethics
+Every Nexora employee is required to read, understand, and uphold our Code of Conduct. The full Code is available on NexoraConnect. The key principles are:
+Respect & Anti-Harassment
+Nexora maintains a zero-tolerance policy for harassment, bullying, discrimination, or any form of workplace misconduct. This applies to all interactions — in-person, virtual, or in writing. Violations will be investigated promptly and may result in disciplinary action up to and including termination.
+Conflicts of Interest
+Employees must disclose any personal, financial, or professional relationship that could create a conflict of interest with Nexora's business. Disclosures are made via the Ethics Portal in Workday. When in doubt, disclose.
+Anti-Corruption & Bribery
+Nexora complies with the US Foreign Corrupt Practices Act, the UK Bribery Act, and all applicable local anti-corruption laws. Employees must never offer, accept, or approve gifts or payments intended to influence business decisions. Gifts valued above USD 50 must be reported.
+Whistleblower Protection
+Nexora provides a confidential Ethics Hotline (available 24/7) for reporting concerns without fear of retaliation. Reports can be made anonymously. The hotline is operated by an independent third party: 1-800-555-0199 or ethics.nexoraglobal.com.
+10. Technology & Data Policy
+Acceptable Use
+Nexora provides technology tools — including laptops, mobile devices, email, Slack, and cloud services — for business use. Reasonable personal use is permitted provided it does not interfere with work, violate policy, or create security risks.
+Do not install unapproved software. All software must be approved via the IT Service Catalogue in ServiceNow.
+Do not share your Nexora credentials with anyone, including colleagues.
+Lock your screen when stepping away from your workstation.
+Use company-approved VPN when accessing Nexora systems remotely.
+Data Protection & Privacy
+Nexora processes personal data in accordance with GDPR (EU/UK), CCPA (California), and all applicable global privacy laws. Employees who handle personal data must complete mandatory Data Privacy training within their first 10 days.
+Employees must never share client, employee, or company confidential data with unauthorised parties. Data classification levels (Public, Internal, Confidential, Restricted) are defined in the Data Governance Policy on NexoraConnect.
+AI Tools Policy
+The use of generative AI tools (such as ChatGPT, Copilot, or similar) is permitted for productivity purposes but subject to the following:
+Never input Nexora Confidential or Restricted data into external AI tools
+AI-generated content must be reviewed and validated before use in client deliverables
+Approved AI tools are listed in the IT Service Catalogue; use others with prior manager approval
+11. Learning & Development
+At Nexora, continuous learning is embedded in our culture. We invest USD 1,800 per employee per year in development, above the industry average of USD 1,200.
+NexoraLearn Platform
+Our global learning management system, NexoraLearn (powered by Cornerstone), provides access to:
+12,000+ on-demand courses covering technical, business, and leadership skills
+LinkedIn Learning licence included for all employees
+Mandatory compliance and regulatory courses assigned by HR
+Role-specific learning paths curated by your division's L&D team
+External Learning Stipend
+Each employee receives USD 2,000 per calendar year for approved external development activities, including:
+Professional certifications (AWS, PMP, CFA, CIPD, etc.)
+Industry conferences and workshops
+University short courses or executive education programmes
+Requests are submitted in Workday under My Learning > External Development. Approval required from your manager and HR Business Partner.
+Mentorship & Coaching
+NexoraMentor connects employees with senior leaders for structured 6-month mentorship programmes. Additionally, Band 5+ employees may request a professional coach via the Executive Coaching Programme (subject to budget availability and HR approval).
+12. Performance Management
+Performance Cycle
+Rating Scale
+Nexora uses a 5-point rating scale:
+Continuous Feedback
+In addition to formal reviews, all employees are encouraged to request and give feedback continuously via Workday's Feedback module and our quarterly peer-recognition programme, NexoraShoutout.
+13. Global Mobility & Travel
+Business Travel
+All business travel must be pre-approved by your manager and booked through Nexora's approved travel management platform, Concur. Nexora's preferred suppliers are listed in the Travel Policy on NexoraConnect.
+Expense Reimbursement
+Submit expenses in Concur within 30 days of the trip or purchase
+All expenses above USD 50 require a receipt
+Per diem rates by country are published in the Travel Policy
+Business class travel is permitted for flights over 8 hours (Band 6+ only)
+International Assignments
+Nexora supports short-term assignments (up to 6 months) and long-term international assignments (6 months to 3 years). All assignments are managed by the Global Mobility team in partnership with HR and Legal to ensure appropriate visa, tax, and social security arrangements.
+Work-From-Abroad
+Employees may work from another country for up to 30 cumulative days per year subject to:
+Prior written approval from manager and HR Business Partner
+Compliance with local tax and immigration requirements (assessed by Global Mobility)
+No client-facing work from jurisdictions where Nexora lacks legal entity
+14. Contacts & Key Resources
+Essential Contacts
+Key Digital Platforms
+Thank you for being part of Nexora Global Corporation.
+We are excited about what we will build together.
+© 2026 Nexora Global Corporation. All rights reserved. Internal use only.

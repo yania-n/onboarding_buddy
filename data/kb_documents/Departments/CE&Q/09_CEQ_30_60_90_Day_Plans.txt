@@ -1,0 +1,52 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality
+  CEQ 30/60/90-Day Plans  
+Department
+Version 1.0   ·   2026   ·   Internal Use Only
+How to Use These Plans
+Review with your manager in Week 1. Progress reviewed at Day 30, 60, and 90 check-ins in Workday. Adjust as needed based on live business priorities.
+30/60/90-Day Plan: CX Analyst
+Days 1–30: Learn & Orient
+Complete GDPR and Qualtrics training in NexoraLearn before accessing any systems
+Submit all Day 1 access requests (Qualtrics, Power BI, Salesforce; Snowflake on Day 1 for DG queue)
+Review last 2 NPS Business Review decks in Confluence — understand the baseline scores and key themes
+Explore the NPS Scorecard dashboard in Power BI — understand what 'normal' looks like
+Shadow an NPS data processing cycle with your buddy
+Days 31–60: Immerse & Connect
+Own one data quality check cycle end-to-end (with buddy support)
+Build or enhance one Power BI chart or dashboard component
+Contribute one section of the monthly NPS narrative report
+Attend your first NPS Business Review — observe how insights are presented and questioned
+Days 61–90: Contribute & Impact
+Own the monthly NPS report data processing independently (buddy reviews output)
+Deliver one ad hoc insight request from brief to stakeholder delivery
+Propose one methodology or data quality improvement to the team
+Complete 30-day, 60-day, and 90-day check-ins in Workday
+30/60/90-Day Plan: NPS Programme Manager
+Days 1–30: Learn & Orient
+Complete GDPR, Qualtrics, and NPS Methodology training in NexoraLearn
+Shadow the full NPS survey cycle from distribution to report (read the current cycle's data daily)
+Introduce yourself to every CSM Team Lead — the closed-loop relationship depends on trust
+Review the current NPS contact exclusion list and opt-out process in Confluence
+Days 31–60: Immerse & Connect
+Co-manage the next NPS survey cycle with your buddy (you drive, buddy reviews)
+Own one closed-loop follow-up escalation from alert to resolution
+Attend a CSM team meeting to understand how NPS alerts land from their perspective
+Days 61–90: Contribute & Impact
+Run the NPS survey cycle independently
+Present one section of the NPS Business Review to the CCO and VP audience
+Propose one programme improvement (response rate, closed-loop speed, survey design)
+30/60/90-Day Plan: Journey Mapping Specialist
+Days 1–30: Learn & Orient
+Complete Research Ethics and GDPR training before any customer contact
+Read all 4 published journey maps in Miro — understand scope, methodology, and findings
+Review 30 Detractor and 30 Promoter verbatim comments from the last NPS cycle
+Shadow a customer interview session with your buddy (observe only)
+Days 31–60: Immerse & Connect
+Conduct your first 3 customer interviews independently (buddy reviews discussion guide beforehand)
+Co-facilitate a synthesis workshop with your buddy for an in-progress journey study
+Contribute one section to the next journey map update
+Days 61–90: Contribute & Impact
+Lead a full mini-journey study from brief to published map (one touchpoint in scope)
+Present findings at a CX Leadership Forum or stakeholder session
+Propose one journey improvement recommendation backed by your research

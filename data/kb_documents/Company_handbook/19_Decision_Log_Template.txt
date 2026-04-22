@@ -1,0 +1,15 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Decision Log Template  
+How to Document Decisions at Nexora
+Version 1.0   ·   2026   ·   Internal Use Only
+Why We Log Decisions
+Undocumented decisions create confusion, repeat debates, and are impossible to audit. Nexora's decision logs ensure that every significant decision — what was decided, why, who decided it, and who was consulted — is captured and accessible to anyone who needs context later.
+Decision Log Schema
+Completed Example — Analytics Platform
+Where to Store Decision Logs
+Company-wide decisions: Confluence > Company-Wide > Decision Log
+IT Department decisions: Confluence > IT Department > Decision Log
+Team-level decisions: Confluence > [Team Space] > Decision Log
+Architecture decisions (technical): use Architecture Decision Records (ADRs) in the relevant GitHub repo under /docs/adr/
+The Confluence Decision Log template is available at: Confluence > Templates > Decision Log. Click 'Create from Template' and it will auto-assign a Decision ID.

@@ -1,0 +1,37 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department Setup Checklists  
+Day 1 IT Setup by Role
+Version 1.0   ·   2026   ·   Internal Use Only
+Universal IT Setup — All IT Staff
+Complete these steps on Day 1 before anything else. If any step fails, contact IT Helpdesk (helpdesk@nexoraglobal.com or ext. 5000) immediately.
+Hardware & Accounts
+Collect or power on your laptop — confirm it is registered in Jamf/Intune (your manager can check)
+Sign in to your Nexora Microsoft account (firstname.lastname@nexoraglobal.com)
+Set up Microsoft Authenticator MFA on your phone — required before any other system access
+Open 1Password — accept the invite email and set your master password (store it safely — not in 1Password itself)
+Open Slack — sign in with your Nexora Microsoft SSO. Join your team channels (list below per role)
+Open Outlook — confirm your email is working and check your welcome email from IT
+Connect to the Nexora VPN (GlobalProtect) — installer in Self Service (Mac) or Software Centre (Windows)
+Portal Access
+Log into ServiceNow (it.nexoraglobal.com) — confirm you can see your open access requests
+Log into Workday (workday.nexoraglobal.com) — confirm your employment details, start benefits enrolment
+Log into NexoraLearn (learn.nexoraglobal.com) — confirm your mandatory training modules are assigned
+Log into NexoraConnect (connect.nexoraglobal.com) — bookmark the IT Department page
+Setup Checklist: Technical Product Owner (TPO)
+Access Requests — Submit These on Day 1
+Week 1 Checks
+Confirm Jira sprint board is visible and you can create stories
+Confirm you can read (but not edit) the Analytics Platform Confluence space
+Confirm you have been added to sprint calendar events
+Setup Checklist: Cloud Operations (SRE / FinOps / Cloud Security)
+Access Requests — Submit These on Day 1
+Critical Day 1 Actions (Cloud Ops)
+Install PagerDuty mobile app — enable push notifications AND phone call alerts
+Verify your name appears in the PagerDuty on-call schedule (your buddy or Cloud Ops Lead can confirm)
+Bookmark the Nexora Runbooks Confluence page (Cloud Ops > Runbooks)
+Open Datadog — confirm you can see the Cloud Platform Health dashboard
+Setup Checklist: Platform Engineering
+Access Requests — Submit These on Day 1
+Setup Checklist: Developer Experience (DevEx)
+Access Requests — Submit These on Day 1

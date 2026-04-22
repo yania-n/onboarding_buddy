@@ -1,0 +1,19 @@
+NEXORA GLOBAL CORPORATION
+Company-Wide
+  Payroll & Expenses  
+How to Get Paid and Submit Expenses at Nexora
+Version 1.0   ·   2026   ·   Internal Use Only
+Understanding Your Payslip
+Banking Details
+Submit your bank account details in Workday within your first 3 days to ensure your first payslip is paid on time. Navigate to: Workday > Pay > Payment Elections > Add. Nexora does not issue paper cheques.
+Submitting Expenses
+The Expense Process
+Incur a business expense (pre-approved by manager where required)
+Keep your receipt — photograph it on the day
+Log into Concur at travel.nexoraglobal.com
+Create an Expense Report: Expense > Create Report
+Add expense lines, upload receipt photos, select expense category and cost centre
+Submit for manager approval — manager must approve within 5 business days
+Finance processes approved reports within 5 business days
+Reimbursement arrives with your next payroll or as a separate bank transfer
+Expense Categories & Required Information

@@ -1,0 +1,104 @@
+NEXORA GLOBAL CORPORATION
+Commercial Excellence & Quality (CEQ)
+  Customer Experience & NPS Team  
+Onboarding Handbook
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the CX & NPS Team	3
+2. Department Structure — Three Pillars	4
+3. The CX & NPS Role — What You Do	5
+4. How We Work — Sprint Cadence	7
+5. CX Measurement & NPS Programme Flow	9
+6. Meetings & Ceremonies	11
+7. Data Standards & Governance	12
+8. Definition of Ready & Done	13
+9. Communication Norms	14
+10. Tools Access & Setup Guide	15
+11. Your First 30 Days	18
+12. Key Contacts	19
+1. Welcome to the CX & NPS Team
+Welcome! You've joined the Customer Experience & NPS Team — the insight engine of Nexora's Commercial Excellence & Quality Department. We own the measurement, understanding, and improvement of how customers experience Nexora — across every touchpoint, from first sale to long-term partnership.
+Our work is not just about scores. It's about understanding the story behind the numbers and turning that story into action that improves real customer outcomes.
+2. Department Structure — Three Pillars
+Commercial Excellence & Quality Department
+The CEQ Department drives Nexora's commercial performance and quality standards globally. It operates across three functions: Sales Excellence (methodology, training, and revenue analytics), Customer Experience & NPS (our team — measurement and insight), and Quality Assurance (product/service quality standards and compliance).
+3. The CX & NPS Role — What You Do
+Three Specialist Roles
+CX Analysts
+You own the data pipelines that feed CX metrics — NPS, CSAT, Customer Effort Score (CES), and bespoke survey programmes. You build and maintain dashboards, design surveys, run statistical analyses, and produce the regular insight reports consumed by the business. You are fluent in the numbers and comfortable challenging data quality issues at source.
+NPS Programme Managers
+You own the end-to-end NPS programme — survey design, distribution strategy, response rate optimisation, closed-loop follow-up, and programme governance. You partner with Customer Success, Sales, and Product to ensure NPS insights are acted on, not just reported. You track Nexora's NPS performance against industry benchmarks and set targets with the CCO.
+Journey Mapping Specialists
+You run qualitative and quantitative research to build and maintain Nexora's customer journey maps. You conduct customer interviews, synthesise survey data into journey narratives, identify moments of truth and pain points, and work with Product and CS to design journey improvements. Your outputs are used in strategic planning, product roadmap decisions, and sales training.
+What the CX & NPS Team Does NOT Own
+Customer relationship management (that's Customer Success)
+Sales strategy or quota setting (that's Sales Excellence and Sales Leadership)
+Product roadmap decisions (that's Product — you provide the CX evidence base)
+Quality standards and audits (that's the QA team)
+Key Skills Across the Team
+4. How We Work — Sprint Cadence
+The CX & NPS team operates in 2-week sprints. Our backlog blends recurring programme operations (monthly NPS report, quarterly journey review) with project work (new survey deployment, dashboard build, ad hoc insight request).
+5. CX Measurement & NPS Programme Flow
+How NPS Works at Nexora
+Nexora runs a Relationship NPS programme (r-NPS) quarterly across all customer accounts, and a Transactional NPS programme (t-NPS) triggered by key customer events (contract renewal, onboarding completion, support case closure).
+6. Meetings & Ceremonies
+7. Data Standards & Governance
+Survey Data Standards
+All survey instruments must be approved by the CX Team Lead and Legal (for GDPR compliance) before deployment
+Minimum response threshold: do not report segment-level NPS for groups with fewer than 10 responses
+Survey responses are stored in Qualtrics (raw) and Snowflake (processed) — never in personal drives or spreadsheets
+Customer contact data used for survey distribution is sourced from Salesforce only — never from external lists
+Verbatim Data Handling
+Customer verbatim comments are confidential — share at account level only with the relevant CSM and Account Executive
+Verbatim data must be anonymised before use in company-wide presentations or external reports
+NLP theme tagging is done programmatically — manual re-categorisation must be logged and justified
+8. Definition of Ready & Done
+An insight request is Ready when:
+The business question is stated in plain language
+The data source and access are confirmed
+The output format and audience are agreed (dashboard, slide deck, narrative report)
+Any GDPR or data minimisation considerations have been assessed
+Timeline is agreed with the requesting stakeholder
+Complexity and effort are estimated in the sprint
+Insight work is Done when:
+The analysis answers the original business question
+Output has been peer-reviewed by a team member for accuracy and methodology
+Privacy/anonymisation check completed (no < n=10 segment reporting)
+Output has been shared with and acknowledged by the requesting stakeholder
+Methodology and data sources documented in Confluence
+Jira ticket updated to 'Done'
+9. Communication Norms
+10. Tools Access & Setup Guide
+All access requests via ServiceNow (it.nexoraglobal.com). Tools marked DG require Data Governance approval (up to 3 business days).
+Survey & CX Platforms
+Qualtrics — Survey platform and NPS engine
+Medallia — Enterprise feedback management (for large account CX)
+Data & Analytics
+Salesforce — Customer and contact data
+Snowflake — CX data warehouse
+Power BI — NPS and CX dashboards
+Research & Collaboration
+Miro — Journey mapping and research synthesis
+Dovetail — Research repository
+Jira & Confluence
+11. Your First 30 Days
+Week 1 — Orient
+Complete Data Privacy and GDPR training in NexoraLearn (mandatory before accessing any survey or customer data)
+Submit Qualtrics, Salesforce, Power BI access requests on Day 1; Snowflake and Medallia on Day 1 (DG approval takes longer)
+Meet your CX Team Lead, NPS Programme Manager buddy, and team members in 1:1s
+Read the last 2 NPS Business Review decks in Confluence: CEQ > NPS Programme > Reports
+Review the current NPS Scorecard in Power BI — understand the baseline
+Week 2 — Immerse
+Shadow a closed-loop follow-up call with a CSM (observe only — your buddy arranges this)
+Review Nexora's customer journey maps in Miro: CEQ > Journey Maps
+Attend sprint ceremonies and your first Insight Refinement session
+Explore the NPS survey in Qualtrics — understand the instrument, distribution logic, and response data
+Weeks 3–4 — Contribute
+Own one insight task from brief to delivery (with buddy support)
+Attend your first NPS Business Review as an observer
+Draft one section of the monthly NPS narrative report
+Complete your 30-day check-in with your manager in Workday
+12. Key Contacts
+Every score you measure and every insight you deliver has a customer behind it.
+Welcome to the team.
+© 2026 Nexora Global Corporation — CEQ Department. Internal use only.

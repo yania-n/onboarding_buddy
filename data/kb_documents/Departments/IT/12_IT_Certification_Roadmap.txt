@@ -1,0 +1,15 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department Certification Roadmap  
+Recommended Certifications by Role and Year
+Version 1.0   ·   2026   ·   Internal Use Only
+About This Roadmap
+This roadmap defines the recommended certification path for each IT role over a 3-year horizon. All exam fees are reimbursed by Nexora on first pass via the Learning Stipend in Workday. Study time is supported — discuss with your manager how to protect time for exam preparation.
+Certification Roadmap by Role
+How to Claim Certification Reimbursement
+Pass your exam — request your digital certificate or transcript from the certification body
+In Workday, go to My Learning > External Development > Add Completed Learning
+Upload the certificate, enter the exam cost, and submit
+Your manager approves the reimbursement request in Workday within 5 business days
+Reimbursement is added to your next payroll
+Study Resources

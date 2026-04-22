@@ -1,0 +1,88 @@
+NEXORA GLOBAL CORPORATION
+HR & People Department
+  People Analytics Team  
+Onboarding Handbook
+Your guide to the People Analytics Team — how we work, what we do, and how to get started.
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the People Analytics Team	3
+2. Team Structure & How We Sit in HR	4
+3. The People Analytics Role — What You Do	5
+4. How We Work — Sprint Cadence	6
+5. Data Products & Stakeholder Flow	7
+6. Meetings & Ceremonies	8
+7. Data Governance & Ethics	9
+8. Definition of Ready & Done	10
+9. Communication Norms	11
+10. Tools Access & Setup Guide	12
+11. Your First 30 Days	13
+12. Key Contacts	14
+1. Welcome to the People Analytics Team
+Welcome! You've joined the People Analytics Team — a specialist function within Nexora's HR & People Department that turns workforce data into strategic insight. We partner with HRBPs, Talent Acquisition, and the C-suite to answer the questions that matter most about our people.
+2. Team Structure & How We Sit in HR
+The HR & People Department
+The HR & People Department at Nexora supports 28,400+ employees across 47 global offices. It operates across three major functions: HR Business Partnering (HRBPs embedded in each business unit), Talent Acquisition, and the People Analytics Team — which is our team.
+Your Role in the Ecosystem
+You are the data engine of the HR function. You don't make HR decisions — you make them better by providing the evidence base. The HRBPs and TA team bring the questions; you bring the answers.
+3. The People Analytics Role — What You Do
+Core Responsibilities
+Data product development
+You build and maintain the dashboards, datasets, and models that form the analytics layer of the HR function. Key products include: the Workforce Scorecard, Attrition Risk Model, DEI Dashboard, Talent Pipeline Report, and Manager Effectiveness Index.
+Stakeholder insight delivery
+You translate complex workforce data into clear narratives for non-technical audiences — from slide decks for the CPO to HRBP briefing packs for regional leads. You write with clarity and flag limitations honestly.
+Data governance stewardship
+People data is sensitive. You are responsible for ensuring all analytics work complies with GDPR, local privacy law, and Nexora's Data Governance Policy. You never produce reports that can identify individuals in groups below n=10.
+What You Are NOT Responsible For
+Making HR decisions (that's HRBPs and HR leadership)
+Managing employee relations cases
+Running payroll or compensation processes
+Key Skills
+4. How We Work — Sprint Cadence
+We operate in 2-week sprints following an adapted Scrum methodology. Our backlog is a mix of recurring data product maintenance, new insight requests from stakeholders, and self-initiated analytics work.
+5. Data Products & Stakeholder Flow
+How a Typical Request Flows
+6. Meetings & Ceremonies
+7. Data Governance & Ethics
+Our Data Principles
+Privacy by design: anonymise, aggregate, and minimise personal data at every step
+No individual identification in any group smaller than 10 people
+All data access is role-based and logged — request access via ServiceNow
+Never export employee-level data to personal devices or unapproved tools
+Any privacy incident must be reported to the Data Governance team within 24 hours
+8. Definition of Ready & Done
+Definition of Ready — an analytics request is Ready when:
+The business question is clearly stated in plain language
+Data sources are identified and access confirmed
+Output format and audience are agreed (dashboard, slide deck, CSV, etc.)
+Privacy and disclosure risks have been assessed
+Timeline is agreed with the requestor
+Definition of Done — work is Done when:
+Analysis answers the original business question
+Output has been peer-reviewed by another team member
+Privacy check completed (no individual identification risk)
+Documentation added to Confluence (methodology, caveats, data sources)
+Output delivered to and acknowledged by the requestor
+9. Communication Norms
+10. Tools Access & Setup Guide
+Core Tools
+Jira — Sprint and backlog management
+Snowflake — HR data warehouse (read-only)
+Power BI — Dashboard authoring and consumption
+Workday Reporting Module — HR source data
+Confluence — Documentation
+11. Your First 30 Days
+Week 1 — Orient
+Complete GDPR / Data Privacy training in NexoraLearn (mandatory before any data access)
+Meet your Analytics Lead, team members, and onboarding buddy in 1:1s
+Submit all access requests in ServiceNow (including DG-required ones)
+Read the People Analytics Team Charter and Data Dictionary in Confluence
+Week 2 — Immerse
+Attend your first sprint ceremonies as an observer
+Explore the Power BI dashboards currently in production
+Shadow a data refinement session to understand how requests are scoped
+Weeks 3–4 — Contribute
+Take ownership of one analytics request from scoping to delivery (with buddy support)
+Attend your first HRBP Monthly Sync
+Complete your 30-day check-in with your manager in Workday
+12. Key Contacts
+Welcome to the team. Every dashboard you build, every model you train, and every insight you share helps Nexora make better decisions about its most important asset — its people.

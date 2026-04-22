@@ -1,0 +1,37 @@
+NEXORA GLOBAL CORPORATION
+IT Department
+  IT Department FAQ  
+Frequently Asked Questions for IT New Joiners
+Version 1.0   ·   2026   ·   Internal Use Only
+About This FAQ
+This FAQ covers the most common questions from new IT team members at Nexora. It is the primary document queried by the AI onboarding system for IT-specific questions. Updated quarterly from new joiner survey responses.
+Q1. How do I get access to a tool or system?
+Submit an access request via ServiceNow (it.nexoraglobal.com). Search for the tool name, complete the form, and your manager will receive an approval notification. Most standard tools provision within 24 hours of manager approval. Tools requiring Data Governance (DG) approval take up to 3 business days — submit these on Day 1.
+Q2. My AWS access isn't working — what do I do?
+First check ServiceNow to confirm your request was approved. If approved but still not working, contact the IT Helpdesk (helpdesk@nexoraglobal.com or ext. 5000) and quote your ServiceNow ticket number. For urgent production issues, also ping #cloud-ops-team in Slack.
+Q3. How do I submit an infrastructure change?
+Determine whether your change is Standard (pre-approved — no CAB needed, deploy via PR), Normal (needs CAB approval — submit Tuesday for Thursday CAB), or Emergency (P1 remediation — CAB Chair phone approval). Submit normal and emergency changes via ServiceNow > Change Management. See the IT Process Maps & SOPs document for the full process.
+Q4. When will I be added to the on-call rota?
+SREs and Cloud Security Engineers join the on-call rotation after 30 days on the team, shadowing 2 full on-call weeks, and being signed off by the Cloud Ops Lead. You will not be paged before you are ready. Speak to the Cloud Ops Lead if you feel ready before the 30-day mark.
+Q5. What's the difference between a P1 and a P2 incident?
+P1 = full service outage or data loss risk — respond in 5 minutes, open an incident bridge, notify IT Director within 30 minutes. P2 = significant degradation affecting multiple users — respond within 30 minutes, open a Slack incident channel. See the IT Escalation Paths document for full details.
+Q6. How do I access the Analytics Platform staging environment?
+Submit a Data Platform > Analytics Platform > TPO/Product access request in ServiceNow. This requires Data Governance approval (up to 3 business days). Once approved, access staging at analytics-staging.nexoraglobal.com. NEVER use production data for testing — use the synthetic dataset in staging (see Confluence: Analytics Platform > Staging Test Data Guide).
+Q7. Where do I find runbooks?
+All runbooks are in Confluence: Cloud Ops > Runbooks (for Cloud Infrastructure) or Analytics Platform > Runbooks (for platform issues). If a runbook is missing for a common scenario, that is a gap to be fixed — create a Jira ticket with the label 'runbook-needed'.
+Q8. How do I write a user story?
+User stories follow the format: 'As a [user type], I want [action] so that [benefit]'. Acceptance criteria must be written before the story can be 'Ready'. Each story must be estimated by the development team and fit within a single sprint. See the TCP Team Handbook and the Definition of Ready in the IT Process Maps & SOPs document.
+Q9. What is the Nexora Data Catalogue and how do I access it?
+The Nexora Data Catalogue is the master reference for all data assets — schemas, lineage, data owners, and data classifications. It is essential for writing accurate acceptance criteria for data-related stories. Access via DataCatalogue.nexoraglobal.com — request access via ServiceNow > Data Platform > Data Catalogue (DG approval required, up to 3 days).
+Q10. Where are architecture decisions documented?
+Architecture decisions are stored in two places: (1) Architecture Decision Records (ADRs) for code-level decisions — in the /docs/adr/ folder of the relevant GitHub repo; (2) Decision Log in Confluence (IT Department > Decision Log) for broader architectural and product decisions. See the Decision Log Template document for how to create a new entry.
+Q11. How do I raise a cloud security concern?
+For immediate security incidents (suspected breach, exposed credentials, active attack): email dpo@nexoraglobal.com immediately and call the IT Security Hotline on ext. 5001. For non-urgent findings (misconfiguration in CSPM, policy violation): create a Jira ticket in the Cloud Security board with the label 'security-finding' and notify the Cloud Security team in #cloud-security-alerts.
+Q12. What is the process for getting a new cloud account provisioned?
+Raise a ServiceNow request: Cloud Access > New AWS Account. Include the business justification, intended workloads, team owner, and cost centre. Platform Engineering provisions new accounts within 5 business days. All accounts are created from the Nexora account factory (Terraform-based) with baseline security controls pre-applied.
+Q13. How does certification funding work?
+Nexora reimburses exam fees for approved certifications on first pass — second attempt is at your own expense. Certifications must be in your approved learning path or explicitly agreed with your manager. Submit reimbursement via Workday > My Learning > External Development after passing. Exam fees are not reimbursed if you fail.
+Q14. Who do I talk to if I'm unclear about a data classification?
+Contact the Data Governance team at data.governance@nexoraglobal.com. You can also check the Data Classification section in the Policy Library document for the four classification levels (Public, Internal, Confidential, Restricted). When in doubt, treat data as one level higher than you think — it is easier to downgrade than to undo a breach.
+Q15. What Slack channels should I be in as an IT team member?
+At minimum: #cloud-platform (all cloud & IT), #it-engineering (IT-wide). Then your sub-team channel: #cloud-ops-team, #tcp-team, #devex-team, or #itsm-team. Also join #cloud-incidents and #cloud-security-alerts as monitors — you don't need to post, but you should see these. See your role's IT Setup Checklist for the full recommended list.

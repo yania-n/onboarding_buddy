@@ -1,0 +1,91 @@
+NEXORA GLOBAL CORPORATION
+Finance & Accounting Department
+  Financial Planning & Analysis (FP&A) Team  
+Onboarding Handbook
+Your guide to the Financial Planning & Analysis (FP&A) Team — how we work, what we do, and how to get started.
+Version 1.0   ·   2026   ·   Internal Use Only
+Table of Contents
+1. Welcome to the FP&A Team	3
+2. Team Structure & Finance Department	4
+3. The FP&A Role — What You Do	5
+4. How We Work — Planning Cycles & Sprints	6
+5. Financial Planning Flow	7
+6. Meetings & Ceremonies	8
+7. Data, Models & Version Control	9
+8. Definition of Ready & Done	10
+9. Communication Norms	11
+10. Tools Access & Setup Guide	12
+11. Your First 30 Days	13
+12. Key Contacts	14
+1. Welcome to the FP&A Team
+Welcome! You've joined the Financial Planning & Analysis (FP&A) team — the analytical engine of Nexora's Finance & Accounting Department. We own the forecasting, budgeting, and business partnering processes that keep every business unit financially accountable and strategically aligned.
+2. Team Structure & Finance Department
+The Finance & Accounting Department
+Finance at Nexora operates across three pillars: Accounting & Reporting (financial controls, statutory reporting, management accounts), Treasury & Risk (cash management, FX hedging, insurance), and FP&A — our team — which owns planning, forecasting, and commercial finance partnering.
+Your Position
+As an FP&A team member, you sit at the intersection of finance and commercial strategy. You partner with business units to build their plans, challenge their assumptions, and ensure their numbers tell a coherent story to the CFO and Board.
+3. The FP&A Role — What You Do
+Core Responsibilities
+Financial forecasting & budgeting
+You own or support the annual budget process and rolling quarterly forecasts for assigned business units. This includes working with budget holders to build bottom-up plans, applying top-down assumptions, and producing consolidated views for CFO review.
+Business partnering
+You are the finance voice in your assigned business units. You attend leadership meetings, challenge commercial assumptions, flag risks and opportunities early, and translate P&L performance into actionable insight for non-finance audiences.
+Financial modelling & scenario analysis
+You build and maintain Excel/Python models for planning cycles, M&A analysis, investment cases, and strategic scenarios. Models follow Nexora's Model Standards (see Confluence) — structured, version-controlled, and peer-reviewed.
+Management reporting
+You contribute to monthly and quarterly management packs — executive-level reporting that summarises financial performance vs plan, forecast vs actuals, and key business KPIs.
+What You Are NOT Responsible For
+Statutory accounting, audit, or tax (Accounting & Reporting team)
+Treasury operations or cash management (Treasury & Risk team)
+Accounts payable or payroll processing
+Key Skills
+4. How We Work — Planning Cycles & Sprints
+FP&A operates on two time horizons simultaneously: the annual planning calendar (budget, forecasts, board packs) and 2-week sprints for analytical and modelling work. Both are tracked in Jira.
+Annual Planning Calendar
+2-Week Sprint Cadence
+5. Financial Planning Flow
+6. Meetings & Ceremonies
+7. Data, Models & Version Control
+Model Standards
+All financial models must follow the Nexora Model Standards Guide (Confluence: Finance > Model Standards)
+Models are stored in SharePoint: Finance > FP&A > Models > [Year] > [BU Name]
+Version naming: ModelName_vX.X_YYYYMMDD.xlsx — never overwrite the previous version
+Every model requires a peer review sign-off before being shared outside the team
+Assumptions must be documented on a dedicated 'Assumptions' tab in every model
+Data Sources
+8. Definition of Ready & Done
+Definition of Ready — a modelling task is Ready when:
+The output, audience, and decision it supports are clearly defined
+All required data sources are identified and accessible
+Assumptions and methodology are documented before modelling begins
+Complexity and effort are estimated (story points or hours)
+Definition of Done — work is Done when:
+Output answers the original business question with traceable numbers
+Peer review completed and sign-off documented in Confluence
+Model stored in SharePoint with correct version naming
+Output shared with and acknowledged by the requesting stakeholder
+Jira ticket updated to 'Done'
+9. Communication Norms
+10. Tools Access & Setup Guide
+Core Finance Tools
+SAP S/4HANA — Financial ERP (read-only for analysts)
+Anaplan — Financial planning & consolidation platform
+Power BI — Management reporting dashboards
+SharePoint — Model and document repository
+Jira & Confluence
+11. Your First 30 Days
+Week 1 — Orient
+Complete Financial Systems and Data Confidentiality training in NexoraLearn
+Submit all access requests (SAP and Anaplan are priority)
+Meet your FP&A Lead, Finance BPs, and onboarding buddy
+Read the current quarter's forecast pack and last annual budget summary in SharePoint
+Week 2 — Immerse
+Shadow a BU leadership meeting with your Finance BP buddy
+Review the Nexora Model Standards Guide in Confluence
+Attend sprint planning and your first model review session
+Weeks 3–4 — Contribute
+Own one modelling or analysis task from brief to delivery (with buddy support)
+Attend a CFO monthly review session as an observer
+Complete your 30-day check-in with your manager in Workday
+12. Key Contacts
+Every forecast you build and every analysis you deliver helps Nexora allocate its resources to where they create the most value. Welcome to the team.
